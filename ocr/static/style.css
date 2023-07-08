@@ -1,0 +1,46 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+
+button:hover {
+    background: #5132cc;
+    color: #eaeaea;
+    transition: all 0.3s ease-in-out;
+}
+
+.video-container {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    overflow: hidden;
+    padding-top: 20px;
+    padding-left: 20px;
+}
+
+.image-display-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    grid-gap: 10px;
+}
+
+.image-display-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.image-display-container img:hover {
+    transform: scale(1.1);
+    transition: all 0.3s ease-in-out;
+}
+
+

@@ -75,6 +75,9 @@ def do_users_update(request,roll):
 
     project.save()
     return redirect("/project/home")
+
+
+
     
 
 

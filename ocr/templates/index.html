@@ -1,0 +1,221 @@
+
+{% load static %}
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>OCR App</title>
+    
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+</head>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
+<script>
+    $(document).ready(function() {
+        var video = document.getElementById('video');
+        var openCameraBtn = document.getElementById('open-camera-btn');
+        var uploadImageBtn = document.getElementById('upload-image-btn');
+        var uploadImageInput = document.getElementById
+        ('upload-image-input');
+        var resetCameraBtn = document.getElementById('reset-camera-btn');
+        var image = document.getElementById('captured-image');
+        var ocrBtn = document.getElementById('ocr-btn');
+        var text = document.getElementById('text');
+        var tag = document.getElementById('tag');
+
+        openCameraBtn.addEventListener('click', function() {
+            fetch("{% url 'initialize_camera' %}")
+                .then(response => {
+                    if (response.ok) {
+                        video.src = "{% url 'livefe' %}";
+                        image.style.display = 'none';
+                    }
+                });
+        });
+
+        uploadImageBtn.addEventListener('click', function() {
+            uploadImageInput.click();
+        });
+
+        uploadImageInput.addEventListener('change', function(event) {
+            var file = event.target.files[0];
+            var reader = new FileReader();
+
+            reader.onload = function() {
+                video.src = reader.result;
+                image.src = reader.result;
+                image.style.display = 'block';
+            };
+
+            reader.readAsDataURL(file);
+        });
+
+       
+
+
+
+
+        // resetCameraBtn.addEventListener('click', function() {
+        //     video.src = "{% url 'reset_camera' %}";
+        //     //video.src = "";
+        // });
+
+        resetCameraBtn.addEventListener('click', function() {
+            fetch("{% url 'reset_camera' %}")
+                .then(response => {
+                    if (response.ok) {
+                        video.src = "";
+                        image.src = "";
+                        image.style.display = 'none';
+                    }
+                });
+        });
+
+        // fetch("{% url 'display_file_capture' %}")
+        //     .then(response => {
+        //         if (response.ok) {
+        //             image.src = response.url;
+        //             image.style.display = 'block';
+        //             text_url = response.url;
+        //         }
+        //     });
+
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'w') {
+                fetch("{% url 'display_file_capture' %}")
+                    .then(response => {
+                        if (response.ok) {
+                            image.src = response.url;
+                            image.style.display = 'block';
+                        }
+                    });
+            }
+        });
+
+        // function updateImage() {
+        //     fetch("{% url 'display_file_capture' %}")
+        //         .then(response => {
+        //             if (response.ok) {
+        //                 image.src = response.url;
+        //                 image.style.display = 'block';
+        //                 text_url = response.url;
+        //             }
+        //         });
+        // }
+
+        // setInterval(updateImage, 5000);
+
+        
+
+        ocrBtn.addEventListener('click', function() {
+            fetch("{% url 'ocr' %}")
+                .then(response => {
+                    if (response.ok) {
+                        return response.json();
+                    }
+                })
+                .then(data => {
+                    text.innerHTML = data.text;
+                    tag.innerHTML = data.tag;
+                });
+        });
+
+        
+
+        
+    
+
+    
+
+    });
+
+
+
+</script>
+<body>
+    <h1>OCR</h1>
+
+    
+
+    
+
+    <div class="container text-center">
+        <div class="row">
+            <div class="col">
+                <button id="open-camera-btn" class="btn btn-primary">Open Camera</button>
+            </div>
+            <div class="col">
+                <button id="reset-camera-btn" class="btn btn-secondary">Reset Camera</button>
+            </div>
+            <div class="col">
+                <input type="file" id="upload-image-input" style="display: none;">
+                <button id="upload-image-btn" class="btn btn-primary">Upload Image</button>
+            </div>
+        </div>
+
+    </div>
+    
+    <!-- <div id="video-container" class="video-container">
+        <img src="" alt="Camera Stream" id="video">
+    </div>
+
+
+    <div id="image-container">
+        <img src="" alt="Captured Image" id="captured-image">
+    </div>
+    <button id="ocr-btn">OCR</button>
+    {% if text %}
+    <div id="text-container">
+        <p id="text">{{ text }}</p>
+    </div>
+    {% endif %} -->
+
+    <div class="row pt-5">
+        <div class="col">
+            <div id="video-container" class="video-container">
+                <img src="" alt="Camera Stream" id="video">
+            </div>
+        </div>
+        <div class="col">
+            <div id="image-container">
+                <img src="" alt="Captured Image" id="captured-image">
+            </div>
+            
+            <!-- OCR button and show text -->
+            <div class="row pt-5">
+                <div class="col">
+                    <button id="ocr-btn" class="btn btn-success btn-lg">OCR</button>
+                </div>
+                <div class="col">
+                    <div id="text-container">
+                        <p id="text"></p>
+                        <p id="tag"></p>
+                    </div>
+                </div>
+            </div>
+   
+
+
+
+
+
+        </div>
+
+
+    </div>
+    
+
+
+
+
+    
+
+
+</body>
+
+
+
+
+</html>
