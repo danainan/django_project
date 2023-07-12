@@ -50,6 +50,10 @@
             };
 
             reader.readAsDataURL(file);
+
+
+
+            
         });
 
        
@@ -150,12 +154,24 @@
                 <button id="reset-camera-btn" class="btn btn-secondary">Reset Camera</button>
             </div>
             <div class="col">
-                <input type="file" id="upload-image-input" style="display: none;">
                 <button id="upload-image-btn" class="btn btn-primary">Upload Image</button>
+                <input type="file" id="upload-image-input" accept="image/*" style="display: none;">
             </div>
         </div>
 
+       
+
     </div>
+
+    <form action="upload_img" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input type="file" accept="image/*" alt="file_image" name="file_image" id="file_image">
+        <button>upload</button>
+    </form>
+
+    {% if request.session.file_image %}
+    <img src="{{ MEDIA_URL }}{{ request.session.file_image }}" alt="Uploaded Image">
+    {% endif %}
     
     <!-- <div id="video-container" class="video-container">
         <img src="" alt="Camera Stream" id="video">

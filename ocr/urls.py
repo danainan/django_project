@@ -8,6 +8,8 @@ urlpatterns = [
         path('initialize_camera', initialize_camera, name='initialize_camera'),
         path('display_file_capture', display_file_capture, name='display_file_capture'),
         path('ocr', ocr, name='ocr'),
+        path('upload_img', upload_img),
+
 
 
         

@@ -1,5 +1,5 @@
 # from camera import *
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import StreamingHttpResponse, HttpResponse, FileResponse
 from django.views.decorators import gzip
 import cv2
@@ -21,6 +21,10 @@ import keyboard
 from django.conf import settings
 from django.http import JsonResponse
 from bs4 import BeautifulSoup
+from .forms import ImageUploadForm
+import numpy as np
+from django.core.files.storage import FileSystemStorage
+
 
 
 def index(request, *args, **kwargs):
@@ -89,7 +93,23 @@ class VideoCamera(object):
             status["new_image_available"] = True
                 
 
-  
+def upload_img(request):
+    media_path = os.path.join(settings.MEDIA_ROOT, 'capture.jpg')
+    os.remove(media_path)
+
+    if request.method == 'POST':
+        upload_image = request.FILES.get('file_image')
+        media_path = os.path.join(settings.MEDIA_ROOT, 'capture.jpg')
+        
+        if upload_image:
+            fs = FileSystemStorage()
+            filename = fs.save("capture.jpg",upload_image)
+            request.session['file_image'] = filename
+        return redirect ("/ocr/")
+    
+
+
+
              
 
             
