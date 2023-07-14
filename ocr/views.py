@@ -29,7 +29,8 @@ from django.core.files.storage import FileSystemStorage
 
 def index(request, *args, **kwargs):
 
-    return render(request, 'index.html')
+    return render(request, 'index.html', {})
+    
 
 
 status = {"new_image_available": False}
@@ -88,9 +89,21 @@ class VideoCamera(object):
             cv2.imwrite(media_path, self.frame)
             # # VideoCamera.__del__(self)
             # self.release_camera()
-            cv2.waitKey(0)
+            
+            cv2.waitKey(1)
             cv2.destroyAllWindows()
             status["new_image_available"] = True
+
+    def send_image(self,request):
+        media_path = os.path.join(settings.MEDIA_ROOT , 'capture.jpg')
+        with open(media_path, 'rb') as image_file:
+            encoded_image = base64.b64encode(image_file.read()).decode('utf-8')
+            self.release_camera()
+            return render(request, 'index.html', {'encoded_image': encoded_image},{'captured-image': encoded_image})
+
+
+
+        
                 
 
 def upload_img(request):
@@ -107,20 +120,16 @@ def upload_img(request):
             fs = FileSystemStorage()
             filename = fs.save("capture.jpg",upload_image)
             request.session['file_image'] = filename
+            with open(media_path, 'rb') as image_file:
+                encoded_image = base64.b64encode(image_file.read()).decode('utf-8')
+            return render(request, 'index.html', {'encoded_image': encoded_image})
+            
+
         return render(request, 'index.html')
     
 
 
-
-             
-
-            
-
-    
-            
-         
-
-def gen(camera):
+def gen(camera, request):
     # if camera is None:
     #     camera = VideoCamera()
 
@@ -130,31 +139,26 @@ def gen(camera):
               b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
         if  keyboard.is_pressed('q'):
             camera.save_img()
-            camera.release_camera()
-            camera.initialize_camera()
-            status["new_image_available"] = True
-        if status["new_image_available"]:
-            media_path = os.path.join(settings.MEDIA_ROOT, 'capture.jpg')
-            if os.path.exists(media_path):
-                with open(media_path, 'rb') as f:
-                    image_data = f.read()
-                    status["new_image_available"] = False
-                    yield image_data
+            camera.send_image(request)
+            
+            # media_path = os.path.join(settings.MEDIA_ROOT , 'capture.jpg')
+            # status["new_image_available"] = True
+            # with open(media_path, 'rb') as image_file:
+            #     encoded_image = base64.b64encode(image_file.read()).decode('utf-8')
+            #     return render(request, 'index.html', {'encoded_image': encoded_image})
+        
 
-
-def display_file_capture(request):
-    media_path = os.path.join(settings.MEDIA_ROOT, 'capture.jpg')
-    response = FileResponse(open(media_path, 'rb'), content_type='image/jpeg')
-    return response
-
+def capture(request):
+    media_path = os.path.join(settings.MEDIA_ROOT , 'capture.jpg')
+    if os.path.exists(media_path):
+        with open(media_path, 'rb') as image_file:
+            encoded_image = base64.b64encode(image_file.read()).decode('utf-8')
+            return render(request, 'index.html', {'encoded_image': encoded_image})
+        
+    else:
+        return render(request, 'index.html')
     
 
-def reset_camera(request):
-    if 'camera' in request.session:
-        camera = request.session['camera']
-        camera.release_camera()
-        del request.session['camera']
-    return render(request, 'index.html')
 
 def initialize_camera(request):
     if 'camera' in request.session:
@@ -169,7 +173,7 @@ def initialize_camera(request):
 def livefe(request):
     try:
         cam = VideoCamera()
-        return StreamingHttpResponse(gen(cam),content_type="multipart/x-mixed-replace;boundary=frame")
+        return StreamingHttpResponse(gen(cam, request),content_type="multipart/x-mixed-replace;boundary=frame")
     except:
         pass
 
