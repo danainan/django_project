@@ -6,6 +6,10 @@ from django.contrib.auth import logout as auth_logout
 from django.http import HttpResponse
 
 
+def index(request):
+    return render(request, 'std/index.html')
+
+
 def login(request):
     if request.method == 'POST':
         username = request.POST.get('username')
@@ -18,6 +22,8 @@ def login(request):
             return HttpResponse("Username or password is incorrect!!!")
         
     return render(request, 'std/login.html')
+
+
 
 def logout(request):
     auth_logout(request)
@@ -75,6 +81,10 @@ def do_users_update(request,roll):
 
     project.save()
     return redirect("/project/home")
+
+def rooms_add(request):
+    return render(request, 'std/add_room.html', {})
+
 
 
 

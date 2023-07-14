@@ -47,7 +47,7 @@
 </head>
 <body>
 {% include 'std/navbar.html' %}
-<h1 class="text-center my-3">Create Users</h1>
+<h1 class="text-center my-3">เพิ่มสมากชิกในหอพัก</h1>
 <div class="container">
     <div class="row">
         <div class="col-md-6 offset-md-3">
@@ -57,24 +57,25 @@
                         {% csrf_token %}
                         <div class="md-3">
                             <div class="md-3">
-                                <label for="firstname">Name</label>
-                                <input name="project_firstname" type="text" id="firstname" class="form-control" placeholder="Enter your first name">
+                                <label for="firstname">ชื่อ</label>
+                                <input name="project_firstname" type="text" id="firstname" class="form-control" placeholder="ชื่อผู้อาศัย">
                             </div>
                             <div class="md-3">
-                                <label for="last_name">Last Name</label>
-                                <input name="project_last_name" type="text" id="last_name" class="form-control" placeholder="Enter your last name">
+                                <label for="last_name">นามสกุล</label>
+                                <input name="project_last_name" type="text" id="last_name" class="form-control" placeholder="นามสกุลผู้อาศัย">
                             </div>
                             <div class="md-3">
-                                <label for="email">Email</label>
-                                <input name="project_email" type="text" id="email" class="form-control" placeholder="Enter your email">
-                            </div>
-                            <div class="md-3">
-                                <label for="room_num">Room number</label>
-                                <input name="project_room_num" type="text" id="room_num" class="form-control" placeholder="Enter your room number">
+                                <label for="room_num">ห้องพัก</label>
+                                <!-- <input name="project_room_num" type="text" id="room_num" class="form-control" placeholder="ห้องพัก"> -->
+                                <select name="room_num" id="room_num">
+                                    {% for room in rooms %}
+                                        <option value="{{ room.room_num }}">{{ room.room_num }}</option>
+                                    {% endfor %}
+                                </select>
                             </div>
                             <div class="container my-3">
                                 <button class="btn btn-primary">
-                                    Create User
+                                    บันทึกข้อมูล
                                 </button>
                             </div>
 

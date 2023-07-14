@@ -35,7 +35,7 @@ def index(request, *args, **kwargs):
 status = {"new_image_available": False}
 class VideoCamera(object):
     def __init__(self):
-        self.video = cv2.VideoCapture(1, cv2.CAP_DSHOW)
+        self.video = cv2.VideoCapture(0, cv2.CAP_DSHOW)
         # self.video.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
         # self.video.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
         # self.video.set(cv2.CAP_PROP_FPS, 30)
@@ -59,7 +59,7 @@ class VideoCamera(object):
     def initialize_camera(self):
         self.release_camera()
         # cv2.CAP_DSHOW
-        self.video = cv2.VideoCapture(1, cv2.CAP_DSHOW)
+        self.video = cv2.VideoCapture(0, cv2.CAP_DSHOW)
 
     def get_frame(self):
         # image = self.frame
@@ -95,17 +95,19 @@ class VideoCamera(object):
 
 def upload_img(request):
     media_path = os.path.join(settings.MEDIA_ROOT, 'capture.jpg')
-    os.remove(media_path)
+   
 
     if request.method == 'POST':
+        if os.path.exists(media_path):
+            os.remove(media_path)
         upload_image = request.FILES.get('file_image')
-        media_path = os.path.join(settings.MEDIA_ROOT, 'capture.jpg')
-        
+    
+    
         if upload_image:
             fs = FileSystemStorage()
             filename = fs.save("capture.jpg",upload_image)
             request.session['file_image'] = filename
-        return redirect ("/ocr/")
+        return render(request, 'index.html')
     
 
 
