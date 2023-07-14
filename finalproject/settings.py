@@ -32,6 +32,8 @@ DEBUG = True
 ALLOWED_HOSTS = []
 
 
+
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -43,7 +45,6 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "project",
     "ocr",
-    "defualtindex"
 ]
 
 MIDDLEWARE = [
@@ -138,3 +139,4 @@ STATIC_URL = "static/"
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+# ALLOWED_HOSTS = ['71a1-202-28-68-33.ngrok-free.app']

@@ -139,13 +139,14 @@
 
 </script>
 <body>
-    <h1>OCR</h1>
-
-    
-
-    
-
-    <div class="container text-center">
+    <div class="container">
+        <div class="heading-container">
+            <h1 class="ocr-heading">OCR </h1>
+        </div>
+    </div>
+    <div class="col text-center">
+        <h5 class="ocr-heading">Choose how to import images.</h5>
+    </div>
         <div class="row">
             <div class="col">
                 <button id="open-camera-btn" class="btn btn-primary">Open Camera</button>
@@ -154,25 +155,28 @@
                 <button id="reset-camera-btn" class="btn btn-secondary">Reset Camera</button>
             </div>
             <div class="col">
-                <button id="upload-image-btn" class="btn btn-primary">Upload Image</button>
-                <input type="file" id="upload-image-input" accept="image/*" style="display: none;">
+                <form action="upload_img" method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <input type="file" accept="image/*" alt="file_image" name="file_image" id="file_image">
+                    <button id="upload-image-btn" class="btn btn-primary">Upload Image</button>
+                </form>
             </div>
         </div>
 
        
 
-    </div>
+    
 
-    <form action="upload_img" method="post" enctype="multipart/form-data">
+    <!-- <form action="upload_img" method="post" enctype="multipart/form-data">
         {% csrf_token %}
         <input type="file" accept="image/*" alt="file_image" name="file_image" id="file_image">
-        <button>upload</button>
+        <button id="upload-image-btn" class="btn btn-primary">upload</button>
     </form>
 
     {% if request.session.file_image %}
     <img src="{{ MEDIA_URL }}{{ request.session.file_image }}" alt="Uploaded Image">
     {% endif %}
-    
+     -->
     <!-- <div id="video-container" class="video-container">
         <img src="" alt="Camera Stream" id="video">
     </div>
@@ -196,8 +200,9 @@
         </div>
         <div class="col">
             <div id="image-container">
-                <img src="" alt="Captured Image" id="captured-image">
+                <img src="" alt="Captured Image" id="captured-image" width="500" height="300">
             </div>
+         
             
             <!-- OCR button and show text -->
             <div class="row pt-5">
@@ -211,7 +216,7 @@
                     </div>
                 </div>
             </div>
-   
+            
 
 
 
@@ -221,7 +226,49 @@
 
 
     </div>
+    <style>
+        body {
+            background-color: #EAE6DF;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 10px;  
+            font-size: 48px;
+            font-weight: bold;
+            color: #622A1F;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4);
+        }
     
+        .heading-container {
+            display: flex;
+            padding: 50px;
+            background-color: #ffffff;
+            border: 2px solid #964D32;
+            border-radius: 16px;
+            justify-content: center;
+            align-items: center;
+            height: 12vh;
+            width: 400px;
+        }
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-top: 20px;
+        }
+        .col {
+            margin-bottom: 5px;
+            border: 2px solid #5e5252;
+            border-radius: 8px;
+            padding: 20px;
+            background-color: #B0B0B0;
+            margin: 10px;
+        }
+    
+        
+    
+    </style>    
 
 
 
