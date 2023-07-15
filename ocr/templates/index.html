@@ -12,6 +12,7 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
+<script src="https://kit.fontawesome.com/b56c1cd1e7.js" crossorigin="anonymous"></script>
 <script>
     $(document).ready(function() {
         var video = document.getElementById('video');
@@ -35,81 +36,17 @@
                 });
         });
 
-        uploadImageBtn.addEventListener('click', function() {
-            uploadImageInput.click();
+        resetCameraBtn.addEventListener('click', function() {
+            video.src = "";
+            image.src = "";
         });
 
-        uploadImageInput.addEventListener('change', function(event) {
-            var file = event.target.files[0];
-            var reader = new FileReader();
-
-            reader.onload = function() {
-                video.src = reader.result;
-                image.src = reader.result;
-                image.style.display = 'block';
-            };
-
-            reader.readAsDataURL(file);
-
-
-
-            
-        });
+    
 
        
 
+        
 
-
-
-        // resetCameraBtn.addEventListener('click', function() {
-        //     video.src = "{% url 'reset_camera' %}";
-        //     //video.src = "";
-        // });
-
-        resetCameraBtn.addEventListener('click', function() {
-            fetch("{% url 'reset_camera' %}")
-                .then(response => {
-                    if (response.ok) {
-                        video.src = "";
-                        image.src = "";
-                        image.style.display = 'none';
-                    }
-                });
-        });
-
-        // fetch("{% url 'display_file_capture' %}")
-        //     .then(response => {
-        //         if (response.ok) {
-        //             image.src = response.url;
-        //             image.style.display = 'block';
-        //             text_url = response.url;
-        //         }
-        //     });
-
-        document.addEventListener('keydown', function(event) {
-            if (event.key === 'w') {
-                fetch("{% url 'display_file_capture' %}")
-                    .then(response => {
-                        if (response.ok) {
-                            image.src = response.url;
-                            image.style.display = 'block';
-                        }
-                    });
-            }
-        });
-
-        // function updateImage() {
-        //     fetch("{% url 'display_file_capture' %}")
-        //         .then(response => {
-        //             if (response.ok) {
-        //                 image.src = response.url;
-        //                 image.style.display = 'block';
-        //                 text_url = response.url;
-        //             }
-        //         });
-        // }
-
-        // setInterval(updateImage, 5000);
 
         
 
@@ -148,13 +85,19 @@
         <h5 class="ocr-heading">Choose how to import images.</h5>
     </div>
         <div class="row">
-            <div class="col">
+            <div class="col border">
                 <button id="open-camera-btn" class="btn btn-primary">Open Camera</button>
             </div>
-            <div class="col">
-                <button id="reset-camera-btn" class="btn btn-secondary">Reset Camera</button>
+            <div class="col border">
+                <button id="reset-camera-btn" class="btn btn-secondary">Reset Image</button>
             </div>
-            <div class="col">
+
+            <!-- <div class="col">
+                <form action="reset-camera">
+                    <button type="submit" class="btn btn-secondary" >reset camera</button>
+                </form>
+            </div> -->
+            <div class="col border">
                 <form action="upload_img" method="post" enctype="multipart/form-data">
                     {% csrf_token %}
                     <input type="file" accept="image/*" alt="file_image" name="file_image" id="file_image">
@@ -200,22 +143,36 @@
         </div>
         <div class="col">
             <div id="image-container">
-                <img src="" alt="Captured Image" id="captured-image" width="500" height="300">
+                <!-- {% csrf_token %} -->
+                <img src="data:image/png;base64,{{ encoded_image }}" width="500" height="300" alt="Image" id="captured-image">
             </div>
-         
+            <div class="pt-2">
+                <button id="ocr-btn" class="btn btn-success btn-lg">OCR</button>
+            </div>
             
             <!-- OCR button and show text -->
-            <div class="row pt-5">
-                <div class="col">
-                    <button id="ocr-btn" class="btn btn-success btn-lg">OCR</button>
-                </div>
-                <div class="col">
+            <div class="col">
+                <div class="row border">
                     <div id="text-container">
                         <p id="text"></p>
-                        <p id="tag"></p>
+                        
+                    </div>
+                </div>
+                <div class="row border">
+                    <div class="col-6">
+                        <div id="text-container">
+                            <form action="edit_name" method="post">
+                                {% csrf_token %}
+                                <p id="tag"></p>
+                                <button style="background-color: #ff000000; border-color: #5e525200;display: flex;  justify-content: flex-end;">
+                                    <i class="fa fa-pencil-square-o " aria-hidden="true" style="font-size: 2em;"></i>
+                                </button>
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>
+
             
 
 
@@ -257,7 +214,7 @@
             margin-bottom: 30px;
             padding-top: 20px;
         }
-        .col {
+        .border {
             margin-bottom: 5px;
             border: 2px solid #5e5252;
             border-radius: 8px;
