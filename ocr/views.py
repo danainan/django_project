@@ -290,7 +290,7 @@ def ocr(request):
 
             _engine = NER(engine="thainer-v2",corpus="thainer")
     
-            print(_engine.tag(formatted_content,tag=True))
+            # print(_engine.tag(formatted_content,tag=True))
 
             person = []
 
@@ -306,7 +306,7 @@ def ocr(request):
                 else:
                     merged_ner.append(i)
 
-            print(merged_ner)
+            # print(merged_ner)
 
             #display only entity of person  name
             person = []
