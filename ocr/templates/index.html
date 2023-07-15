@@ -59,9 +59,17 @@
                 })
                 .then(data => {
                     text.innerHTML = data.text;
-                    tag.innerHTML = data.tag;
+                    tag.value = data.tag;
+                    // tag1.innerHTML = data.tag1;
+                    
+        
                 });
         });
+
+
+
+
+
 
         
 
@@ -154,7 +162,7 @@
             <div class="col">
                 <div class="row border">
                     <div id="text-container">
-                        <p id="text"></p>
+                        <p id="text" style="font-size: 1.3em;"></p>
                         
                     </div>
                 </div>
@@ -163,8 +171,8 @@
                         <div id="text-container">
                             <form action="edit_name" method="post">
                                 {% csrf_token %}
-                                <p id="tag"></p>
-                                <button style="background-color: #ff000000; border-color: #5e525200;display: flex;  justify-content: flex-end;">
+                                <input type="text" id="tag" value="{{tag.data}}">
+                                <button id="edit-btn" style="background-color: #ff000000; border-color: #5e525200;display: flex;  justify-content: flex-end;">
                                     <i class="fa fa-pencil-square-o " aria-hidden="true" style="font-size: 2em;"></i>
                                 </button>
                             </form>
@@ -221,6 +229,25 @@
             padding: 20px;
             background-color: #B0B0B0;
             margin: 10px;
+        }
+
+        PERSON {
+            font-weight: bold;
+            background-color: #FCE7F3;
+            color: #C55C4D;
+            /* Add more CSS properties as desired */
+        
+        }
+
+        PERSON::before {
+            font-size: 0.8em;
+            content: "PERSON";
+            color: rgb(255, 255, 255);
+            background-image: -webkit-gradient(linear, left top, left bottom, from(#ec489ab8), to(#ec489ab8));
+            border-radius: 15%;
+            padding-left: 5px;
+            padding-right: 5px;
+            /* Add more CSS properties as desired */
         }
     
         
