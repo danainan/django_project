@@ -46,7 +46,7 @@
   </head>
   <body>
     {% include 'std/navbar.html' %}
-    <h1 class="text-center my-3">Update Users</h1>
+    <h1 class="text-center my-3">แก้ไขสมาชิกในหอพัก</h1>
     <div class="container">
         <div class="row">
             <div class="col-md-6 offset-md-3">
@@ -56,21 +56,28 @@
                             {% csrf_token %}
                             <div class="md-3">
                                 <div class="md-3">
-                                    <label for="firstname">Name</label>
-                                    <input name="project_firstname" type="text" id="firstname" class="form-control" placeholder="Enter your first name" required value="{{project.firstname}}">
+                                    <label for="firstname">ชื่อ</label>
+                                    <input name="project_firstname" type="text" id="firstname" class="form-control" placeholder="ชื่อผู้อาศัย" required value="{{project.firstname}}">
                                 </div>
                                 <div class="md-3">
-                                    <label for="last_name">Last Name</label>
-                                    <input name="project_last_name" type="text" id="last_name" class="form-control" placeholder="Enter your last name" required value="{{project.last_name}}">
+                                    <label for="last_name">นามสกุล</label>
+                                    <input name="project_last_name" type="text" id="last_name" class="form-control" placeholder="นามสกุลผู้อาศัย" required value="{{project.last_name}}">
                                 </div>
                                 <div class="md-3">
-                                    <label for="email">Email</label>
-                                    <input name="project_email" type="text" id="email" class="form-control" placeholder="Enter your email" required value="{{project.email}}">
+                                    <label for="line_id">Line ID</label>
+                                    <input name="project_line_id" type="text" id="line_id" class="form-control" placeholder="Line ID ผู้อาศัย" required value="{{project.line_id}}">
                                 </div>
                                 <div class="md-3">
-                                    <label for="room_num">Room number</label>
-                                    <input name="project_room_num" type="text" id="room_num" class="form-control" placeholder="Enter your room number" value="{{project.room_num}}">
-                                </div>
+                                    <label for="room_num">ห้องพัก</label>
+                                    <select name="project_room_num" id="room_num">
+                                      {% for room in rooms %}
+                                        <option value="{{ room.room_number }}" {% if project.room_num == room.room_number %}selected{% endif %}>{{ room.room_number }}</option>
+                                      {% endfor %}
+                                    </select>
+                                    {% if room_full %}
+                                      <p style="color: red;">ห้องพักเต็มแล้ว ไม่สามารถเพิ่มสมาชิกได้</p>
+                                    {% endif %}
+                                </div>                                  
                                 <div class="container my-3">
                                     <button class="btn btn-success">
                                         Update User
