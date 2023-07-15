@@ -159,10 +159,17 @@
                     </div>
                 </div>
                 <div class="row border">
-                    <div id="text-container">
-                        <p id="tag"></p>
+                    <div class="col-6">
+                        <div id="text-container">
+                            <form action="edit_name" method="post">
+                                {% csrf_token %}
+                                <p id="tag"></p>
+                                <button style="background-color: #ff000000; border-color: #5e525200;display: flex;  justify-content: flex-end;">
+                                    <i class="fa fa-pencil-square-o " aria-hidden="true" style="font-size: 2em;"></i>
+                                </button>
+                            </form>
+                        </div>
                     </div>
-                    <button style="background-color: #ff000000; border-color: #5e525200;"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></button>
                 </div>
             </div>
 
