@@ -63,6 +63,9 @@
                                         <option value="3">3 คน</option>
                                         <option value="4">4 คน</option>
                                     </select>
+                                    {% if error %}
+                                        <p style="color: red;">{{ error }}</p>
+                                    {% endif %}
                                 </div>
                                 <div class="container my-3">
                                     <button class="btn btn-primary">

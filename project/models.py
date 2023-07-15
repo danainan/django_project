@@ -8,7 +8,7 @@ class Users(models.Model):
     room_num = models.CharField(max_length=255)
 
 class Rooms(models.Model):
-    room_number = models.CharField(max_length=3)
+    room_number = models.CharField(max_length=3, unique=True)
     room_capacity = models.CharField(max_length=1)
 
 
