@@ -101,16 +101,17 @@ def do_users_update(request,roll):
 
 def room_add(request):
     if request.method == 'POST':
-        print("Completed")
         room_number = request.POST.get("room_number")
         room_capacity = request.POST.get("room_capacity")
 
-        r = Rooms()
-        r.room_number = room_number
-        r.room_capacity = room_capacity
-
-        r.save()
-        return redirect("/project/home")
+        if Rooms.objects.filter(room_number=room_number).count() > 0:
+            return render(request, 'std/add_room.html', {'error': 'ห้องพักนี้มีอยู่เเล้ว กรุณากรอกหมายเลขห้องพักอื่น'})
+        else:
+            r = Rooms()
+            r.room_number = room_number
+            r.room_capacity = room_capacity
+            r.save()
+            return redirect("/project/home")
 
     return render(request, 'std/add_room.html', {})
 
