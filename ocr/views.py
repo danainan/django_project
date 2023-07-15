@@ -7,11 +7,11 @@ import threading
 import os
 import time
 from PIL import Image
-from tesserocr import PyTessBaseAPI
+from tesserocr import PyTessBaseAPI, RIL, PSM , OEM
 from pythainlp.tokenize import word_tokenize
 from transformers import AutoTokenizer, AutoModelForTokenClassification
 import torch
-from pythainlp.tag import *
+from pythainlp.tag import named_entity
 from pythainlp import *
 import requests
 import numpy as np
@@ -24,6 +24,9 @@ from bs4 import BeautifulSoup
 from .forms import ImageUploadForm
 import numpy as np
 from django.core.files.storage import FileSystemStorage
+import re
+from pythainlp.tag import NER, NNER
+
 
 
 
@@ -178,92 +181,121 @@ def livefe(request):
         pass
 
 
-
-
-
 # def ocr(request):
 #     media_path = os.path.join(settings.MEDIA_ROOT, 'capture.jpg')
+#     ocr_path = os.path.join(settings.OCR_ROOT, 'tessdata_best-main')
 #     if os.path.exists(media_path):
-#         with PyTessBaseAPI(path='C:/Users/User/anaconda3/share/tessdata_best-main',lang='tha+eng') as api:
+#         with PyTessBaseAPI(path=ocr_path,lang='tha+eng') as api:
 #             api.SetImageFile(media_path)
 #             text = api.GetUTF8Text()
 #             conf = api.AllWordConfidences()
-#             print(conf)
 #             print(text)
-#             ner = NER("thainer")
-#             tagging = ner.tag(text, tag=True)
-#             print(tagging)
-#             soup = BeautifulSoup(tagging, 'html.parser')
-#             person_tags = soup.find_all('person')
-#             PERSON = []
-#             for person in person_tags:
-#                 PERSON.append(person.text)
-#             print(PERSON)
+#             name = os.path.join(settings.NER_ROOT, 'thainer-corpus-v2-base-model')
+#             tokenizer = AutoTokenizer.from_pretrained(name)
+#             model = AutoModelForTokenClassification.from_pretrained(name)
 
-
-
-
-            
-           
-#             return JsonResponse({'text': text, 'tag': PERSON}, status=200)
-#     return HttpResponse(status=200)
-
-
-def ocr(request):
-    media_path = os.path.join(settings.MEDIA_ROOT, 'capture.jpg')
-    ocr_path = os.path.join(settings.OCR_ROOT, 'tessdata_best-main')
-    if os.path.exists(media_path):
-        with PyTessBaseAPI(path=ocr_path,lang='tha+eng') as api:
-            api.SetImageFile(media_path)
-            text = api.GetUTF8Text()
-            conf = api.AllWordConfidences()
-            print(text)
-            name = os.path.join(settings.NER_ROOT, 'thainer-corpus-v2-base-model')
-            tokenizer = AutoTokenizer.from_pretrained(name)
-            model = AutoModelForTokenClassification.from_pretrained(name)
-
-            if len(text) > 512:
-                text = text[:512]
+#             if len(text) > 512:
+#                 text = text[:512]
 
     
 
-            sentence = f'{text}'
+#             sentence = f'{text}'
+            
+#             formatted_content = re.sub(r'\s+', ' ', text).strip()
 
+#             print(formatted_content)
         
             
 
             
 
-            cut=word_tokenize(sentence.replace(" ", "<_>"))
-            inputs=tokenizer(cut,is_split_into_words=True,return_tensors="pt")
+#             cut=word_tokenize(formatted_content.replace(" ", "<_>"))
+#             inputs=tokenizer(cut,is_split_into_words=True,return_tensors="pt")
 
-            ids = inputs["input_ids"]
-            mask = inputs["attention_mask"]
-            # forward pass
-            outputs = model(ids, attention_mask=mask)
-            logits = outputs[0]
+#             ids = inputs["input_ids"]
+#             mask = inputs["attention_mask"]
+#             # forward pass
+#             outputs = model(ids, attention_mask=mask)
+#             logits = outputs[0]
 
-            predictions = torch.argmax(logits, dim=2)
-            predicted_token_class = [model.config.id2label[t.item()] for t in predictions[0]]
+#             predictions = torch.argmax(logits, dim=2)
+#             predicted_token_class = [model.config.id2label[t.item()] for t in predictions[0]]
 
-            def fix_span_error(words,ner):
-                _ner = []
-                _ner=ner
-                _new_tag=[]
-                for i,j in zip(words,_ner):
-                    #print(i,j)
-                    i=tokenizer.decode(i)
-                    if i.isspace() and j.startswith("B-"):
-                        j="O"
-                    if i=='' or i=='<s>' or i=='</s>':
-                        continue
-                    if i=="<_>":
-                        i=" "
-                    _new_tag.append((i,j))
-                return _new_tag
+#             def fix_span_error(words,ner):
+#                 _ner = []
+#                 _ner=ner
+#                 _new_tag=[]
+#                 for i,j in zip(words,_ner):
+#                     #print(i,j)
+#                     i=tokenizer.decode(i)
+#                     if i.isspace() and j.startswith("B-"):
+#                         j="O"
+#                     if i=='' or i=='<s>' or i=='</s>':
+#                         continue
+#                     if i=="<_>":
+#                         i=" "
+#                     _new_tag.append((i,j))
+#                 return _new_tag
 
-            ner_tag=fix_span_error(inputs['input_ids'][0],predicted_token_class)
-            print(ner_tag)
+#             ner_tag=fix_span_error(inputs['input_ids'][0],predicted_token_class)
+#             print(ner_tag)
+
+#             merged_ner=[]
+#             for i in ner_tag:
+#                 if i[1].startswith("B-"):
+#                     merged_ner.append(i)
+#                 elif i[1].startswith("I-"):
+#                     merged_ner[-1]=(merged_ner[-1][0]+i[0],merged_ner[-1][1])
+#                 else:
+#                     merged_ner.append(i)
+
+#             print(merged_ner)
+
+#             #display only entity of person  name
+#             person = []
+#             _pharse = []
+#             for i in merged_ner:
+#                 if i[1].startswith("B-PERSON") and i[0] != ' ' and len(i[0]) > 5 :
+#                     _pharse.append(i)
+#                     person.append(i[0])
+
+#             print(person)
+#             print(_pharse)
+
+#             if len(person) == 2:
+#                 print('ผู้ส่ง :',person[0]),print('ผู้รับ :',person[1])
+#                 return JsonResponse({'tag1': person[0], 'tag': person[1], 'text': formatted_content}, status=200)
+
+#             elif len(person) > 2:
+#                 # print('ผู้ส่ง :',person[0]),print('ผู้รับ :',person[1]+person[2])
+#                 for i in range(2,len(person)):
+#                     person[1] = person[1] + person[i]
+#                 print('ผู้ส่ง :',person[0]),print('ผู้รับ :',person[1])
+#                 return JsonResponse({'tag1': person[0], 'tag': person[1], 'text': formatted_content}, status=200)
+#             else :
+#                 return JsonResponse({'tag1': 'ไม่พบข้อมูล', 'tag': 'ไม่พบข้อมูล','tex' : formatted_content}, status=200)
+            
+            
+#     return HttpResponse(status=200)
+
+def ocr(request):
+    media_path = os.path.join(settings.MEDIA_ROOT, 'capture.jpg')
+    ocr_path = os.path.join(settings.OCR_ROOT, 'tessdata_best-main')
+    if os.path.exists(media_path):
+        with PyTessBaseAPI(path=ocr_path,lang='tha+eng',oem=OEM.LSTM_ONLY,psm=PSM.AUTO_OSD) as api:
+            api.SetImageFile(media_path)
+            text = api.GetUTF8Text()
+            conf = api.AllWordConfidences()
+            formatted_content = re.sub(r'\s+', ' ', text).strip()
+
+            _engine = NER(engine="thainer-v2",corpus="thainer")
+    
+            print(_engine.tag(formatted_content,tag=True))
+
+            person = []
+
+            ner_tag = _engine.tag(formatted_content)
+
 
             merged_ner=[]
             for i in ner_tag:
@@ -289,22 +321,23 @@ def ocr(request):
 
             if len(person) == 2:
                 print('ผู้ส่ง :',person[0]),print('ผู้รับ :',person[1])
-                return JsonResponse({'ผู้ส่ง': person[0], 'tag': person[1], 'text': text}, status=200)
+                return JsonResponse({'tag1': person[0], 'tag': person[1], 'text': _engine.tag(formatted_content,tag=True)}, status=200)
 
             elif len(person) > 2:
                 # print('ผู้ส่ง :',person[0]),print('ผู้รับ :',person[1]+person[2])
                 for i in range(2,len(person)):
                     person[1] = person[1] + person[i]
                 print('ผู้ส่ง :',person[0]),print('ผู้รับ :',person[1])
-                return person[0],person[1]
+                return JsonResponse({'tag1': person[0], 'tag': person[1], 'text': _engine.tag(formatted_content,tag=True)}, status=200)
             else :
-                return JsonResponse({'ผู้ส่ง': 'ไม่พบข้อมูล', 'tag': 'ไม่พบข้อมูล'}, status=200)
+                return JsonResponse({'tag1': 'ไม่พบข้อมูล', 'tag': 'ไม่พบข้อมูล','tex' : _engine.tag(formatted_content,tag=True)}, status=200)
             
             
-    return HttpResponse(status=200)
 
 
-    
+
+            #return JsonResponse({'text': _engine.tag(formatted_content,tag=True)}, status=200)
+
 
 
 
