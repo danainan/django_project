@@ -66,12 +66,14 @@
                             </div>
                             <div class="md-3">
                                 <label for="room_num">ห้องพัก</label>
-                                <!-- <input name="project_room_num" type="text" id="room_num" class="form-control" placeholder="ห้องพัก"> -->
-                                <select name="room_num" id="room_num">
+                                <select name="project_room_num" id="room_num">
                                     {% for room in rooms %}
-                                        <option value="{{ room.room_num }}">{{ room.room_num }}</option>
+                                        <option value="{{ room.room_number }}">{{ room.room_number }}</option>
                                     {% endfor %}
                                 </select>
+                                {% if room_full %}
+                                    <p style="color: red;">ห้องพักเต็มแล้ว ไม่สามารถเพิ่มสมาชิกได้</p>
+                                {% endif %}
                             </div>
                             <div class="container my-3">
                                 <button class="btn btn-primary">

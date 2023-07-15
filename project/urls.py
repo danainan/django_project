@@ -11,5 +11,5 @@ urlpatterns = [
     path("doupdate-users/<int:roll>", do_users_update),
     path("login/", login, name="login"), 
     path("logout/", logout),
-    path("add-rooms/", rooms_add),
+    path("add-rooms/", room_add),
 ]

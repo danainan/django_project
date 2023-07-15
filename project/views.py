@@ -1,9 +1,13 @@
 from django.shortcuts import render,redirect
 from .models import Users
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User 
+from .models import Rooms
 from django.contrib.auth import authenticate, login as auth_login 
 from django.contrib.auth import logout as auth_logout
-from django.http import HttpResponse
+from django.http import HttpResponse ,HttpResponseBadRequest
+from django.contrib import messages
+
+
 
 
 def index(request):
@@ -36,25 +40,38 @@ def home(request):
     return render(request , 'std/home.html', {'project':project})
 
 def users_add(request):
-    if request.method=='POST':
+    if request.method == 'POST':
         print("Completed")
-        #Retreive the user inputs
-        projects_firstname=request.POST.get("project_firstname")
-        projects_last_name=request.POST.get("project_last_name")
-        projects_email=request.POST.get("project_email")
-        projects_room_num=request.POST.get("project_room_num")
+        # Retrieve the user inputs
+        projects_firstname = request.POST.get("project_firstname")
+        projects_last_name = request.POST.get("project_last_name")
+        projects_email = request.POST.get("project_email")
+        projects_room_num = request.POST.get("project_room_num")
 
-        #create an object for models
-        u=Users()
-        u.firstname=projects_firstname
-        u.last_name=projects_last_name
-        u.email=projects_email
-        u.room_num=projects_room_num
+        room = Rooms.objects.get(room_number=projects_room_num)
+        current_occupancy = Users.objects.filter(room_num=projects_room_num).count()
+        if current_occupancy >= int(room.room_capacity):
+            room_full = True
+        else:
+            room_full = False
+
+        if room_full:
+            rooms = Rooms.objects.all()
+            return render(request, 'std/add_u.html', {'rooms': rooms, 'room_full': room_full})
+
+        # create an object for models
+        u = Users()
+        u.firstname = projects_firstname
+        u.last_name = projects_last_name
+        u.email = projects_email
+        u.room_num = projects_room_num
 
         u.save()
         return redirect("/project/home")
 
-    return render(request , 'std/add_u.html', {})
+    rooms = Rooms.objects.all()
+    return render(request, 'std/add_u.html', {'rooms': rooms})
+
 
 def users_delete(request,roll):
     u=Users.objects.get(pk=roll)
@@ -82,9 +99,20 @@ def do_users_update(request,roll):
     project.save()
     return redirect("/project/home")
 
-def rooms_add(request):
-    return render(request, 'std/add_room.html', {})
+def room_add(request):
+    if request.method == 'POST':
+        print("Completed")
+        room_number = request.POST.get("room_number")
+        room_capacity = request.POST.get("room_capacity")
 
+        r = Rooms()
+        r.room_number = room_number
+        r.room_capacity = room_capacity
+
+        r.save()
+        return redirect("/project/home")
+
+    return render(request, 'std/add_room.html', {})
 
 
 
