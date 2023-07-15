@@ -35,9 +35,8 @@ def logout(request):
 
 
 def home(request):
-    project=Users.objects.all()
-
-    return render(request , 'std/home.html', {'project':project})
+    users = Users.objects.all()
+    return render(request, 'std/home.html', {'users': users})
 
 def users_add(request):
     if request.method == 'POST':
@@ -45,7 +44,7 @@ def users_add(request):
         # Retrieve the user inputs
         projects_firstname = request.POST.get("project_firstname")
         projects_last_name = request.POST.get("project_last_name")
-        projects_email = request.POST.get("project_email")
+        projects_line_id = request.POST.get("project_line_id")
         projects_room_num = request.POST.get("project_room_num")
 
         room = Rooms.objects.get(room_number=projects_room_num)
@@ -63,7 +62,7 @@ def users_add(request):
         u = Users()
         u.firstname = projects_firstname
         u.last_name = projects_last_name
-        u.email = projects_email
+        u.line_id = projects_line_id  
         u.room_num = projects_room_num
 
         u.save()
@@ -79,22 +78,34 @@ def users_delete(request,roll):
 
     return redirect("/project/home")
 
-def users_update(request,roll):
-    project=Users.objects.get(pk=roll)
-    return render(request, 'std/update_u.html',{'project':project})
+def users_update(request, roll):
+    project = Users.objects.get(pk=roll)
+    rooms = Rooms.objects.all()  
+    return render(request, 'std/update_u.html', {'project': project, 'rooms': rooms})
 
-def do_users_update(request,roll):
-    project_firstname=request.POST.get("project_firstname")
-    project_last_name=request.POST.get("project_last_name")
-    project_email=request.POST.get("project_email")
-    project_room_num=request.POST.get("project_room_num")
+def do_users_update(request, roll):
+    project_firstname = request.POST.get("project_firstname")
+    project_last_name = request.POST.get("project_last_name")
+    project_line_id = request.POST.get("project_line_id")
+    project_room_num = request.POST.get("project_room_num")
 
-    project=Users.objects.get(pk=roll)
+    project = Users.objects.get(pk=roll)
 
-    project.firstname=project_firstname
-    project.last_name=project_last_name
-    project.email=project_email
-    project.room_num=project_room_num
+    room = Rooms.objects.get(room_number=project_room_num)
+    current_occupancy = Users.objects.filter(room_num=project_room_num).count()
+    if current_occupancy >= int(room.room_capacity):
+        room_full = True
+    else:
+        room_full = False
+
+    if room_full:
+        rooms = Rooms.objects.all()
+        return render(request, 'std/update_u.html', {'project': project, 'rooms': rooms, 'room_full': room_full})
+
+    project.firstname = project_firstname
+    project.last_name = project_last_name
+    project.line_id = project_line_id
+    project.room_num = project_room_num
 
     project.save()
     return redirect("/project/home")
