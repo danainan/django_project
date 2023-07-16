@@ -38,6 +38,7 @@ def home(request):
     users = Users.objects.all()
     return render(request, 'std/home.html', {'users': users})
 
+
 @login_required(login_url='/login/')
 def users_add(request):
     if request.method == 'POST':
@@ -86,6 +87,7 @@ def users_update(request, roll):
     rooms = Rooms.objects.all()  
     return render(request, 'std/update_u.html', {'project': project, 'rooms': rooms})
 
+
 @login_required(login_url='/login/')
 def do_users_update(request, roll):
     project_firstname = request.POST.get("project_firstname")
@@ -114,6 +116,7 @@ def do_users_update(request, roll):
     project.save()
     return redirect("/project/home")
 
+
 @login_required(login_url='/login/')
 def room_add(request):
     if request.method == 'POST':
@@ -133,9 +136,6 @@ def room_add(request):
 
 
 
-    
-
 
 
     
-
