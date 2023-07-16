@@ -91,6 +91,9 @@ DATABASES = {
 }
 '''
 
+MONGODB_URI = 'mongodb+srv://authachaizzz:1234@cluster0.xf2c6og.mongodb.net/?retryWrites=true&w=majority'
+MONGODB_NAME = 'finaldatabase'
+
 DATABASES = {
     'default': {
         'ENGINE': 'djongo',
