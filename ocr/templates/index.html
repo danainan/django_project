@@ -170,15 +170,16 @@
                 <div class="row border">
                     <div class="col-6">
                         <div id="text-container">
-                            <form action="edit_name" method="post">
+                            <form action="search_name" method="post" enctype="multipart/form-data" class="form-control">
                                 {% csrf_token %}
-                                <input type="text" id="tag" value="{{tag.data}}">
-                                <button id="edit-btn" style="background-color: #ff000000; border-color: #5e525200;display: flex;  justify-content: flex-end;">
-                                    <i class="fa fa-pencil-square-o " aria-hidden="true" style="font-size: 2em;"></i>
+                                <input type="text" id="tag" value="{{tag.data}}" class="form-control" name="tag">
+                                <button type="submit" style="background-color: #ff000000; border-color: #5e525200;display: flex;  justify-content: flex-end;">
+                                    <i class="fa fa-search " aria-hidden="true" style="font-size: 2em;"></i>
                                 </button>
                             </form>
                         </div>
                     </div>
+                    <p id="result">{{result}}</p>
                 </div>
             </div>
 
