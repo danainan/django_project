@@ -133,9 +133,3 @@ def room_add(request):
             return redirect("/project/home")
 
     return render(request, 'std/add_room.html', {})
-
-
-
-
-
-    
