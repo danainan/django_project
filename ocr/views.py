@@ -26,7 +26,10 @@ import numpy as np
 from django.core.files.storage import FileSystemStorage
 import re
 from pythainlp.tag import NER, NNER
-
+from pymongo import MongoClient
+from django.conf import settings
+from .models import *
+from fuzzywuzzy import fuzz, process
 
 
 
@@ -290,7 +293,7 @@ def ocr(request):
 
             _engine = NER(engine="thainer-v2",corpus="thainer")
     
-            print(_engine.tag(formatted_content,tag=True))
+            # print(_engine.tag(formatted_content,tag=True))
 
             person = []
 
@@ -306,7 +309,7 @@ def ocr(request):
                 else:
                     merged_ner.append(i)
 
-            print(merged_ner)
+            # print(merged_ner)
 
             #display only entity of person  name
             person = []
@@ -339,7 +342,75 @@ def ocr(request):
             #return JsonResponse({'text': _engine.tag(formatted_content,tag=True)}, status=200)
 
 
+def search_name(request):
+    if request.method == 'POST':
+        # firstname = request.POST.get('tag')
+        # client = MongoClient(settings.MONGODB_URI)
+        # db = client[settings.MONGODB_NAME]
 
+        # result = db['project_users'].find_one({'firstname': {'$regex': firstname}})
+        # if result:
+        #     return render(request, 'index.html', {'result': result})
+        # else:
+        #     return render(request, 'index.html', {'result': 'ไม่พบข้อมูล'})
+
+        search_string = request.POST.get('tag')
+        search_string_parts = search_string.split(' ')
+        if len(search_string_parts) >= 2:
+            search_string_firstname = search_string_parts[0]
+            search_string_lastname = ' '.join(search_string_parts[1:])
+        else:
+            search_string_firstname = search_string
+            search_string_lastname = ''
+
+        print('fname=>',search_string_firstname)
+        print('lname=>',search_string_lastname)
+
+
+
+
+
+
+        client = MongoClient(settings.MONGODB_URI)
+        db = client[settings.MONGODB_NAME]
+
+        data_firstname = []
+        data_lastname = []
+
+        results = db['project_users'].find({})
+        
+        for document in results:
+            data_firstname.append(document['firstname'])
+            data_lastname.append(document['last_name'])
+
+        matching_data_firstname = []
+        confidence_threshold = 60
+        for i in range(len(data_firstname)):
+            confidence = fuzz.ratio(search_string_firstname, data_firstname[i])
+            
+            if confidence >= confidence_threshold:
+                # matching_data_firstname.append(db['project_users'].find_one({'firstname': data_firstname[i]}))
+                document = db['project_users'].find({'firstname': data_firstname[i]})
+                for doc in document:
+                    matching_data_firstname.append(doc)
+                    #remove duplicate
+                    matching_data_firstname = list({v['_id']:v for v in matching_data_firstname}.values())
+                    #sort with confidence
+                    matching_data_firstname.sort(key=lambda x: fuzz.ratio(search_string_firstname, x['firstname']), reverse=True)
+                 
+
+
+
+        
+        if len(matching_data_firstname) > 0:
+            return render(request, 'index.html', {'result': matching_data_firstname})
+           
+        else:
+            return render(request, 'index.html', {'result': 'ไม่พบข้อมูล'})
+           
+            
+
+    
 
 
 
