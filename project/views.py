@@ -6,8 +6,7 @@ from django.contrib.auth import authenticate, login as auth_login
 from django.contrib.auth import logout as auth_logout
 from django.http import HttpResponse ,HttpResponseBadRequest
 from django.contrib import messages
-
-
+from django.contrib.auth.decorators import login_required
 
 
 def index(request):
@@ -34,10 +33,12 @@ def logout(request):
     return redirect('login')
 
 
+@login_required(login_url='/login/')
 def home(request):
     users = Users.objects.all()
     return render(request, 'std/home.html', {'users': users})
 
+@login_required(login_url='/login/')
 def users_add(request):
     if request.method == 'POST':
         print("Completed")
@@ -72,17 +73,20 @@ def users_add(request):
     return render(request, 'std/add_u.html', {'rooms': rooms})
 
 
+
 def users_delete(request,roll):
     u=Users.objects.get(pk=roll)
     u.delete()
 
     return redirect("/project/home")
 
+
 def users_update(request, roll):
     project = Users.objects.get(pk=roll)
     rooms = Rooms.objects.all()  
     return render(request, 'std/update_u.html', {'project': project, 'rooms': rooms})
 
+@login_required(login_url='/login/')
 def do_users_update(request, roll):
     project_firstname = request.POST.get("project_firstname")
     project_last_name = request.POST.get("project_last_name")
@@ -110,6 +114,7 @@ def do_users_update(request, roll):
     project.save()
     return redirect("/project/home")
 
+@login_required(login_url='/login/')
 def room_add(request):
     if request.method == 'POST':
         room_number = request.POST.get("room_number")
