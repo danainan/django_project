@@ -390,8 +390,11 @@ def search_name(request):
             
             if confidence >= confidence_threshold:
                 # matching_data_firstname.append(db['project_users'].find_one({'firstname': data_firstname[i]}))
-                for documents in db['project_users'].find({'firstname': data_firstname[i]}):
-                    matching_data_firstname.append(documents)
+                document = db['project_users'].find({'firstname': data_firstname[i]})
+                
+                for doc in document:
+                    matching_data_firstname.append(doc)
+
                 print(data_firstname[i],confidence)
 
            
