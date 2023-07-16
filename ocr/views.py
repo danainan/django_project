@@ -384,6 +384,7 @@ def search_name(request):
             data_lastname.append(document['last_name'])
 
         matching_data_firstname = []
+        confident = []
         confidence_threshold = 60
         for i in range(len(data_firstname)):
             confidence = fuzz.ratio(search_string_firstname, data_firstname[i])
@@ -391,22 +392,32 @@ def search_name(request):
             if confidence >= confidence_threshold:
                 # matching_data_firstname.append(db['project_users'].find_one({'firstname': data_firstname[i]}))
                 document = db['project_users'].find({'firstname': data_firstname[i]})
+                
+                
+
                 for doc in document:
                     matching_data_firstname.append(doc)
                     #remove duplicate
                     matching_data_firstname = list({v['_id']:v for v in matching_data_firstname}.values())
                     #sort with confidence
                     matching_data_firstname.sort(key=lambda x: fuzz.ratio(search_string_firstname, x['firstname']), reverse=True)
-                 
-
-
+                    #matching_data_firstname.sort(key=lambda x: x['firstname'], reverse=True)
 
         
+        
+               
         if len(matching_data_firstname) > 0:
-            return render(request, 'index.html', {'result': matching_data_firstname})
-           
+            return render(request, 'index.html', {'result': matching_data_firstname,'document':matching_data_firstname,'conf':confidence})
         else:
             return render(request, 'index.html', {'result': 'ไม่พบข้อมูล'})
+                
+                 
+
+        # if len(matching_data_firstname) > 0:
+        #     return render(request, 'index.html', {'result': matching_data_firstname,'document':matching_data_firstname})
+           
+        # else:
+        #     return render(request, 'index.html', {'result': 'ไม่พบข้อมูล'})
            
             
 

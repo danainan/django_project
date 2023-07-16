@@ -179,8 +179,26 @@
                             </form>
                         </div>
                     </div>
-                    <p id="result">{{result}}</p>
+                    
                 </div>
+
+                {% for doc in document %}
+                      <div class="row">
+                        <div class="card">
+                            {{doc.firstname}}
+                            {{doc.last_name}} 
+                            {{doc.line_id}}
+                            {{doc.room_num}}
+                        </div>
+                      </div>
+                {% endfor %}
+
+                
+                      
+              
+               
+
+             
             </div>
 
             
