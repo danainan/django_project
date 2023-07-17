@@ -66,7 +66,10 @@
                 });
         });
 
-
+       
+        function setValue(value) {
+          document.getElementById('selectedValue').value = value;
+        }
 
 
 
@@ -179,10 +182,36 @@
                             </form>
                         </div>
                     </div>
-                    <p id="result">{{result}}</p>
+                    
                 </div>
+
+                {% for doc in document %}
+                <div class="row">
+                    <div class="card">
+                      id  {{doc.id}} <br>
+                      ชื่อ {{doc.firstname}} <br>
+                      นามสกุล {{doc.last_name}}  <br>
+                      ไลน์ {{doc.line_id}} <br>
+                      ห้อง {{doc.room_num}}
+                      <form method="post" action="get_document/<int:doc.id>"" enctype="multipart/form-data" class="form-control">
+                        {% csrf_token %}
+                        <input type="hidden" name="id" value="{{doc.id}}" class="form-control">
+                        <input type="hidden" name="firstname" value="{{doc.firstname}}" class="form-control">
+                        <input type="hidden" name="last_name" value="{{doc.last_name}}" class="form-control">
+                        <input type="hidden" name="line_id" value="{{doc.line_id}}" class="form-control">
+                        <input type="hidden" name="room_num" value="{{doc.room_num}}" class="form-control">
+                        <button type="submit">Select</button>
+                      </form>
+                    </div>
+                  </div>
+                {% endfor %}
+                
+
+                
+
             </div>
 
+            
             
 
 
