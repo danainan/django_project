@@ -418,7 +418,52 @@ def search_name(request):
            
         # else:
         #     return render(request, 'index.html', {'result': 'ไม่พบข้อมูล'})
-           
+
+
+def get_document(request):
+    if request.method == 'POST':
+        firstname = request.POST.get('firstname')
+        last_name = request.POST.get('last_name')
+        line_id = request.POST.get('line_id')
+        room_num = request.POST.get('room_num')
+
+    document = Document(
+        firstname=firstname,
+        last_name=last_name,
+        line_id=line_id,
+        room_num=room_num
+    )
+
+
+
+
+    
+    
+    return render(request, 'index.html')
+
+
+def save_document(request):
+    if request.method == 'POST':
+        firstname = request.POST.get('firstname')
+        last_name = request.POST.get('last_name')
+        line_id = request.POST.get('line_id')
+        room_num = request.POST.get('room_num')
+
+        client = MongoClient(settings.MONGODB_URI)
+        db = client[settings.MONGODB_NAME]
+
+        document = Document(
+            firstname=firstname,
+            last_name=last_name,
+            line_id=line_id,
+            room_num=room_num
+        )
+        db['parcel_users'].insert_one(document.__dict__)
+
+        return render(request, 'index.html', {'result': 'บันทึกข้อมูลเรียบร้อยแล้ว'})
+
+    return render(request, 'index.html')
+
             
 
     
