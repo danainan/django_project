@@ -1,4 +1,4 @@
-# from camera import *
+
 from django.shortcuts import render, redirect
 from django.http import StreamingHttpResponse, HttpResponse, FileResponse
 from django.views.decorators import gzip
@@ -30,10 +30,14 @@ from pymongo import MongoClient
 from django.conf import settings
 from .models import *
 from fuzzywuzzy import fuzz, process
+import datetime
+import json
+from bson import ObjectId
 
 
 
 def index(request, *args, **kwargs):
+
 
     return render(request, 'index.html', {})
     
@@ -42,7 +46,7 @@ def index(request, *args, **kwargs):
 status = {"new_image_available": False}
 class VideoCamera(object):
     def __init__(self):
-        self.video = cv2.VideoCapture(0, cv2.CAP_DSHOW)
+        self.video = cv2.VideoCapture(1, cv2.CAP_DSHOW)
         # self.video.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
         # self.video.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
         # self.video.set(cv2.CAP_PROP_FPS, 30)
@@ -66,7 +70,7 @@ class VideoCamera(object):
     def initialize_camera(self):
         self.release_camera()
         # cv2.CAP_DSHOW
-        self.video = cv2.VideoCapture(0, cv2.CAP_DSHOW)
+        self.video = cv2.VideoCapture(1, cv2.CAP_DSHOW)
 
     def get_frame(self):
         # image = self.frame
@@ -133,25 +137,25 @@ def upload_img(request):
 
         return render(request, 'index.html')
     
-
+def reset_camera(request):
+    if 'camera' in request.session:
+        camera = request.session['camera']
+        camera.release_camera()
+        del request.session['camera']
+    return redirect('index')
 
 def gen(camera, request):
-    # if camera is None:
-    #     camera = VideoCamera()
+    if camera is None:
+        camera = VideoCamera()
 
     while True: 
         frame = camera.get_frame()
         yield(b'--frame\r\n'
-              b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
+              b'Content-Type: image/png\r\n\r\n' + frame + b'\r\n\r\n')
         if  keyboard.is_pressed('q'):
             camera.save_img()
             camera.send_image(request)
-            
-            # media_path = os.path.join(settings.MEDIA_ROOT , 'capture.jpg')
-            # status["new_image_available"] = True
-            # with open(media_path, 'rb') as image_file:
-            #     encoded_image = base64.b64encode(image_file.read()).decode('utf-8')
-            #     return render(request, 'index.html', {'encoded_image': encoded_image})
+            break
         
 
 def capture(request):
@@ -180,8 +184,10 @@ def livefe(request):
     try:
         cam = VideoCamera()
         return StreamingHttpResponse(gen(cam, request),content_type="multipart/x-mixed-replace;boundary=frame")
-    except:
+    except :
         pass
+
+
 
 
 # def ocr(request):
@@ -385,31 +391,47 @@ def search_name(request):
 
         matching_data_firstname = []
         confident = []
-        confidence_threshold = 60
+        confidence_threshold = 70
         for i in range(len(data_firstname)):
             confidence = fuzz.ratio(search_string_firstname, data_firstname[i])
             
             if confidence >= confidence_threshold:
                 # matching_data_firstname.append(db['project_users'].find_one({'firstname': data_firstname[i]}))
                 document = db['project_users'].find({'firstname': data_firstname[i]})
-                
-                
-
+                print(document)
+  
                 for doc in document:
                     matching_data_firstname.append(doc)
+                    #append confidence
+                    matching_data_firstname[-1]['confidence'] = confidence
                     #remove duplicate
                     matching_data_firstname = list({v['_id']:v for v in matching_data_firstname}.values())
                     #sort with confidence
                     matching_data_firstname.sort(key=lambda x: fuzz.ratio(search_string_firstname, x['firstname']), reverse=True)
                     #matching_data_firstname.sort(key=lambda x: x['firstname'], reverse=True)
+                   
+                    
+                    print(matching_data_firstname,'confidence=>',confidence)
 
         
         
-               
-        if len(matching_data_firstname) > 0:
+
+        if len(matching_data_firstname) == 1:
+            client = MongoClient(settings.MONGODB_URI)
+            db = client[settings.MONGODB_NAME]
+            result = db['project_users'].find_one({'firstname': matching_data_firstname[0]['firstname']})
+            print(result)
+            media_path = os.path.join(settings.MEDIA_ROOT, 'capture.jpg')
+            with open(media_path, 'rb') as f:
+                data = f.read()
+            encoded_string = base64.b64encode(data).decode('utf-8')
+
+            return render(request, 'index.html', {'result_parcels': result,'document':matching_data_firstname,'conf':confidence,'result': matching_data_firstname[0],'encoded_string': encoded_string})
+        
+        elif len(matching_data_firstname) > 1:
             return render(request, 'index.html', {'result': matching_data_firstname,'document':matching_data_firstname,'conf':confidence})
         else:
-            return render(request, 'index.html', {'result': 'ไม่พบข้อมูล'})
+            return render(request, 'index.html', {'result': 'ไม่พบข้อมูล','document':' ','conf':'ไม่พบข้อมูล'})
                 
                  
 
@@ -420,25 +442,33 @@ def search_name(request):
         #     return render(request, 'index.html', {'result': 'ไม่พบข้อมูล'})
 
 
-def get_document(request):
+def get_document_id(request,roll):
     if request.method == 'POST':
-        firstname = request.POST.get('firstname')
-        last_name = request.POST.get('last_name')
-        line_id = request.POST.get('line_id')
-        room_num = request.POST.get('room_num')
+        client = MongoClient(settings.MONGODB_URI)
+        db = client[settings.MONGODB_NAME]
 
-    document = Document(
-        firstname=firstname,
-        last_name=last_name,
-        line_id=line_id,
-        room_num=room_num
-    )
+        result = db['project_users'].find_one({'id': int(roll)})
+
+        getfirstname = result['firstname']
+        getlastname = result['last_name']
+        getroom = result['room_num']
+
+        media_path = os.path.join(settings.MEDIA_ROOT, 'capture.jpg')
+        with open(media_path, 'rb') as f:
+            data = f.read()
+        encoded_string = base64.b64encode(data).decode('utf-8')
 
 
 
 
-    
-    
+
+        print(result)
+        if result:
+            return render(request, 'index.html', {'result_parcels': result,'encoded_string': encoded_string})
+            
+        else:
+            return render(request, 'index.html', {'result': 'ไม่พบข้อมูล'})
+        
     return render(request, 'index.html')
 
 
