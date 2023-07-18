@@ -46,7 +46,7 @@ def index(request, *args, **kwargs):
 status = {"new_image_available": False}
 class VideoCamera(object):
     def __init__(self):
-        self.video = cv2.VideoCapture(1, cv2.CAP_DSHOW)
+        self.video = cv2.VideoCapture(0, cv2.CAP_DSHOW)
         # self.video.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
         # self.video.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
         # self.video.set(cv2.CAP_PROP_FPS, 30)
@@ -70,7 +70,7 @@ class VideoCamera(object):
     def initialize_camera(self):
         self.release_camera()
         # cv2.CAP_DSHOW
-        self.video = cv2.VideoCapture(1, cv2.CAP_DSHOW)
+        self.video = cv2.VideoCapture(0, cv2.CAP_DSHOW)
 
     def get_frame(self):
         # image = self.frame
@@ -296,6 +296,7 @@ def ocr(request):
             text = api.GetUTF8Text()
             conf = api.AllWordConfidences()
             formatted_content = re.sub(r'\s+', ' ', text).strip()
+            print(formatted_content)
 
             _engine = NER(engine="thainer-v2",corpus="thainer")
     
@@ -328,7 +329,11 @@ def ocr(request):
             print(person)
             print(_pharse)
 
-            if len(person) == 2:
+            if len(person) == 1:
+                print('ผู้ส่ง :',person[0]),print('ผู้รับ :',person[0])
+                return JsonResponse({'tag1': person[0], 'tag': person[0], 'text': _engine.tag(formatted_content,tag=True)}, status=200)
+
+            elif len(person) == 2:
                 print('ผู้ส่ง :',person[0]),print('ผู้รับ :',person[1])
                 return JsonResponse({'tag1': person[0], 'tag': person[1], 'text': _engine.tag(formatted_content,tag=True)}, status=200)
 
@@ -391,7 +396,7 @@ def search_name(request):
 
         matching_data_firstname = []
         confident = []
-        confidence_threshold = 70
+        confidence_threshold = 60
         for i in range(len(data_firstname)):
             confidence = fuzz.ratio(search_string_firstname, data_firstname[i])
             

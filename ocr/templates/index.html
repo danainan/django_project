@@ -46,6 +46,10 @@
             
         });
 
+        
+
+
+
 
 
 
@@ -76,6 +80,11 @@
 
 
         }
+
+        const currentDate = new Date();
+        const formattedDate = currentDate.toISOString().split("T")[0];
+        
+        document.getElementById("dateInput").value = formattedDate;
 
 
     });
@@ -243,9 +252,8 @@
                     <input type="text" name="firstname" value="{{result_parcels.firstname}}" class="form-control">
                     <input type="text" name="last_name" value="{{result_parcels.last_name}}" class="form-control">
                     <input type="text" name="room_num" value="{{result_parcels.room_num}}" class="form-control">
-                    <input type="date" name="" id="">
+                    <input type="date" name="dateInput" id="dateInput">
                     <img src="data:image/png;base64,{{ encoded_string }}" alt="" width="200px" height="200px">
-
                     <button type="submit">Save</button>
                 </form>
                 {% endif %}
