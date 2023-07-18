@@ -11,7 +11,6 @@
     <title>ADMIN</title>
 
     <style>
-
         body {
             font-family: 'Poppins', sans-serif;
             color: #000000;
@@ -35,12 +34,11 @@
         .card.bg-dark label {
             font-weight: bold;
         }
-        
+
         .btn-primary {
           background-color: #ffffff;
           color: #080710;
         }
-
     </style>
 
   </head>
@@ -54,36 +52,34 @@
                     <div class="card-body">
                         <form action="/project/doupdate-users/{{project.id}}" method="POST">
                             {% csrf_token %}
-                            <div class="md-3">
-                                <div class="md-3">
-                                    <label for="firstname">ชื่อ</label>
-                                    <input name="project_firstname" type="text" id="firstname" class="form-control" placeholder="ชื่อผู้อาศัย" required value="{{project.firstname}}">
-                                </div>
-                                <div class="md-3">
-                                    <label for="last_name">นามสกุล</label>
-                                    <input name="project_last_name" type="text" id="last_name" class="form-control" placeholder="นามสกุลผู้อาศัย" required value="{{project.last_name}}">
-                                </div>
-                                <div class="md-3">
-                                    <label for="line_id">Line ID</label>
-                                    <input name="project_line_id" type="text" id="line_id" class="form-control" placeholder="Line ID ผู้อาศัย" required value="{{project.line_id}}">
-                                </div>
-                                <div class="md-3">
-                                    <label for="room_num">ห้องพัก</label>
-                                    <select name="project_room_num" id="room_num">
-                                      {% for room in rooms %}
-                                        <option value="{{ room.room_number }}" {% if project.room_num == room.room_number %}selected{% endif %}>{{ room.room_number }}</option>
-                                      {% endfor %}
-                                    </select>
-                                    {% if room_full %}
-                                      <p style="color: red;">ห้องพักเต็มแล้ว ไม่สามารถเพิ่มสมาชิกได้</p>
-                                    {% endif %}
-                                </div>                                  
-                                <div class="container my-3">
-                                    <button class="btn btn-success">
-                                        Update User
-                                    </button>
-                                </div>
-                            </div>  
+                            <div class="form-group">
+                                <label for="room_num">ห้องพัก</label>
+                                <select name="project_room_num" id="room_num" class="form-control">
+                                    {% for room_option, room_status in room_data %}
+                                        <option value="{{ room_option }}" {% if room_option == project.room_num %}selected{% endif %}>{{ room_status }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="firstname">ชื่อ</label>
+                                <input name="project_firstname" type="text" id="firstname" class="form-control" placeholder="ชื่อผู้อาศัย" required value="{{project.firstname}}">
+                            </div>
+                            <div class="form-group">
+                                <label for="last_name">นามสกุล</label>
+                                <input name="project_last_name" type="text" id="last_name" class="form-control" placeholder="นามสกุลผู้อาศัย" required value="{{project.last_name}}">
+                            </div>
+                            <div class="form-group">
+                                <label for="line_id">Line ID</label>
+                                <input name="project_line_id" type="text" id="line_id" class="form-control" placeholder="Line ID ผู้อาศัย" required value="{{project.line_id}}">
+                            {% if room_full %}
+                                <p class="text-danger">ห้องพักเต็มแล้ว ไม่สามารถเพิ่มสมาชิกได้</p>
+                            {% endif %}
+                            </div>                                
+                            <div class="container my-3">
+                                <button class="btn btn-success" type="submit">
+                                    Update User
+                                </button>
+                            </div>
                         </form>
                     </div>
                 </div>

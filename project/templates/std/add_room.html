@@ -52,20 +52,22 @@
                             <div class="md-3">
                                 <div class="md-3">
                                     <label for="room_num">หมายเลขห้องพัก</label>
-                                    <input name="room_number" type="text" id="room_num" class="form-control" placeholder="หมายเลขห้องพัก">
+                                    <input name="room_number" type="text" id="room_num" class="form-control" placeholder="หมายเลขห้องพัก" maxlength="3">
                                 </div>
                                 <div class="md-3">
-                                    <label for="room_cap">จำนวนผู้พักอาศัยในห้องพัก</label>
-                                    <select name="room_capacity" id="room_cap">
-                                        <option value="0">ห้องว่าง</option>
-                                        <option value="1">1 คน</option>
-                                        <option value="2">2 คน</option>
-                                        <option value="3">3 คน</option>
-                                        <option value="4">4 คน</option>
-                                    </select>
-                                    {% if error %}
-                                        <p style="color: red;">{{ error }}</p>
-                                    {% endif %}
+                                    <div class="md-3">
+                                        <label for="room_cap">จำนวนผู้พักอาศัยในห้องพัก</label>
+                                        <select name="room_capacity" id="room_cap" class="form-control">
+                                            <option value="0">ห้องว่าง</option>
+                                            <option value="1">1 คน</option>
+                                            <option value="2">2 คน</option>
+                                            <option value="3">3 คน</option>
+                                            <option value="4">4 คน</option>
+                                        </select>
+                                        {% if error %}
+                                            <p style="color: red;">{{ error }}</p>
+                                        {% endif %}
+                                    </div>
                                 </div>
                                 <div class="container my-3">
                                     <button class="btn btn-primary">
