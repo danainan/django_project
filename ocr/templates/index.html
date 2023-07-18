@@ -1,4 +1,3 @@
-
 {% load static %}
 <!DOCTYPE html>
 <html>
@@ -6,51 +5,57 @@
 <head>
     <meta charset="UTF-8">
     <title>OCR App</title>
+
     
-    <link rel="stylesheet" href="{% static 'style.css' %}">
 </head>
+<link rel="stylesheet" href="{% static 'style.css' %}">
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz"
+    crossorigin="anonymous"></script>
 <script src="https://kit.fontawesome.com/b56c1cd1e7.js" crossorigin="anonymous"></script>
 <script>
-    $(document).ready(function() {
+    $(document).ready(function () {
         var video = document.getElementById('video');
         var openCameraBtn = document.getElementById('open-camera-btn');
         var uploadImageBtn = document.getElementById('upload-image-btn');
         var uploadImageInput = document.getElementById
-        ('upload-image-input');
+            ('upload-image-input');
         var resetCameraBtn = document.getElementById('reset-camera-btn');
         var image = document.getElementById('captured-image');
         var ocrBtn = document.getElementById('ocr-btn');
         var text = document.getElementById('text');
         var tag = document.getElementById('tag');
+      
 
-        openCameraBtn.addEventListener('click', function() {
+        openCameraBtn.addEventListener('click', function () {
             fetch("{% url 'initialize_camera' %}")
                 .then(response => {
                     if (response.ok) {
                         video.src = "{% url 'livefe' %}";
                         image.style.display = 'none';
                     }
+
                 });
         });
 
-        resetCameraBtn.addEventListener('click', function() {
-            video.src = "";
-            image.src = "";
+        resetCameraBtn.addEventListener('click', function () {
+            location.href = "{% url 'index' %}";
+            
         });
 
-    
-
-       
-
-        
 
 
-        
 
-        ocrBtn.addEventListener('click', function() {
+
+
+
+
+
+
+        ocrBtn.addEventListener('click', function () {
             fetch("{% url 'ocr' %}")
                 .then(response => {
                     if (response.ok) {
@@ -61,180 +66,231 @@
                     text.innerHTML = data.text;
                     tag.value = data.tag;
                     // tag1.innerHTML = data.tag1;
-                    
-        
+
+
                 });
         });
 
-       
-        function setValue(value) {
-          document.getElementById('selectedValue').value = value;
+        function selectCard(card) {
+            
+
+
         }
 
-
-
-
-        
-
-        
-    
-
-    
 
     });
 
 
 
 </script>
+
 <body>
     {% include 'navbar.html' %}
-    <div class="container">
-        <div class="heading-container">
-            <h1 class="ocr-heading">OCR </h1>
-        </div>
-    </div>
-    <div class="col text-center">
-        <h5 class="ocr-heading">Choose how to import images.</h5>
-    </div>
-        <div class="row">
-            <div class="col border">
-                <button id="open-camera-btn" class="btn btn-primary">Open Camera</button>
-            </div>
-            <div class="col border">
-                <button id="reset-camera-btn" class="btn btn-secondary">Reset Image</button>
-            </div>
 
-            <!-- <div class="col">
-                <form action="reset-camera">
-                    <button type="submit" class="btn btn-secondary" >reset camera</button>
-                </form>
-            </div> -->
-            <div class="col border">
-                <form action="upload_img" method="post" enctype="multipart/form-data">
+    <!-- <div class="container">
+        <div class="">
+            <h1>OCR</h1>
+        </div>
+    </div> -->
+
+    <div class="col text-center">
+        <h5 class="ocr-heading">ขั้นตอนที่ 1.นำเข้ารูปภาพ</h5>
+    </div>
+
+    <div class="container" style="border-radius: 25px;background-color: rgb(50, 47, 117);">
+        <div class="row">
+            <div class="col open-camera">
+                <button id="open-camera-btn" class="btn btn-primary">
+                    <i class="fa fa-camera" aria-hidden="true"></i>
+                    Open Camera
+                </button>
+            </div>
+            <div class="col upload-image">
+                <form id="upload-form" action="upload_img" method="post" enctype="multipart/form-data">
                     {% csrf_token %}
                     <input type="file" accept="image/*" alt="file_image" name="file_image" id="file_image">
-                    <button id="upload-image-btn" class="btn btn-primary">Upload Image</button>
+                    <button id="upload-image-btn" class="btn btn-primary">Submit</button>
                 </form>
             </div>
         </div>
+        <div class="col" style="display: flex;
+        justify-content: center;
+        align-items: center;">
+            <div class="row pt-1">
+                <div id="video-container" class="video-container">
+                    <img src="{{image}}" alt="" id="video">
+                </div>
+            </div>
+            <div class="row pt-1">
 
-       
+                <div id="image-container" class="image-container">
+                    <!-- {% csrf_token %} -->
+                    <img src="data:image/png;base64,{{ encoded_image }}" alt="" id="captured-image">
+                </div>
 
-    
-
-    <!-- <form action="upload_img" method="post" enctype="multipart/form-data">
-        {% csrf_token %}
-        <input type="file" accept="image/*" alt="file_image" name="file_image" id="file_image">
-        <button id="upload-image-btn" class="btn btn-primary">upload</button>
-    </form>
-
-    {% if request.session.file_image %}
-    <img src="{{ MEDIA_URL }}{{ request.session.file_image }}" alt="Uploaded Image">
-    {% endif %}
-     -->
-    <!-- <div id="video-container" class="video-container">
-        <img src="" alt="Camera Stream" id="video">
-    </div>
-
-
-    <div id="image-container">
-        <img src="" alt="Captured Image" id="captured-image">
-    </div>
-    <button id="ocr-btn">OCR</button>
-    {% if text %}
-    <div id="text-container">
-        <p id="text">{{ text }}</p>
-    </div>
-    {% endif %} -->
-
-    <div class="row pt-5">
-        <div class="col">
-            <div id="video-container" class="video-container">
-                <img src="" alt="Camera Stream" id="video">
             </div>
         </div>
-        <div class="col">
-            <div id="image-container">
-                <!-- {% csrf_token %} -->
-                <img src="data:image/png;base64,{{ encoded_image }}" width="500" height="300" alt="Image" id="captured-image">
-            </div>
-            <div class="pt-2">
-                <button id="ocr-btn" class="btn btn-success btn-lg">OCR</button>
-            </div>
+
+        <div class="row pt-2 pb-5 w-50 m-auto">
             
-            <!-- OCR button and show text -->
-            <div class="col">
-                <div class="row border">
+                <button id="reset-camera-btn" class="btn btn-secondary" >Reset Image</button>
+
+        </div>
+    </div>
+
+
+    <div class="col text-center">
+        <h5 class="ocr-heading">ขั้นตอนที่ 2.รู้จำภาพ</h5>
+    </div>
+    <div class="container" style="background-color: #3f99ca;border-radius: 25px;">
+        
+        <div class="row pt-2 m-auto w-50">
+            <button id="ocr-btn" class="btn btn-success btn-lg">
+                <i class="fa fa-font" aria-hidden="true"></i>
+                <span class="text-decoration-underline">OCR BUTTON</span>
+                <i class="fa fa-search" aria-hidden="true"></i>
+            </button>
+        </div>
+        
+        <!-- OCR button and show text -->
+        <div class="col pb-3" style="margin-bottom: 5px;">
+            <div class="row border pb-2">
+                <div id="text-container">
+                    <p id="text" style="font-size: 1.3em;"></p>
+                </div>
+            </div>
+            <div class="row border pb-2">
+                <div class="col-6">
                     <div id="text-container">
-                        <p id="text" style="font-size: 1.3em;"></p>
-                        
-                    </div>
-                </div>
-                <div class="row border">
-                    <div class="col-6">
-                        <div id="text-container">
-                            <form action="search_name" method="post" enctype="multipart/form-data" class="form-control">
-                                {% csrf_token %}
+                        <form action="search_name" method="post" enctype="multipart/form-data" class="form-control w-100">
+                            {% csrf_token %}
+                            <div class="input-group">
                                 <input type="text" id="tag" value="{{tag.data}}" class="form-control" name="tag">
-                                <button type="submit" style="background-color: #ff000000; border-color: #5e525200;display: flex;  justify-content: flex-end;">
-                                    <i class="fa fa-search " aria-hidden="true" style="font-size: 2em;"></i>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fa fa-search" aria-hidden="true"></i>
                                 </button>
-                            </form>
-                        </div>
+                            </div>
+                        
+                        </form>
                     </div>
-                    
                 </div>
+                <div class="col-6 pb-2">
+                    <div class="row" style="max-height: 200px; overflow-y: auto; scrollbar-width: thin; scrollbar-color: gray gray;">
+                        {% for doc in document %}
+                        {% if document != ' ' %}
+                        <form method="post" action="get_document/{{ doc.id }}" enctype="multipart/form-data" class="form-control">
+                            {% csrf_token %}
+                            <button type="submit" class="card hover-effect" onclick="selectCard(this)">
+                                <div class="name-room-container">
+                                    <span class="confident" style="border: 2px solid #d57815; 
+                                    padding: 5px;
+                                    background-color: #d57815;
+                                    color: white;
+                                    border-radius: 5px;
+                                    width: 60px;
+                                    "
+                                    >
+                                        {{ doc.confidence}}
+                                    </span>
+                                    <span class="name">
+                                        {{ doc.firstname }} {{ doc.last_name }}
+                                    </span>
+                                    <span class="room">
+                                        ห้อง {{ doc.room_num }}
+                                    </span>
+                                </div>
+                                <input type="hidden" name="id" value="{{ doc.id }}" class="form-control">
+                                <input type="hidden" name="firstname" value="{{ doc.firstname }}" class="form-control">
+                                <input type="hidden" name="last_name" value="{{ doc.last_name }}" class="form-control">
+                                <input type="hidden" name="line_id" value="{{ doc.line_id }}" class="form-control">
+                                <input type="hidden" name="room_num" value="{{ doc.room_num }}" class="form-control">
+                            </button>
+                        </form>
+                        
+                        {% elif document == ' ' %}
+                            <p>
+                                ไม่พบข้อมูล
+                            </p>
+                        {% endif %}
 
-                {% for doc in document %}
-                <div class="row">
-                    <div class="card">
-                      id  {{doc.id}} <br>
-                      ชื่อ {{doc.firstname}} <br>
-                      นามสกุล {{doc.last_name}}  <br>
-                      ไลน์ {{doc.line_id}} <br>
-                      ห้อง {{doc.room_num}}
-                      <form method="post" action="get_document/<int:doc.id>"" enctype="multipart/form-data" class="form-control">
-                        {% csrf_token %}
-                        <input type="hidden" name="id" value="{{doc.id}}" class="form-control">
-                        <input type="hidden" name="firstname" value="{{doc.firstname}}" class="form-control">
-                        <input type="hidden" name="last_name" value="{{doc.last_name}}" class="form-control">
-                        <input type="hidden" name="line_id" value="{{doc.line_id}}" class="form-control">
-                        <input type="hidden" name="room_num" value="{{doc.room_num}}" class="form-control">
-                        <button type="submit">Select</button>
-                      </form>
+                        {% endfor %}
                     </div>
-                  </div>
-                {% endfor %}
-                
-
-                
-
+                </div>
+        
             </div>
-
+        
             
+       
+        
+        
+        
+        
+        </div>
+
+   
+    </div>
+        
+
+        <div class="col text-center">
+            <h5 class="ocr-heading">ขั้นตอนที่ 3.บันทึกข้อมูลพัสดุ</h5>
+        </div>
+
+        <div class="container d-flex justify-content-center" style="background-color: #93a432;border-radius: 25px;">
             
+            <div style="border-radius: 25px; margin-top: 25px;" class="row pt-3 w-50 pb-3">
+                {% if result_parcels %}
+                <form action="" method="post" enctype="multipart/form-data" class="form-control">
+                    <input type="text" name="firstname" value="{{result_parcels.firstname}}" class="form-control">
+                    <input type="text" name="last_name" value="{{result_parcels.last_name}}" class="form-control">
+                    <input type="text" name="room_num" value="{{result_parcels.room_num}}" class="form-control">
+                    <input type="date" name="" id="">
+                    <img src="data:image/png;base64,{{ encoded_string }}" alt="" width="200px" height="200px">
 
-
-
-
+                    <button type="submit">Save</button>
+                </form>
+                {% endif %}
+            </div>
 
         </div>
 
 
+
+
+
+
+
+
+
     </div>
-    <style>
-        body {
-            background-color: #EAE6DF;
-        }
+
+
+    </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+</body>
+
+<style>
+    
         h1 {
             text-align: center;
-            margin-bottom: 10px;  
+            margin-bottom: 10px;
             font-size: 48px;
             font-weight: bold;
             color: #622A1F;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4);
         }
-    
+
         .heading-container {
             display: flex;
             padding: 50px;
@@ -246,13 +302,9 @@
             height: 12vh;
             width: 400px;
         }
-        .container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin-bottom: 30px;
-            padding-top: 20px;
-        }
+
+
+
         .border {
             margin-bottom: 5px;
             border: 2px solid #5e5252;
@@ -267,7 +319,7 @@
             background-color: #FCE7F3;
             color: #C55C4D;
             /* Add more CSS properties as desired */
-        
+
         }
 
         PERSON::before {
@@ -280,18 +332,205 @@
             padding-right: 5px;
             /* Add more CSS properties as desired */
         }
-    
+
+        .open-camera{
+            display: flex;
+            justify-content: center;
+            background-color: darkgoldenrod;
+            border-radius: 25px;
+            width: 150px;
+            height: 100px;
+            border-style: inset;
+            margin: 20px;
+            align-items: center;
+                
+        }
+
+        .upload-image{
+
+            background-color: darkgoldenrod;
+            border-radius: 25px;
+            width: 150px;
+            height: 100px;
+            border-style: inset;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 20px;
+
+        }
+
+        input[type="file"] {
+            padding: 4px;
+            margin: -4px;
+            position: relative;
+            outline: none;
+
+            /* File Selector Button Styles */
+            &::file-selector-button {
+              border-radius: 4px;
+              padding: 0 16px;
+              height: 40px;
+              cursor: pointer;
+              background-color: white;
+              border: 1px solid rgba(#000, 0.16);
+              box-shadow: 0px 1px 0px rgba(#000, 0.05);
+              margin-right: 16px;
+            
+              /*
+                This is a hack to change the button label. 
+                I'm hiding the default label and then 
+                manually applying the width based on 
+                updated icon and label.
+              */
+              width: 132px;
+              color: transparent;
+            
+              /*
+                Firefox doesn't support the pseudo ::before 
+                or ::after elements on this input field so 
+                we need to use the @supports rule to enable 
+                default styles fallback for Firefox.
+              */
+              @supports (-moz-appearance: none) {
+                color: var(--primary-color);
+              }
+          
+              &:hover {
+                background-color: #f3f4f6;
+              }
+          
+              &:active {
+                background-color: #e5e7eb;
+              }
+            }
         
-    
-    </style>    
+            /* Faked label styles and icon */
+            &::before {
+              position: absolute;
+              pointer-events: none;
+              top: 14px;
+              left: 16px;
+              height: 20px;
+              width: 20px;
+              content: "";
+              background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%230964B0'%3E%3Cpath d='M18 15v3H6v-3H4v3c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2v-3h-2zM7 9l1.41 1.41L11 7.83V16h2V7.83l2.59 2.58L17 9l-5-5-5 5z'/%3E%3C/svg%3E");
+            }
 
+            &::after {
+              position: absolute;
+              pointer-events: none;
+              top: 16px;
+              left: 40px;
+              color: var(--primary-color);
+              content: "Upload File";
+            }
+        
+            /* Handle Component Focus */
+            &:focus-within::file-selector-button,
+            &:focus::file-selector-button {
+              outline: 2px solid var(--primary-color);
+              outline-offset: 2px;
+            }
 
+            &:focus-within::after,
+            &:focus::after {
+              color: var(--primary-color);
+            }
+        }
+        
 
+        .ocr-heading {
+            font-size: 24px;
+            font-weight: bold;
+            color: #622A1F;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4);
+        }
 
-    
+        .video-container, .image-container {
+            position: relative;
+            width: 500px;
+            height: 500px;
+            margin: 30px;
+        }
 
+        .image-container {
+            margin-right: 30px; /* Add margin on the right side */
+        }
 
-</body>
+        #video, #captured-image {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .card-container {
+          flex: 0 0 auto;
+          width: 300px; /* Adjust the width as needed */
+          margin-right: 10px; /* Adjust the margin as needed */
+        }
+
+        .card {
+          background-color: #d3a2a250;
+          padding: 10px;
+          border-radius: 5px;
+        }
+
+        /* Styling for scrollbar */
+        ::-webkit-scrollbar {
+          width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+          background: #f1f1f1;
+        }
+
+        ::-webkit-scrollbar-thumb {
+          background: gray;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+          background: darkgray;
+        }
+
+        .hover-effect:hover {
+            background-color: #f0f0f0;
+            cursor: pointer;
+        }
+
+        .selected {
+            background-color: #c0c0c0;
+            /* Add more styling properties as desired */
+        }
+
+        .name-room-container {
+            display: flex;
+            align-items: center;
+        }
+
+        .name {
+            font-weight: bold;
+            font-style: italic;
+            font-size: 1.2em;
+            margin-right: 10px;
+        }
+
+        .room {
+            font-size: 1.1em;
+        }
+
+        .confidence{
+            font-size: 1.1em;
+            font-style: italic;
+            
+        }
+
+        
+
+</style>
 
 
 
