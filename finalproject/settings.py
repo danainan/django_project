@@ -107,6 +107,15 @@ DATABASES = {
     }
 }
 
+DEFAULT_FILE_STORAGE = 'gridfs_storage.storage.GridFSStorage'
+GRIDFS_STORAGE_OPTIONS = {
+    'host': 'mongodb+srv://authachaizzz:1234@cluster0.xf2c6og.mongodb.net/?retryWrites=true&w=majority',
+    'database': 'finaldatabase',
+    'username': 'authachaizzz',
+    'password': '1234',
+    'collection_name': 'parcel_users',
+}
+
 
 # Password validation
 # https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators

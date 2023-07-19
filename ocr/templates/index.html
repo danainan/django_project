@@ -102,7 +102,7 @@
         </div>
     </div> -->
 
-    <div class="col text-center">
+    <div class="col text-center pt-2">
         <h5 class="ocr-heading">ขั้นตอนที่ 1.นำเข้ารูปภาพ</h5>
     </div>
 
@@ -191,7 +191,8 @@
                             {% csrf_token %}
                             <button type="submit" class="card hover-effect" onclick="selectCard(this)">
                                 <div class="name-room-container">
-                                    <span class="confident" style="border: 2px solid #d57815; 
+                                    <span class="confident" style="
+                                    border: 2px solid #d57815; 
                                     padding: 5px;
                                     background-color: #d57815;
                                     color: white;
@@ -248,13 +249,27 @@
             
             <div style="border-radius: 25px; margin-top: 25px;" class="row pt-3 w-50 pb-3">
                 {% if result_parcels %}
-                <form action="" method="post" enctype="multipart/form-data" class="form-control">
+                <form action="{% url 'save_document' %}" method="post" enctype="multipart/form-data" class="form-control">
+                    {% csrf_token %}
+                    <label for="firstname" class="header">ชื่อ</label>
                     <input type="text" name="firstname" value="{{result_parcels.firstname}}" class="form-control">
+                    <label for="last_name" class="header">นามสกุล</label>
                     <input type="text" name="last_name" value="{{result_parcels.last_name}}" class="form-control">
+                    <label for="room_num" class="header">ห้อง</label>
                     <input type="text" name="room_num" value="{{result_parcels.room_num}}" class="form-control">
-                    <input type="date" name="dateInput" id="dateInput">
-                    <img src="data:image/png;base64,{{ encoded_string }}" alt="" width="200px" height="200px">
-                    <button type="submit">Save</button>
+                    <div class="row">
+                        <div class="col">
+                            <label for="date" class="header">วันนำส่ง</label>
+                            <input type="date" name="dateInput" id="dateInput" value="{{dateInput}}" class="form-control">
+                        </div>
+                        <div class="col">
+                            <label for="status" class="header">สถานะ</label>
+                            <input type="text" name="status" value="ยังไม่ได้รับ" class="form-control" readonly style="font-style: italic;">
+                        </div>
+                    </div>
+                    <div class="pt-2 w-50">
+                        <button type="submit" class="btn btn-success w-50">Save</button>
+                    </div>
                 </form>
                 {% endif %}
             </div>
@@ -289,6 +304,11 @@
 </body>
 
 <style>
+        .header {
+            font-size: 15px;
+            font-weight: bold;
+            color: #000000;
+        }
     
         h1 {
             text-align: center;

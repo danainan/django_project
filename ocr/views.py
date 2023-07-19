@@ -33,6 +33,7 @@ from fuzzywuzzy import fuzz, process
 import datetime
 import json
 from bson import ObjectId
+from .models import *
 
 
 
@@ -329,7 +330,10 @@ def ocr(request):
             print(person)
             print(_pharse)
 
-            if len(person) == 1:
+            if len(person) == 0:
+                return JsonResponse({'tag1': 'ไม่พบข้อมูล', 'tag': 'ไม่พบข้อมูล', 'text': formatted_content}, status=200)
+
+            elif len(person) == 1:
                 print('ผู้ส่ง :',person[0]),print('ผู้รับ :',person[0])
                 return JsonResponse({'tag1': person[0], 'tag': person[0], 'text': _engine.tag(formatted_content,tag=True)}, status=200)
 
@@ -426,12 +430,12 @@ def search_name(request):
             db = client[settings.MONGODB_NAME]
             result = db['project_users'].find_one({'firstname': matching_data_firstname[0]['firstname']})
             print(result)
-            media_path = os.path.join(settings.MEDIA_ROOT, 'capture.jpg')
-            with open(media_path, 'rb') as f:
-                data = f.read()
-            encoded_string = base64.b64encode(data).decode('utf-8')
+            # media_path = os.path.join(settings.MEDIA_ROOT, 'capture.jpg')
+            # with open(media_path, 'rb') as f:
+            #     data = f.read()
+            # encoded_string = base64.b64encode(data).decode('utf-8')
 
-            return render(request, 'index.html', {'result_parcels': result,'document':matching_data_firstname,'conf':confidence,'result': matching_data_firstname[0],'encoded_string': encoded_string})
+            return render(request, 'index.html', {'result_parcels': result,'document':matching_data_firstname,'conf':confidence,'result': matching_data_firstname[0]})
         
         elif len(matching_data_firstname) > 1:
             return render(request, 'index.html', {'result': matching_data_firstname,'document':matching_data_firstname,'conf':confidence})
@@ -464,12 +468,10 @@ def get_document_id(request,roll):
         encoded_string = base64.b64encode(data).decode('utf-8')
 
 
-
-
-
         print(result)
         if result:
             return render(request, 'index.html', {'result_parcels': result,'encoded_string': encoded_string})
+
             
         else:
             return render(request, 'index.html', {'result': 'ไม่พบข้อมูล'})
@@ -481,19 +483,25 @@ def save_document(request):
     if request.method == 'POST':
         firstname = request.POST.get('firstname')
         last_name = request.POST.get('last_name')
-        line_id = request.POST.get('line_id')
         room_num = request.POST.get('room_num')
+        status = request.POST.get('status')
+        date = request.POST.get('dateInput')
 
         client = MongoClient(settings.MONGODB_URI)
         db = client[settings.MONGODB_NAME]
+        
 
-        document = Document(
-            firstname=firstname,
-            last_name=last_name,
-            line_id=line_id,
-            room_num=room_num
-        )
-        db['parcel_users'].insert_one(document.__dict__)
+
+        d = Document()
+        d.firstname = firstname
+        d.last_name = last_name
+        d.room_num = room_num
+        d.status = status
+        d.date = date
+        d.save()
+
+
+        
 
         return render(request, 'index.html', {'result': 'บันทึกข้อมูลเรียบร้อยแล้ว'})
 
