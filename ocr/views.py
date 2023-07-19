@@ -37,6 +37,7 @@ from .models import *
 
 
 
+
 def index(request, *args, **kwargs):
 
     image = 'https://baj.by/sites/default/files/event/preview/thumb-padrao-video.png'
@@ -332,6 +333,7 @@ def ocr(request):
             print(_pharse)
 
             if len(person) == 0:
+                
                 return JsonResponse({'tag1': 'ไม่พบข้อมูล', 'tag': 'ไม่พบข้อมูล', 'text': formatted_content}, status=200)
 
             elif len(person) == 1:

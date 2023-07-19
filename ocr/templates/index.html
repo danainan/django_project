@@ -61,16 +61,23 @@
 
 
         ocrBtn.addEventListener('click', function () {
+            text.innerHTML = '<div class="loader"></div><span>Loading...</span>';
+
+            
+            
+
             fetch("{% url 'ocr' %}")
                 .then(response => {
-                    if (response.ok) {
+                    if (response.ok) {            
                         return response.json();
+                        
                     }
                 })
                 .then(data => {
                     text.innerHTML = data.text;
                     tag.value = data.tag;
                     // tag1.innerHTML = data.tag1;
+                    
 
 
                 });
@@ -87,9 +94,11 @@
         
         document.getElementById("dateInput").value = formattedDate;
 
+        
+  
+
 
     });
-
 
 
 </script>
@@ -176,12 +185,13 @@
             <div class="row border pb-2">
                 <div id="text-container">
                     <p id="text" style="font-size: 1.3em;"></p>
+                    
                 </div>
             </div>
             <div class="row border pb-2">
                 <div class="col-6">
                     <div id="text-container">
-                        <form action="search_name" method="post" enctype="multipart/form-data" class="form-control w-100">
+                        <form action="search_name" method="post" enctype="multipart/form-data" class="form-control w-100" id="searchForm">
                             {% csrf_token %}
                             <div class="input-group">
                                 <input type="text" id="tag" value="{{tag.data}}" class="form-control" name="tag">
@@ -191,6 +201,7 @@
                             </div>
                         
                         </form>
+                        
                     </div>
                 </div>
                 <div class="col-6 pb-2">
@@ -564,6 +575,20 @@
             font-size: 1.1em;
             font-style: italic;
             
+        }
+
+        .loader {
+         border: 16px solid #f3f3f3; /* Light grey */
+         border-top: 16px solid #3498db; /* Blue */
+         border-radius: 50%;
+         width: 80px;
+         height: 80px;
+         animation: spin 2s linear infinite;
+        }
+
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
         }
 
         
