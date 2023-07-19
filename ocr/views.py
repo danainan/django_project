@@ -39,8 +39,9 @@ from .models import *
 
 def index(request, *args, **kwargs):
 
+    image = 'https://baj.by/sites/default/files/event/preview/thumb-padrao-video.png'
 
-    return render(request, 'index.html', {})
+    return render(request, 'index.html', {'image': image})
     
 
 

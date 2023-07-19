@@ -35,8 +35,9 @@
                 .then(response => {
                     if (response.ok) {
                         video.src = "{% url 'livefe' %}";
-                        image.style.display = 'none';
+                        image.src = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRwZ4mTuUvdD6l60AzmWTIZ341ALx1udRQn3zv5va8czuI5VNApMbGqiIJGSuoe1EhreQY&usqp=CAU';
                     }
+                    
 
                 });
         });
@@ -127,14 +128,23 @@
         align-items: center;">
             <div class="row pt-1">
                 <div id="video-container" class="video-container">
-                    <img src="{{image}}" alt="" id="video">
+                    {% if encoded_image %}
+                        <img src="https://baj.by/sites/default/files/event/preview/thumb-padrao-video.png" alt="" id="video"></img>
+                    {% else %}
+                        <img src="https://baj.by/sites/default/files/event/preview/thumb-padrao-video.png" alt="" id="video"></img>
+                    {% endif %}
+                    
                 </div>
             </div>
             <div class="row pt-1">
 
                 <div id="image-container" class="image-container">
                     <!-- {% csrf_token %} -->
-                    <img src="data:image/png;base64,{{ encoded_image }}" alt="" id="captured-image">
+                    {% if encoded_image %}
+                        <img src="data:image/png;base64,{{ encoded_image }}" alt="" id="captured-image">
+                    {% else %}
+                        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRwZ4mTuUvdD6l60AzmWTIZ341ALx1udRQn3zv5va8czuI5VNApMbGqiIJGSuoe1EhreQY&usqp=CAU" alt="" id="captured-image">
+                    {% endif %}
                 </div>
 
             </div>

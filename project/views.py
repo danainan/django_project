@@ -86,7 +86,16 @@ def users_add(request):
         return redirect("/project/home")
 
     rooms = Rooms.objects.all()
-    room_options = [(room.room_number, f"{room.room_number} (ห้องพักเต็มเเล้ว)") if Users.objects.filter(room_num=room.room_number).count() >= int(room.room_capacity) else (room.room_number, room.room_number) for room in rooms]
+    # room_options = [(room.room_number, f"{room.room_number} (ห้องพักเต็มเเล้ว)") if Users.objects.filter(room_num=room.room_number).count() >= int(room.room_capacity) else (room.room_number, room.room_number) for room in rooms]
+
+    room_options = []
+
+    for room in rooms:
+        current_occupancy = Users.objects.filter(room_num=room.room_number).count()
+        room_status = f"{room.room_number} (ห้องพักเต็มแล้ว)" if current_occupancy >= int(room.room_capacity) else f"{room.room_number} ({current_occupancy}/{room.room_capacity} คน)"
+        room_options.append((room.room_number, room_status))
+
+
     return render(request, 'std/add_u.html', {'room_options': room_options})
 
 
