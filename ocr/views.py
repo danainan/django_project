@@ -34,10 +34,11 @@ import datetime
 import json
 from bson import ObjectId
 from .models import *
+from django.contrib.auth.decorators import login_required
 
 
 
-
+@login_required(login_url='../project/login/')
 def index(request, *args, **kwargs):
 
     image = 'https://baj.by/sites/default/files/event/preview/thumb-padrao-video.png'
@@ -503,12 +504,12 @@ def save_document(request):
         d.date = date
         d.save()
 
-
+        print("Document saved successfully")
         
 
-        return render(request, 'index.html', {'result': 'บันทึกข้อมูลเรียบร้อยแล้ว'})
+        return redirect('index')
 
-    return render(request, 'index.html')
+    return redirect('index')
 
             
 

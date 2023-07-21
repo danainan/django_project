@@ -3,7 +3,7 @@ from .views import *
 from django.contrib import admin
 
 urlpatterns = [
-    path("", index),
+    path("", login),
     path("home/", home),
     path("add-users/", users_add),
     path("delete-users/<int:roll>", users_delete),
@@ -12,4 +12,5 @@ urlpatterns = [
     path("login/", login, name="login"), 
     path("logout/", logout),
     path("add-rooms/", room_add),
+    path("summary/", summary),
 ]

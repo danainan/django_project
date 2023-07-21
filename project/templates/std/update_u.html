@@ -57,6 +57,13 @@
                         <form action="/project/doupdate-users/{{project.id}}" method="POST">
                             {% csrf_token %}
                             <div class="form-group">
+                                <!-- <label for="room_num">ห้องพัก</label>
+                                <select name="project_room_num" id="room_num" class="form-control">
+                                    {% for room_option, room_status in room_data %}
+                                        <option value="{{ room_option }}" {% if room_option == project.room_num %}selected{% endif %}>{{ room_status }}</option>
+                                    {% endfor %}
+                                </select> -->
+
                                 <label for="room_num">ห้องพัก</label>
                                 <select name="project_room_num" id="room_num" class="form-control">
                                     {% for room_option, room_status in room_data %}
