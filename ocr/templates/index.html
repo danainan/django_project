@@ -48,18 +48,6 @@
         });
 
         
-
-
-
-
-
-
-
-
-
-
-
-
         ocrBtn.addEventListener('click', function () {
             text.innerHTML = '<div class="loader"></div><span>Loading...</span>';
 
@@ -83,16 +71,22 @@
                 });
         });
 
-        function selectCard(card) {
-            
-
-
-        }
 
         const currentDate = new Date();
         const formattedDate = currentDate.toISOString().split("T")[0];
         
         document.getElementById("dateInput").value = formattedDate;
+
+        document.getElementById('searchForm').addEventListener('change', function(event) {
+            event.preventDefault();
+            var tagValue = document.getElementById('tag').value;
+
+            if (tagValue) {
+                fetch("{% url 'search_name' %}")
+            }else {
+                alert('กรุณาเลือกข้อมูล');
+            }
+        });
 
         
   
@@ -194,7 +188,7 @@
                         <form action="search_name" method="post" enctype="multipart/form-data" class="form-control w-100" id="searchForm">
                             {% csrf_token %}
                             <div class="input-group">
-                                <input type="text" id="tag" value="{{tag.data}}" class="form-control" name="tag">
+                                <input type="text" id="tag" value="{{tag}}" class="form-control" name="tag">
                                 <button type="submit" class="btn btn-primary">
                                     <i class="fa fa-search" aria-hidden="true"></i>
                                 </button>
@@ -205,6 +199,7 @@
                     </div>
                 </div>
                 <div class="col-6 pb-2">
+                
                     <div class="row" style="max-height: 200px; overflow-y: auto; scrollbar-width: thin; scrollbar-color: gray gray;">
                         {% for doc in document %}
                         {% if document != ' ' %}
@@ -248,6 +243,9 @@
                         {% endfor %}
                     </div>
                 </div>
+
+
+
         
             </div>
         
@@ -261,8 +259,6 @@
 
    
     </div>
-        
-
         <div class="col text-center">
             <h5 class="ocr-heading">ขั้นตอนที่ 3.บันทึกข้อมูลพัสดุ</h5>
         </div>

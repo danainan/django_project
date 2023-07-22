@@ -291,6 +291,9 @@ def livefe(request):
             
 #     return HttpResponse(status=200)
 
+
+
+
 def ocr(request):
     media_path = os.path.join(settings.MEDIA_ROOT, 'capture.jpg')
     ocr_path = os.path.join(settings.OCR_ROOT, 'tessdata_best-main')
@@ -374,6 +377,7 @@ def search_name(request):
         #     return render(request, 'index.html', {'result': 'ไม่พบข้อมูล'})
 
         search_string = request.POST.get('tag')
+        text = request.POST.get('text')
         search_string_parts = search_string.split(' ')
         if len(search_string_parts) >= 2:
             search_string_firstname = search_string_parts[0]
@@ -439,12 +443,17 @@ def search_name(request):
             #     data = f.read()
             # encoded_string = base64.b64encode(data).decode('utf-8')
 
-            return render(request, 'index.html', {'result_parcels': result,'document':matching_data_firstname,'conf':confidence,'result': matching_data_firstname[0]})
+            return render(request, 'index.html', {'result_parcels': result,'document':matching_data_firstname,'conf':confidence,'result': matching_data_firstname[0],'tag':search_string})
+            
         
         elif len(matching_data_firstname) > 1:
-            return render(request, 'index.html', {'result': matching_data_firstname,'document':matching_data_firstname,'conf':confidence})
+            
+            
+            return render(request, 'index.html', {'result': matching_data_firstname,'document':matching_data_firstname,'conf':confidence,'tag':search_string,'text':text})
+            
         else:
             return render(request, 'index.html', {'result': 'ไม่พบข้อมูล','document':' ','conf':'ไม่พบข้อมูล'})
+            
                 
                  
 
