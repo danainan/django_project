@@ -291,91 +291,80 @@ def livefe(request):
             
 #     return HttpResponse(status=200)
 
+_engine = NER(engine="thainer-v2", corpus="thainer")
 
+def get_person_names(text):
+    formatted_content = re.sub(r'\s+', ' ', text).strip()
+    ner_tag = _engine.tag(formatted_content)
+    merged_ner = []
+    print(ner_tag)
 
+    for i in ner_tag:
+        if i[1].startswith("B-"):
+            merged_ner.append(i)
+        elif i[1].startswith("I-"):
+            merged_ner[-1] = (merged_ner[-1][0] + i[0], merged_ner[-1][1])
+        else:
+            merged_ner.append(i)
+
+    person = []
+    _pharse = []
+
+    for i in merged_ner:
+        if i[1].startswith("B-PERSON") and i[0] != ' ' and len(i[0]) > 5:
+            _pharse.append(i)
+            person.append(i[0])
+
+    return person
 
 def ocr(request):
     media_path = os.path.join(settings.MEDIA_ROOT, 'capture.jpg')
     ocr_path = os.path.join(settings.OCR_ROOT, 'tessdata_best-main')
+    #set image dpi
+    # img = Image.open(media_path)
+    # img = cv2.imread(media_path)
+    # gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    #new size 1050x1024
+    # dpi = 300
+    # resized = cv2.resize(gray, (int(1050 * dpi / 300), int(1024 * dpi / 300)), interpolation = cv2.INTER_AREA)
+    
+    # cv2.imwrite(media_path, resized)
+  
+    
+    
+
+
     if os.path.exists(media_path):
-        with PyTessBaseAPI(path=ocr_path,lang='tha+eng',oem=OEM.LSTM_ONLY,psm=PSM.AUTO_OSD) as api:
+        with PyTessBaseAPI(path=ocr_path, lang='tha+eng', oem=OEM.LSTM_ONLY, psm=PSM.AUTO_OSD) as api:
             api.SetImageFile(media_path)
             text = api.GetUTF8Text()
             conf = api.AllWordConfidences()
-            formatted_content = re.sub(r'\s+', ' ', text).strip()
-            print(formatted_content)
 
-            _engine = NER(engine="thainer-v2",corpus="thainer")
-    
-            # print(_engine.tag(formatted_content,tag=True))
+            person_names = get_person_names(text)
 
-            person = []
+            if len(person_names) == 0:
+                return JsonResponse({'tag1': 'ไม่พบข้อมูล', 'tag': 'ไม่พบข้อมูล', 'text': _engine.tag(text,tag=True)}, status=200)
 
-            ner_tag = _engine.tag(formatted_content)
+            elif len(person_names) == 1:
+                sender, receiver = person_names[0], person_names[0]
 
+            elif len(person_names) == 2:
+                sender, receiver = person_names[0], person_names[1]
 
-            merged_ner=[]
-            for i in ner_tag:
-                if i[1].startswith("B-"):
-                    merged_ner.append(i)
-                elif i[1].startswith("I-"):
-                    merged_ner[-1]=(merged_ner[-1][0]+i[0],merged_ner[-1][1])
-                else:
-                    merged_ner.append(i)
+            else:
+                sender, receiver = person_names[0], ' '.join(person_names[1:])
 
-            # print(merged_ner)
+            print('ผู้ส่ง:', sender)
+            print('ผู้รับ:', receiver)
 
-            #display only entity of person  name
-            person = []
-            _pharse = []
-            for i in merged_ner:
-                if i[1].startswith("B-PERSON") and i[0] != ' ' and len(i[0]) > 5 :
-                    _pharse.append(i)
-                    person.append(i[0])
+            return JsonResponse({'tag1': sender, 'tag': receiver, 'text': _engine.tag(text,tag=True)}, status=200)
 
-            print(person)
-            print(_pharse)
-
-            if len(person) == 0:
-                
-                return JsonResponse({'tag1': 'ไม่พบข้อมูล', 'tag': 'ไม่พบข้อมูล', 'text': formatted_content}, status=200)
-
-            elif len(person) == 1:
-                print('ผู้ส่ง :',person[0]),print('ผู้รับ :',person[0])
-                return JsonResponse({'tag1': person[0], 'tag': person[0], 'text': _engine.tag(formatted_content,tag=True)}, status=200)
-
-            elif len(person) == 2:
-                print('ผู้ส่ง :',person[0]),print('ผู้รับ :',person[1])
-                return JsonResponse({'tag1': person[0], 'tag': person[1], 'text': _engine.tag(formatted_content,tag=True)}, status=200)
-
-            elif len(person) > 2:
-                # print('ผู้ส่ง :',person[0]),print('ผู้รับ :',person[1]+person[2])
-                for i in range(2,len(person)):
-                    person[1] = person[1] + person[i]
-                print('ผู้ส่ง :',person[0]),print('ผู้รับ :',person[1])
-                return JsonResponse({'tag1': person[0], 'tag': person[1], 'text': _engine.tag(formatted_content,tag=True)}, status=200)
-            else :
-                return JsonResponse({'tag1': 'ไม่พบข้อมูล', 'tag': 'ไม่พบข้อมูล','tex' : _engine.tag(formatted_content,tag=True)}, status=200)
-            
-            
-
-
-
-            #return JsonResponse({'text': _engine.tag(formatted_content,tag=True)}, status=200)
+    else:
+        return JsonResponse({'tag1': 'ไม่พบข้อมูล', 'tag': 'ไม่พบข้อมูล', 'tex': _engine.tag(text,tag=True)}, status=200)
 
 
 def search_name(request):
     if request.method == 'POST':
-        # firstname = request.POST.get('tag')
-        # client = MongoClient(settings.MONGODB_URI)
-        # db = client[settings.MONGODB_NAME]
-
-        # result = db['project_users'].find_one({'firstname': {'$regex': firstname}})
-        # if result:
-        #     return render(request, 'index.html', {'result': result})
-        # else:
-        #     return render(request, 'index.html', {'result': 'ไม่พบข้อมูล'})
-
         search_string = request.POST.get('tag')
         text = request.POST.get('text')
         search_string_parts = search_string.split(' ')
@@ -386,13 +375,8 @@ def search_name(request):
             search_string_firstname = search_string
             search_string_lastname = ''
 
-        print('fname=>',search_string_firstname)
-        print('lname=>',search_string_lastname)
-
-
-
-
-
+        print('fname=>', search_string_firstname)
+        print('lname=>', search_string_lastname)
 
         client = MongoClient(settings.MONGODB_URI)
         db = client[settings.MONGODB_NAME]
@@ -400,96 +384,69 @@ def search_name(request):
         data_firstname = []
         data_lastname = []
 
-        results = db['project_users'].find({})
-        
+        # Use index to improve query performance
+        results = db['project_users'].find({}, {'firstname': 1, 'last_name': 1})
+        matching_data_firstname = []
+        confidence_threshold = 60
         for document in results:
             data_firstname.append(document['firstname'])
             data_lastname.append(document['last_name'])
 
-        matching_data_firstname = []
-        confident = []
-        confidence_threshold = 60
         for i in range(len(data_firstname)):
             confidence = fuzz.ratio(search_string_firstname, data_firstname[i])
-            
+
             if confidence >= confidence_threshold:
-                # matching_data_firstname.append(db['project_users'].find_one({'firstname': data_firstname[i]}))
                 document = db['project_users'].find({'firstname': data_firstname[i]})
                 print(document)
-  
-                for doc in document:
-                    matching_data_firstname.append(doc)
-                    #append confidence
-                    matching_data_firstname[-1]['confidence'] = confidence
-                    #remove duplicate
-                    matching_data_firstname = list({v['_id']:v for v in matching_data_firstname}.values())
-                    #sort with confidence
-                    matching_data_firstname.sort(key=lambda x: fuzz.ratio(search_string_firstname, x['firstname']), reverse=True)
-                    #matching_data_firstname.sort(key=lambda x: x['firstname'], reverse=True)
-                   
-                    
-                    print(matching_data_firstname,'confidence=>',confidence)
 
-        
-        
+                for doc in document:
+                    doc['confidence'] = confidence
+                    matching_data_firstname.append(doc)
+
+        matching_data_firstname.sort(key=lambda x: fuzz.ratio(search_string_firstname, x['firstname']), reverse=True)
+
+        # Limit the number of results to improve performance
+        matching_data_firstname = matching_data_firstname[:10]
 
         if len(matching_data_firstname) == 1:
-            client = MongoClient(settings.MONGODB_URI)
-            db = client[settings.MONGODB_NAME]
             result = db['project_users'].find_one({'firstname': matching_data_firstname[0]['firstname']})
             print(result)
-            # media_path = os.path.join(settings.MEDIA_ROOT, 'capture.jpg')
-            # with open(media_path, 'rb') as f:
-            #     data = f.read()
-            # encoded_string = base64.b64encode(data).decode('utf-8')
 
-            return render(request, 'index.html', {'result_parcels': result,'document':matching_data_firstname,'conf':confidence,'result': matching_data_firstname[0],'tag':search_string})
-            
-        
+            return render(request, 'index.html', {'result_parcels': result, 'document': matching_data_firstname, 'conf': confidence, 'result': matching_data_firstname[0], 'tag': search_string})
+
         elif len(matching_data_firstname) > 1:
-            
-            
-            return render(request, 'index.html', {'result': matching_data_firstname,'document':matching_data_firstname,'conf':confidence,'tag':search_string,'text':text})
-            
+            return render(request, 'index.html', {'result': matching_data_firstname, 'document': matching_data_firstname, 'conf': confidence, 'tag': search_string, 'text': text})
+
         else:
-            return render(request, 'index.html', {'result': 'ไม่พบข้อมูล','document':' ','conf':'ไม่พบข้อมูล'})
+            return render(request, 'index.html', {'result': 'ไม่พบข้อมูล', 'document': ' ', 'conf': 'ไม่พบข้อมูล'})
             
-                
-                 
-
-        # if len(matching_data_firstname) > 0:
-        #     return render(request, 'index.html', {'result': matching_data_firstname,'document':matching_data_firstname})
-           
-        # else:
-        #     return render(request, 'index.html', {'result': 'ไม่พบข้อมูล'})
 
 
-def get_document_id(request,roll):
+
+def get_document_id(request, roll):
     if request.method == 'POST':
         client = MongoClient(settings.MONGODB_URI)
         db = client[settings.MONGODB_NAME]
 
-        result = db['project_users'].find_one({'id': int(roll)})
+        result = db['project_users'].find_one({'id': int(roll)}, {'_id': 0, 'firstname': 1, 'last_name': 1, 'room_num': 1})
 
-        getfirstname = result['firstname']
-        getlastname = result['last_name']
-        getroom = result['room_num']
-
-        media_path = os.path.join(settings.MEDIA_ROOT, 'capture.jpg')
-        with open(media_path, 'rb') as f:
-            data = f.read()
-        encoded_string = base64.b64encode(data).decode('utf-8')
-
-
-        print(result)
         if result:
-            return render(request, 'index.html', {'result_parcels': result,'encoded_string': encoded_string})
+            getfirstname = result['firstname']
+            getlastname = result['last_name']
+            getroom = result['room_num']
 
-            
+            media_path = os.path.join(settings.MEDIA_ROOT, 'capture.jpg')
+            with open(media_path, 'rb') as f:
+                data = f.read()
+            encoded_string = base64.b64encode(data).decode('utf-8')
+
+            return render(request, 'index.html', {'result_parcels': result, 'encoded_string': encoded_string})
         else:
             return render(request, 'index.html', {'result': 'ไม่พบข้อมูล'})
-        
+
     return render(request, 'index.html')
+
+
 
 
 def save_document(request):

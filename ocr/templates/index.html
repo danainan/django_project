@@ -76,6 +76,7 @@
         const formattedDate = currentDate.toISOString().split("T")[0];
         
         document.getElementById("dateInput").value = formattedDate;
+        document.getElementById("dateInput").setAttribute("max", formattedDate);
 
         document.getElementById('searchForm').addEventListener('change', function(event) {
             event.preventDefault();
@@ -97,7 +98,7 @@
 
 </script>
 
-<body>
+<body style="background-color: #25c1c1;">
     {% include 'navbar.html' %}
 
     <!-- <div class="container">
@@ -117,6 +118,7 @@
                     <i class="fa fa-camera" aria-hidden="true"></i>
                     Open Camera
                 </button>
+                
             </div>
             <div class="col upload-image">
                 <form id="upload-form" action="upload_img" method="post" enctype="multipart/form-data">
@@ -130,7 +132,9 @@
         justify-content: center;
         align-items: center;">
             <div class="row pt-1">
+
                 <div id="video-container" class="video-container">
+                    
                     {% if encoded_image %}
                         <img src="https://baj.by/sites/default/files/event/preview/thumb-padrao-video.png" alt="" id="video"></img>
                     {% else %}
@@ -138,6 +142,7 @@
                     {% endif %}
                     
                 </div>
+                
             </div>
             <div class="row pt-1">
 
@@ -154,6 +159,7 @@
         </div>
 
         <div class="row pt-2 pb-5 w-50 m-auto">
+            <p style="color: white;padding-left: -5em;">กดปุ่ม 'Q' บนคีย์บอร์ดเพื่อ 'ถ่ายภาพ'</p>
             
                 <button id="reset-camera-btn" class="btn btn-secondary" >Reset Image</button>
 
@@ -270,23 +276,23 @@
                 <form action="{% url 'save_document' %}" method="post" enctype="multipart/form-data" class="form-control">
                     {% csrf_token %}
                     <label for="firstname" class="header">ชื่อ</label>
-                    <input type="text" name="firstname" value="{{result_parcels.firstname}}" class="form-control">
+                    <input type="text" name="firstname" value="{{result_parcels.firstname}}" class="form-control" readonly>
                     <label for="last_name" class="header">นามสกุล</label>
-                    <input type="text" name="last_name" value="{{result_parcels.last_name}}" class="form-control">
+                    <input type="text" name="last_name" value="{{result_parcels.last_name}}" class="form-control" readonly>
                     <label for="room_num" class="header">ห้อง</label>
-                    <input type="text" name="room_num" value="{{result_parcels.room_num}}" class="form-control">
+                    <input type="text" name="room_num" value="{{result_parcels.room_num}}" class="form-control" readonly>
                     <div class="row">
                         <div class="col">
                             <label for="date" class="header">วันนำส่ง</label>
-                            <input type="date" name="dateInput" id="dateInput" value="{{dateInput}}" class="form-control">
+                            <input type="date" name="dateInput" id="dateInput" value="{{dateInput}}" class="form-control" max="{{dateInput}}">
                         </div>
-                        <div class="col">
+                        <!-- <div class="col">
                             <label for="status" class="header">สถานะ</label>
                             <input type="text" name="status" value="ยังไม่ได้รับ" class="form-control" readonly style="font-style: italic;">
-                        </div>
+                        </div> -->
                     </div>
                     <div class="pt-2 w-50">
-                        <button type="submit" class="btn btn-success w-50">Save</button>
+                        <button type="submit" class="btn btn-success w-50">บันทึกพัสดุ</button>
                     </div>
                 </form>
                 {% endif %}
@@ -489,7 +495,7 @@
         .ocr-heading {
             font-size: 24px;
             font-weight: bold;
-            color: #622A1F;
+            color: #ffffff;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4);
         }
 
@@ -498,6 +504,9 @@
             width: 500px;
             height: 500px;
             margin: 30px;
+            background-size: cover;
+            background-position: center;
+       
         }
 
         .image-container {

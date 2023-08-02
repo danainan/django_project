@@ -74,8 +74,9 @@ def home(request):
             ).order_by('room_num')
     else:
         users = Users.objects.all().order_by('room_num')
+        rooms = Rooms.objects.all()
 
-    return render(request, 'std/home.html', {'users': users})
+    return render(request, 'std/home.html', {'users': users, 'rooms': rooms})
 
 
 

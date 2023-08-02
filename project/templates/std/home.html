@@ -69,6 +69,10 @@
         <div class="input-group mb-3">
             <button type="submit" href="/project/home/" class="btn btn-primary">แสดงรายชื่อสมาชิกในหอพักทั้งหมด</button>
         </div>
+        <div>
+            จำนวนสมาชิกทั้งหมด: {{ users|length }} คน 
+            จำนวนห้องพักทั้งหมด {{ rooms|length }} ห้อง
+        </div>
     </form>
 
 
@@ -78,26 +82,29 @@
             <div class="card">
                 <div class="card-body">
                     <table class="table table-striped">
+                        
                         <thead>
                             <tr>
-                                <th>ID</th>
-                                <th>Room Number</th>
-                                <th>First Name</th>
-                                <th>Last Name</th>
-                                <th>Line ID</th>
+                                <!-- <th>ID</th> -->
+                                <th>เลขห้อง</th>
+                                <th>ชื่อ</th>
+                                <th>นามสกุล</th>
+                                <th>ไอดีไลน์</th>
                             </tr>
                         </thead>
                         <tbody>
                             {% for u in users %}
+                                
                             <tr>
-                                <td>{{ forloop.counter }}</td>
+                                <!-- <td>{{ forloop.counter }}</td> -->
                                 <td>{{ u.room_num }}</td>
                                 <td>{{ u.firstname }}</td>
                                 <td>{{ u.last_name }}</td>
                                 <td>{{ u.line_id }}</td>
                                 <td>
-                                    <a href="/project/delete-users/{{ u.id }}" class="btn btn-danger md-sm">Delete</a>
-                                    <a href="/project/update-users/{{ u.id }}" class="btn btn-success md-sm">Update</a>
+                                    <a href="/project/update-users/{{ u.id }}" class="btn btn-warning md-sm">แก้ไข</a>
+                                    <a href="/project/delete-users/{{ u.id }}" class="btn btn-danger md-sm">ลบ</a>
+                                    
                                 </td>
                             </tr>
                             {% endfor %}
