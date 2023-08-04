@@ -1,4 +1,4 @@
-from django.shortcuts import render,redirect
+from django.shortcuts import render,redirect,get_object_or_404
 from .models import Users
 from django.contrib.auth.models import User 
 from .models import Rooms
@@ -13,13 +13,11 @@ from ocr.models import Document
 
 @login_required(login_url='/login/')
 def summary(request):
-
     if request.method == 'GET' and 'search' in request.GET:
         search_query = request.GET.get('search')
         if not search_query:
             messages.warning(request, 'กรุณากรอกข้อมูลที่ถูกต้องเช่น ชื่อ-นามสกุล หรือ หมายเลขห้องพัก')
             documents = Document.objects.all().order_by('room_num')
-        
         else:
             documents = Document.objects.filter(
                 Q(firstname__icontains=search_query) |
@@ -29,11 +27,19 @@ def summary(request):
     else:
         documents = Document.objects.all().order_by('room_num')
 
+    received_documents = [doc for doc in documents if doc.status == 'รับแล้ว']
 
+    documents = [doc for doc in documents if doc not in received_documents]
 
+    if request.method == 'POST':
+        for document in documents:
+            status = request.POST.get(f"status_{document.pk}", None)
+            if status in ['รับแล้ว', 'ยังไม่ได้รับ']:
+                document.status = status
+                document.save()
 
+    return render(request, 'std/summary.html', {'documents': documents, 'received_documents': received_documents})
 
-    return render(request, 'std/summary.html' ,{'documents': documents})
 
 def index(request):
     return render(request, 'std/index.html')
@@ -196,3 +202,21 @@ def room_add(request):
             return redirect("/project/home")
 
     return render(request, 'std/add_room.html', {})
+
+
+
+@login_required(login_url='/login/')
+def rooms_list(request):
+    rooms = Rooms.objects.all()
+    return render(request, 'std/rooms_list.html', {'rooms': rooms})
+
+
+
+def delete_room(request, room_id):
+    room = get_object_or_404(Rooms, id=room_id)
+
+    if request.method == 'POST':
+        room.delete()
+        return redirect('rooms_list')
+
+    return render(request, 'std/delete_room.html', {'room': room})
