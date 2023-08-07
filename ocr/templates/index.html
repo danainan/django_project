@@ -17,23 +17,6 @@
     crossorigin="anonymous"></script>
 <script src="https://kit.fontawesome.com/b56c1cd1e7.js" crossorigin="anonymous"></script>
 <script>
-    //test สำหรับดู modal ตลอด
-    $(window).on('load', function () {
-        $('#myModal').modal('show');
-
-        // when button click
-        $('#buttonModal').click(function () {
-            $('#myModal').modal('hide');
-        });
-
-        // when the modal is closed
-        $('#myModal').on('hidden.bs.modal', function (e) {
-            // remove the backdrop
-            $('.modal-backdrop').remove();
-        });
-    });
-    
-
     $(document).ready(function () {
         var video = document.getElementById('video');
         var openCameraBtn = document.getElementById('open-camera-btn');
@@ -46,39 +29,43 @@
         var text = document.getElementById('text');
         var tag = document.getElementById('tag');
         
-        const currentDate = new Date();
-        const formattedDate = currentDate.toISOString().split("T")[0];
+        
         var lastModalShownDate = localStorage.getItem('modalShownDate');
         var currentDateModal = new Date().toLocaleDateString();
-    
-        document.getElementById("dateInput").value = formattedDate;
-        document.getElementById("dateInput").setAttribute("max", formattedDate);
-        document.getElementById('searchForm').addEventListener('input', function(event) {
-            event.preventDefault();
-            var tagValue = document.getElementById('tag').value;
-            if (tagValue) {
-                fetch("{% url 'search_name' %}")
-            }else {
-                alert('กรุณาเลือกข้อมูล');
-            }
-        });
 
-        // model เฉพาะครั้งแรกของวัน
-        // if (lastModalShownDate !== currentDateModal) {
-        //     // Show the modal
+        // model ทุกครั้งที่เข้าหน้าเว็บ
+        // $(window).on('load', function () {
         //     $('#myModal').modal('show');
-        //     // Set the modalShownDate in localStorage to today's date
-        //     localStorage.setItem('modalShownDate', currentDateModal);
-        // }
-        // // When the "Close" button is clicked
-        // $('#buttonModal').click(function () {
-        //     $('#myModal').modal('hide');
+
+        //     // when button click
+        //     $('#buttonModal').click(function () {
+        //         $('#myModal').modal('hide');
+        //     });
+
+        //     // when the modal is closed
+        //     $('#myModal').on('hidden.bs.modal', function (e) {
+        //         // remove the backdrop
+        //         $('.modal-backdrop').remove();
+        //     });
         // });
-        // // When the modal is closed
-        // $('#myModal').on('hidden.bs.modal', function (e) {
-        //     // Remove the backdrop
-        //     $('.modal-backdrop').remove();
-        // });
+        
+        
+        // model เฉพาะครั้งแรกของวัน
+        if (lastModalShownDate !== currentDateModal) {
+            // Show the modal
+            $('#myModal').modal('show');
+            // Set the modalShownDate in localStorage to today's date
+            localStorage.setItem('modalShownDate', currentDateModal);
+        }
+        // When the "Close" button is clicked
+        $('#buttonModal').click(function () {
+            $('#myModal').modal('hide');
+        });
+        // When the modal is closed
+        $('#myModal').on('hidden.bs.modal', function (e) {
+            // Remove the backdrop
+            $('.modal-backdrop').remove();
+        });
 
         
 
@@ -130,6 +117,24 @@
         });
 
     });
+
+    const currentDate = new Date();
+    const formattedDate = currentDate.toISOString().split("T")[0];
+    document.getElementById("dateInput").value = formattedDate;
+    document.getElementById("dateInput").setAttribute("max", formattedDate);
+    document.getElementById('searchForm').addEventListener('input', function(event) {
+        event.preventDefault();
+        var tagValue = document.getElementById('tag').value;
+        if (tagValue) {
+            fetch("{% url 'search_name' %}")
+        }else {
+            alert('กรุณาเลือกข้อมูล');
+        }
+    });
+
+    
+    
+
 
 
     // const currentDate = new Date();
