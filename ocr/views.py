@@ -413,12 +413,15 @@ def search_name(request):
             print(result)
 
             return render(request, 'index.html', {'result_parcels': result, 'document': matching_data_firstname, 'conf': confidence, 'result': matching_data_firstname[0], 'tag': search_string})
+            
 
         elif len(matching_data_firstname) > 1:
             return render(request, 'index.html', {'result': matching_data_firstname, 'document': matching_data_firstname, 'conf': confidence, 'tag': search_string, 'text': text})
+            
 
         else:
             return render(request, 'index.html', {'result': 'ไม่พบข้อมูล', 'document': ' ', 'conf': 'ไม่พบข้อมูล'})
+            
             
 
 

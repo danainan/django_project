@@ -89,12 +89,15 @@ def home(request):
 @login_required(login_url='/login/')
 def users_add(request):
     if request.method == 'POST':
-        print("Completed")
+
         projects_firstname = request.POST.get("project_firstname")
         projects_last_name = request.POST.get("project_last_name")
         projects_line_id = request.POST.get("project_line_id")
         projects_room_num = request.POST.get("project_room_num")
 
+        existing_user = Users.objects.filter(firstname=projects_firstname, last_name=projects_last_name).first()
+        
+        
         room = Rooms.objects.get(room_number=projects_room_num)
         current_occupancy = Users.objects.filter(room_num=projects_room_num).count()
         if current_occupancy >= int(room.room_capacity):
@@ -105,17 +108,23 @@ def users_add(request):
         if room_full:
             rooms = Rooms.objects.all()
             room_options = [(room.room_number, f"{room.room_number} (ห้องพักเต็มเเล้ว)") if current_occupancy >= int(room.room_capacity) else (room.room_number, room.room_number) for room in rooms]
-            return render(request, 'std/add_u.html', {'room_options': room_options, 'room_full': room_full})
-
-        # create an object for models
-        u = Users()
-        u.firstname = projects_firstname
-        u.last_name = projects_last_name
-        u.line_id = projects_line_id  
-        u.room_num = projects_room_num
-
-        u.save()
-        return redirect("/project/home")
+            # return render(request, 'std/add_u.html', {'room_options': room_options, 'room_full': room_full})
+            messages.warning(request, f'ห้องพักเต็มแล้ว')
+            return redirect("/project/add-users")
+        elif existing_user:
+            messages.warning(request, f'ชื่อ {projects_firstname} {projects_last_name} มีอยู่ในระบบแล้ว')
+            return redirect("/project/add-users")
+        
+        else:
+            u = Users()
+            u.firstname = projects_firstname
+            u.last_name = projects_last_name
+            u.line_id = projects_line_id  
+            u.room_num = projects_room_num
+            u.save()
+            messages.success(request, f'เพิ่มข้อมูล {projects_firstname} {projects_last_name} เรียบร้อย')
+            return redirect("/project/home")        
+        
 
     rooms = Rooms.objects.all()
     # room_options = [(room.room_number, f"{room.room_number} (ห้องพักเต็มเเล้ว)") if Users.objects.filter(room_num=room.room_number).count() >= int(room.room_capacity) else (room.room_number, room.room_number) for room in rooms]

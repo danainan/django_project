@@ -82,6 +82,14 @@
                             {% if room_full %}
                                 <p class="text-danger">ห้องพักเต็มแล้ว ไม่สามารถเพิ่มสมาชิกได้</p>
                             {% endif %}
+                            {% if room_not_found %}
+                                <p class="text-danger">ไม่พบห้องพักที่ระบุ</p>
+                            {% endif %}
+                        
+                            {% for message in messages %}
+                                <div class="alert alert-danger">{{ message }}</div>
+                            {% endfor %}
+                            
                             </div>               
                             <div class="container my-3">
                                 <button class="btn btn-primary">
