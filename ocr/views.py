@@ -338,7 +338,7 @@ def ocr(request):
         with PyTessBaseAPI(path=ocr_path, lang='tha+eng', oem=OEM.LSTM_ONLY, psm=PSM.AUTO_OSD) as api:
             api.SetImageFile(media_path)
             text = api.GetUTF8Text()
-            conf = api.AllWordConfidences()
+
 
             person_names = get_person_names(text)
 
