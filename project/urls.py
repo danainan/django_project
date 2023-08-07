@@ -14,5 +14,5 @@ urlpatterns = [
     path("add-rooms/", room_add),
     path("rooms-list/", rooms_list, name="rooms_list"),
     path("delete-room/<int:room_id>", delete_room, name="delete_room"),
-    path("summary/", summary),
+    path("summary/", summary, name='summary'),
 ]

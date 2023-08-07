@@ -9,10 +9,31 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from ocr.models import Document
+import pandas as pd
+from pymongo import MongoClient
+import openpyxl
+import os
+from PIL import Image, ImageDraw, ImageFont
+import requests
+# import  jpype     
+# import  asposecells 
+# from asposecells.api import Workbook
+import matplotlib.pyplot as plt
+import matplotlib.font_manager as fm
+from matplotlib.font_manager import FontProperties
+from matplotlib.table import Table
+import datetime
+
+
+
+
+
+
 
 
 @login_required(login_url='/login/')
 def summary(request):
+    documents = Document.objects.all()
     if request.method == 'GET' and 'search' in request.GET:
         search_query = request.GET.get('search')
         if not search_query:
@@ -41,6 +62,100 @@ def summary(request):
     return render(request, 'std/summary.html', {'documents': documents, 'received_documents': received_documents})
 
 
+# ----------------------------------------------------------------------------------------
+
+
+# client = MongoClient('mongodb+srv://authachaizzz:1234@cluster0.xf2c6og.mongodb.net/?retryWrites=true&w=majority')
+# db = client['finaldatabase']
+# collection = db['ocr_document']
+
+
+# # เลือกฟิลด์ที่ต้องการใช้งาน
+# def select_columns():
+#     plt.rcParams['font.family'] = 'Angsana New'
+
+#     # เชื่อมต่อ MongoDB
+    
+#     df = pd.DataFrame(list(collection.find()))
+#     selected_columns = ['firstname', 'last_name', 'room_num', 'status', 'date']
+
+
+#     df_selected = df[selected_columns]
+
+#     # เลือกแถวที่มีสถานะเป็น 'ยังไม่ได้รับ'
+#     df_selected = df_selected[df_selected['status'] == 'ยังไม่ได้รับ']
+
+#     # เปลี่ยนชื่อคอลัมน์
+#     df_selected.columns = ['ชื่อ', 'นามสกุล', 'ห้อง', 'สถานะ', 'วันที่']
+
+#     # filter ห้องน้อยก่อน
+#     df_selected = df_selected.sort_values(by='ห้อง', ascending=True)
+
+#     #สลับคอลัมน์
+#     df_selected = df_selected[['ห้อง' ,'ชื่อ', 'นามสกุล','วันที่' ,'สถานะ']]
+
+#     # แปลงคอลัมน์ 'date' ให้เป็นประเภท date
+#     df_selected['วันที่'] = pd.to_datetime(df_selected['วันที่']).dt.date
+#     return df_selected
+
+# dateToday = datetime.datetime.now().date()
+# dateMaxData = select_columns()['วันที่'].max()
+
+
+# df_selected = select_columns()
+# df_selected = df_selected[df_selected['วันที่'] == dateToday]
+# plt.title(f'รายชื่อพัสดุที่ยังไม่ได้รับวันที่ {dateToday}')
+# plt.table(cellText=df_selected.values,
+#         colLabels=df_selected.columns,
+#         cellLoc='center', loc='center')
+# plt.axis('off')
+# plt.savefig('วันนี้.png', bbox_inches='tight', dpi=300)
+
+# plt.close()
+# df_selected = select_columns()
+# df_selected = df_selected[df_selected['วันที่'] != dateToday]
+# plt.title(f'รายชื่อพัสดุที่ยังไม่ได้รับวันอื่นๆ')
+# plt.table(cellText=df_selected.values,
+#         colLabels=df_selected.columns,
+#         cellLoc='center', loc='center')
+# plt.axis('off')
+# plt.savefig('วันอื่นๆ.png', bbox_inches='tight', dpi=300)
+
+
+
+
+
+# # ข้อมูลสำหรับเชื่อมต่อกับ Line Notify API
+# line_notify_token = "CCDXvamsMK3Cgcnu3k2sW5MdWgdLUvGbR7YtqteeH7W"
+# line_notify_api_url = "https://notify-api.line.me/api/notify"
+
+# # ส่งรูปภาพ
+# headers = {
+#     "Authorization": f"Bearer {line_notify_token}"
+# }
+# data = {
+#     "message": "ข้อความที่คุณต้องการส่ง",
+# }
+# files = {
+#     "imageFile": ("output_image.png", open("output_image.png", "rb"), "image/png")
+# }
+# response = requests.post(line_notify_api_url, headers=headers, data=data, files=files)
+
+# # ตรวจสอบสถานะการส่ง
+# if response.status_code == 200:
+#     print("ส่งรูปภาพสำเร็จ")
+# else:
+#     print("เกิดข้อผิดพลาดในการส่งรูปภาพ")
+#     print(response.text)
+
+
+
+# ------------------------------------------------------------------------------------
+
+
+
+
+
 def index(request):
     return render(request, 'std/index.html')
 
@@ -67,6 +182,8 @@ def logout(request):
 
 @login_required(login_url='/login/')
 def home(request):
+    rooms = Rooms.objects.all()  
+
     if request.method == 'GET' and 'search' in request.GET:
         search_query = request.GET.get('search')
         if not search_query:
@@ -80,7 +197,6 @@ def home(request):
             ).order_by('room_num')
     else:
         users = Users.objects.all().order_by('room_num')
-        rooms = Rooms.objects.all()
 
     return render(request, 'std/home.html', {'users': users, 'rooms': rooms})
 
@@ -220,3 +336,7 @@ def delete_room(request, room_id):
         return redirect('rooms_list')
 
     return render(request, 'std/delete_room.html', {'room': room})
+
+
+
+
