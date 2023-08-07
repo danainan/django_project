@@ -28,6 +28,48 @@
         var ocrBtn = document.getElementById('ocr-btn');
         var text = document.getElementById('text');
         var tag = document.getElementById('tag');
+        
+        
+        var lastModalShownDate = localStorage.getItem('modalShownDate');
+        var currentDateModal = new Date().toLocaleDateString();
+
+        // model ทุกครั้งที่เข้าหน้าเว็บ
+        // $(window).on('load', function () {
+        //     $('#myModal').modal('show');
+
+        //     // when button click
+        //     $('#buttonModal').click(function () {
+        //         $('#myModal').modal('hide');
+        //     });
+
+        //     // when the modal is closed
+        //     $('#myModal').on('hidden.bs.modal', function (e) {
+        //         // remove the backdrop
+        //         $('.modal-backdrop').remove();
+        //     });
+        // });
+        
+        
+        // model เฉพาะครั้งแรกของวัน
+        if (lastModalShownDate !== currentDateModal) {
+            // Show the modal
+            $('#myModal').modal('show');
+            // Set the modalShownDate in localStorage to today's date
+            localStorage.setItem('modalShownDate', currentDateModal);
+        }
+        // When the "Close" button is clicked
+        $('#buttonModal').click(function () {
+            $('#myModal').modal('hide');
+        });
+        // When the modal is closed
+        $('#myModal').on('hidden.bs.modal', function (e) {
+            // Remove the backdrop
+            $('.modal-backdrop').remove();
+        });
+
+        
+
+       
       
 
         openCameraBtn.addEventListener('click', function () {
@@ -50,10 +92,6 @@
         
         ocrBtn.addEventListener('click', function () {
             text.innerHTML = '<div class="loader"></div><span>Loading...</span>';
-
-            
-            
-
             fetch("{% url 'ocr' %}")
                 .then(response => {
                     if (response.ok) {            
@@ -65,35 +103,67 @@
                     text.innerHTML = data.text;
                     tag.value = data.tag;
                     // tag1.innerHTML = data.tag1;
+                    // const form = document.getElementById('searchForm');
+                    // form.method = 'post';
+                    // form.action = 'search_name';
+                    // form.submit();
                     
 
 
+                }).catch(error => {
+                    text.innerHTML = "ไม่สามารถาอ่านข้อมูลได้ กรุณานำเข้ารูปภาพใหม่";
                 });
+
         });
 
+    });
 
-        const currentDate = new Date();
-        const formattedDate = currentDate.toISOString().split("T")[0];
-        
-        document.getElementById("dateInput").value = formattedDate;
-        document.getElementById("dateInput").setAttribute("max", formattedDate);
+    const currentDate = new Date();
+    const formattedDate = currentDate.toISOString().split("T")[0];
+    document.getElementById("dateInput").value = formattedDate;
+    document.getElementById("dateInput").setAttribute("max", formattedDate);
+    document.getElementById('searchForm').addEventListener('input', function(event) {
+        event.preventDefault();
+        var tagValue = document.getElementById('tag').value;
+        if (tagValue) {
+            fetch("{% url 'search_name' %}")
+        }else {
+            alert('กรุณาเลือกข้อมูล');
+        }
+    });
 
-        document.getElementById('searchForm').addEventListener('change', function(event) {
-            event.preventDefault();
-            var tagValue = document.getElementById('tag').value;
+    
+    
 
-            if (tagValue) {
-                fetch("{% url 'search_name' %}")
-            }else {
-                alert('กรุณาเลือกข้อมูล');
-            }
-        });
 
-        
+
+    // const currentDate = new Date();
+    // const formattedDate = currentDate.toISOString().split("T")[0];
+    // var lastModalShownDate = localStorage.getItem('modalShownDate');
+    // var currentDateModal = new Date().toLocaleDateString();
+    
+    // document.getElementById("dateInput").value = formattedDate;
+    // document.getElementById("dateInput").setAttribute("max", formattedDate);
+    // document.getElementById('searchForm').addEventListener('input', function(event) {
+    //     event.preventDefault();
+    //     var tagValue = document.getElementById('tag').value;
+    //     if (tagValue) {
+    //         fetch("{% url 'search_name' %}")
+    //     }else {
+    //         alert('กรุณาเลือกข้อมูล');
+    //     }
+    // });
+
+    
+
+    
+    
+
   
 
 
-    });
+    
+
 
 
 </script>
@@ -101,15 +171,52 @@
 <body style="background-color: #25c1c1;">
     {% include 'navbar.html' %}
 
-    <!-- <div class="container">
-        <div class="">
-            <h1>OCR</h1>
+    
+   
+
+    <!-- Modal -->
+    <div class="modal fade" id="myModal" role="dialog" aria-controls="modal-body">
+        <div class="modal-dialog">
+    
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">ตัวอย่างรูปภาพสำหรับการทำ OCR</h4>
+                    <span><button type="button" class="btn-close" aria-label="Close" id="buttonModal"></button></span>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col">
+                            <img src="https://github.com/danainan/linenotify_django/assets/71175110/f9465c50-8dec-440f-b386-7008407a641e"
+                            width="300px" height="250px">
+                            <a>คม</a>
+                        </div>
+                        <div class="col">
+                            <img src="https://github.com/danainan/linenotify_django/assets/71175110/b2897db2-71e2-4cf8-8118-df87276acd0f"
+                            width="300px" height="250px">
+                            <a>ชัด</a>
+                        </div>
+                        <div class="col">
+                            <img src="https://github.com/danainan/linenotify_django/assets/71175110/411e39bb-a2e7-4974-ac18-09afd9c504b9"
+                            width="300px" height="250px">
+                            <a>ตรง</a>
+                        </div>
+                    </div>
+
+    
+                </div>
+            </div>
+    
         </div>
-    </div> -->
+    </div>
+    
+    
 
     <div class="col text-center pt-2">
         <h5 class="ocr-heading">ขั้นตอนที่ 1.นำเข้ารูปภาพ</h5>
     </div>
+
+    
 
     <div class="container" style="border-radius: 25px;background-color: rgb(50, 47, 117);">
         <div class="row">
@@ -195,7 +302,7 @@
                             {% csrf_token %}
                             <div class="input-group">
                                 <input type="text" id="tag" value="{{tag}}" class="form-control" name="tag">
-                                <button type="submit" class="btn btn-primary">
+                                <button type="submit" class="btn btn-primary" id="submitBtn">
                                     <i class="fa fa-search" aria-hidden="true"></i>
                                 </button>
                             </div>
@@ -596,6 +703,18 @@
           0% { transform: rotate(0deg); }
           100% { transform: rotate(360deg); }
         }
+
+        .loader-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+        }
+
+        .modal-dialog {
+            max-width: 1000px; /* Set your desired width here */
+        }
+
 
         
 

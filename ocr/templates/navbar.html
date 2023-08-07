@@ -6,23 +6,39 @@
   
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav me-auto">
-            <li class="nav-item active">
-                <a class="nav-link h5 " href="/project/home">หน้าหลัก<span class="sr-only">(current)</span></a>
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                ผู้เข้าพัก
+              </a>
+              <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                <li><a class="dropdown-item" href="/project/hom">รายการผู้เข้าพัก</a></li>
+                <li><a class="dropdown-item" href="/project/add-users">เพิ่มรายชื่อผู้เข้าพัก</a></li>
+              </ul>
             </li>
-            <li class="nav-item">
-                <a class="nav-link h5 " href="/project/add-users">เพิ่มสมาชิก</a>
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                ห้องพัก
+              </a>
+              <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                <li><a class="dropdown-item" href="/project/rooms-list">รายการห้องพัก</a></li>
+                <li><a class="dropdown-item" href="/project/add-rooms">เพิ่มห้องพัก</a></li>
+                
+              </ul>
             </li>
-            <li class="nav-item">
-              <a class="nav-link h5 " href="/project/add-rooms">เพิ่มห้องพัก</a>
+  
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                พัสดุ
+              </a>
+              <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                <li><a class="dropdown-item" href="/project/summary">รายการพัสดุ</a></li>
+                <li><a class="dropdown-item" href="/ocr">OCR</a></li>
+              </ul>
             </li>
-            <li class="nav-item">
-                <a class="nav-link h5 " href="/project/summary">รายการพัสดุ</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link h5 " href="/ocr">OCR</a>
-              </li>
+            <!-- <li class="nav-item">
+              <a class="nav-link h5 " href="">Search Index</a>
+            </li> -->
         </ul>
-        <!-- เพิ่มส่วนของปุ่ม Logout -->
         <ul class="navbar-nav">
             <li class="nav-item">
                 <a class="nav-link h5 " href="/project/logout">ออกจากระบบ</a>
