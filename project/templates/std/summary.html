@@ -132,6 +132,10 @@
                         </table>
                     </div>
                 </form>
+                <form method="POST" action="{% url 'save_img' %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-primary">บันทึกและส่งรูปภาพ</button>
+                </form>
             </div>
         </div>
 

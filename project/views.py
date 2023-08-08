@@ -15,17 +15,114 @@ import openpyxl
 import os
 from PIL import Image, ImageDraw, ImageFont
 import requests
-# import  jpype     
-# import  asposecells 
-# from asposecells.api import Workbook
 import matplotlib.pyplot as plt
 import matplotlib.font_manager as fm
 from matplotlib.font_manager import FontProperties
 from matplotlib.table import Table
 import datetime
+from django.http import JsonResponse
+from django.conf import settings
 
 
 
+def save_img(request):
+    # ส่วนที่ 1
+    client = MongoClient('mongodb+srv://authachaizzz:1234@cluster0.xf2c6og.mongodb.net/?retryWrites=true&w=majority')
+    db = client['finaldatabase']
+    collection = db['ocr_document']
+
+    # เลือกฟิลด์ที่ต้องการใช้งาน
+    def select_columns():
+        plt.rcParams['font.family'] = 'Angsana New'
+
+        # เชื่อมต่อ MongoDB
+        df = pd.DataFrame(list(collection.find()))
+        selected_columns = ['firstname', 'last_name', 'room_num', 'status', 'date']
+        df_selected = df[selected_columns]
+
+        # เลือกแถวที่มีสถานะเป็น 'ยังไม่ได้รับ'
+        df_selected = df_selected[df_selected['status'] == 'ยังไม่ได้รับ']
+
+        # เปลี่ยนชื่อคอลัมน์
+        df_selected.columns = ['ชื่อ', 'นามสกุล', 'ห้อง', 'สถานะ', 'วันที่']
+
+        df_selected = df_selected.sort_values(by='ห้อง', ascending=True)
+
+        df_selected = df_selected[['ห้อง' ,'ชื่อ', 'นามสกุล','วันที่' ,'สถานะ']]
+
+        df_selected['วันที่'] = pd.to_datetime(df_selected['วันที่']).dt.date
+
+        return df_selected
+
+    # ส่วนที่ 2
+    df_selected = select_columns()
+
+    # ส่วนที่ 3
+    dateToday = datetime.datetime.now().date()
+    dateMaxData = select_columns()['วันที่'].max()
+    df_selected_today = select_columns()
+    df_selected_today = df_selected_today[df_selected_today['วันที่'] == dateToday]
+
+    if not df_selected.empty:
+        plt.title(f'รายชื่อพัสดุที่ยังไม่ได้รับวันที่ {dateToday}')
+        plt.table(cellText=df_selected_today.values,
+                colLabels=df_selected_today.columns,
+                cellLoc='center', loc='center')
+        plt.axis('off')
+        plt.savefig('วันนี้.png', bbox_inches='tight', dpi=500)
+        plt.close()
+
+    df_selected_other = select_columns()
+    df_selected_other = df_selected_other[df_selected_other['วันที่'] != dateToday]
+
+    if not df_selected.empty:
+        plt.title(f'รายชื่อพัสดุที่ยังไม่ได้รับวันอื่นๆ')
+        plt.table(cellText=df_selected_other.values,
+                colLabels=df_selected_other.columns,
+                cellLoc='center', loc='center')
+        plt.axis('off')
+        plt.savefig('วันอื่นๆ.png', bbox_inches='tight', dpi=500)
+        plt.close()
+
+    line_notify_token = "CCDXvamsMK3Cgcnu3k2sW5MdWgdLUvGbR7YtqteeH7W"
+    line_notify_api_url = "https://notify-api.line.me/api/notify"
+
+    headers = {
+        "Authorization": f"Bearer {line_notify_token}"
+    }
+    data = {
+        "message": "รายการพัสดุที่ยังไม่ได้รับวันนี้",
+    }
+    files = {
+        "imageFile": ("วันนี้.png", open("วันนี้.png", "rb"), "image/png")
+    }
+    response = requests.post(line_notify_api_url, headers=headers, data=data, files=files)
+
+    if response.status_code == 200:
+        print("ส่งรูปภาพสำเร็จ")
+    else:
+        print("เกิดข้อผิดพลาดในการส่งรูปภาพ")
+        print(response.text)
+
+    
+    data = {
+        "message": "รายการพัสดุที่ยังไม่ได้รับวันอื่นๆ",
+    }
+    files = {
+        "imageFile": ("วันอื่นๆ.png", open("วันอื่นๆ.png", "rb"), "image/png")
+    }
+    response = requests.post(line_notify_api_url, headers=headers, data=data, files=files)
+    # ตรวจสอบสถานะการส่ง
+    if response.status_code == 200:
+        print("ส่งรูปภาพวันอื่นๆสำเร็จ")
+    else:
+        print("เกิดข้อผิดพลาดในการส่งรูปภาพวันอื่นๆ")
+        print(response.text)
+
+
+    
+    # คืนค่าเพื่อบอกว่าฟังก์ชันทำงานเสร็จสิ้น
+    return redirect('summary')
 
 
 
