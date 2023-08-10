@@ -148,18 +148,27 @@ def save_img(request):
     }
 
     path = os.path.join(settings.MEDIA_PROJECT)
-        
-    if path + '/' + 'วันนี้.png' in os.listdir(path):
 
-        files = {'imageFile': open(path + '/' + 'วันนี้.png', 'rb')}
+        
+    if os.path.exists(path + '/' + 'วันนี้.png'):
+        files = {'imageFile': open(os.path.join(settings.MEDIA_PROJECT, 'วันนี้.png'), "rb")}
         data = {'message': f'{today_title}'}
         requests.post(line_notify_api_url, headers=headers, data=data, files=files)
+        pass
+    else :
+        data = {'message': f'{today_title} [ ไม่มีพัสดุ ]'}
+        requests.post(line_notify_api_url, headers=headers, data=data)
 
-    if path + '/' + 'วันอื่นๆ.png' in os.listdir(path):
-        print('วันอื่นๆ.png')
-        files = {'imageFile': open(path + '/' + 'วันอื่นๆ.png', 'rb')}
+
+    if os.path.exists(path + '/' + 'วันอื่นๆ.png'):
+ 
+        files = {'imageFile': open(os.path.join(settings.MEDIA_PROJECT, 'วันอื่นๆ.png'), "rb")}
         data = {'message': f'{other_title}'}
         requests.post(line_notify_api_url, headers=headers, data=data, files=files)
+        pass
+    else :
+        data = {'message': f'{other_title} [ ไม่มีพัสดุ ]'}
+        requests.post(line_notify_api_url, headers=headers, data=data)
     
     client.close()
 
