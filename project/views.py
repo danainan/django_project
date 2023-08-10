@@ -1,5 +1,5 @@
 from django.shortcuts import render,redirect,get_object_or_404
-from .models import Users
+from .models import Users,Rooms,Token
 from django.contrib.auth.models import User 
 from .models import Rooms
 from django.contrib.auth import authenticate, login as auth_login 
@@ -11,10 +11,11 @@ from django.db.models import Q
 from ocr.models import Document
 import pandas as pd
 from pymongo import MongoClient
-import openpyxl
+# import openpyxl
 import os
 from PIL import Image, ImageDraw, ImageFont
 import requests
+import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.font_manager as fm
 from matplotlib.font_manager import FontProperties
@@ -22,105 +23,139 @@ from matplotlib.table import Table
 import datetime
 from django.http import JsonResponse
 from django.conf import settings
+from urllib.parse import unquote
+
+
+
+
+def line_login(request):
+    client_id = "Ya8jHK3niGm0PXaTNCl7N1"
+    callback_url = "http://127.0.0.1:8000/project/summary/"
+    client_secret = "5SNI3j70vtuaiYq35ClPsYwcQSXjkrRpqR0IbJvSlYz"
+    
+    line_login_url = f"https://notify-bot.line.me/oauth/authorize?response_type=code&client_id={client_id}&redirect_uri={callback_url}&scope=notify&state={client_secret}"
+    
+    return redirect(line_login_url)
+    
+def exchange_code_for_access_token(code):
+    token_url = "https://notify-bot.line.me/oauth/token"
+
+    payload = {
+        "grant_type": "authorization_code",
+        "code": code,
+        "redirect_uri": "http://127.0.0.1:8000/project/summary/",
+        "client_id": "Ya8jHK3niGm0PXaTNCl7N1",
+        "client_secret": "5SNI3j70vtuaiYq35ClPsYwcQSXjkrRpqR0IbJvSlYz"
+    }
+
+    response = requests.post(token_url, data=payload)
+    
+    if response.status_code == 200:
+        access_token = response.json().get('access_token')
+        Token.objects.create(token=access_token, created_at=datetime.datetime.now())
+        
+        
+        
+        return access_token
+    else:
+        return None
+
+
+
+
+    
+    
+
+
+
+
+# เลือกฟิลด์ที่ต้องการใช้งาน
+def select_columns(collection):
+    plt.rcParams['font.family'] = 'Angsana New'
+    df = pd.DataFrame(list(collection.find()))
+    selected_columns = ['firstname', 'last_name', 'room_num', 'status', 'date']
+    df_selected = df[selected_columns]
+    # เลือกแถวที่มีสถานะเป็น 'ยังไม่ได้รับ'
+    df_selected = df_selected[df_selected['status'] == 'ยังไม่ได้รับ']
+    # เปลี่ยนชื่อคอลัมน์
+    df_selected.columns = ['ชื่อ', 'นามสกุล', 'ห้อง', 'สถานะ', 'วันที่']
+    df_selected = df_selected.sort_values(by='ห้อง', ascending=True)
+    df_selected = df_selected[['ห้อง' ,'ชื่อ', 'นามสกุล','วันที่' ,'สถานะ']]
+    df_selected['วันที่'] = pd.to_datetime(df_selected['วันที่']).dt.date
+    
+    return df_selected
+
+def create_and_save_table_plot(df, title, filename):
+       matplotlib.use('Agg')
+       plt.title(title)
+       table = plt.table(
+           cellText=df.values,
+           colLabels=df.columns,
+           cellLoc='center',
+           loc='center'
+       )
+       table.auto_set_font_size(False)
+       table.set_fontsize(10)
+       table.scale(1.5, 1.5)  # Adjust the table size if needed
+       plt.axis('off')
+       plt.savefig(filename, bbox_inches='tight', dpi=500)
+       plt.close()
 
 
 
 def save_img(request):
-    # ส่วนที่ 1
     client = MongoClient('mongodb+srv://authachaizzz:1234@cluster0.xf2c6og.mongodb.net/?retryWrites=true&w=majority')
     db = client['finaldatabase']
     collection = db['ocr_document']
 
-    # เลือกฟิลด์ที่ต้องการใช้งาน
-    def select_columns():
-        plt.rcParams['font.family'] = 'Angsana New'
 
-        # เชื่อมต่อ MongoDB
-        df = pd.DataFrame(list(collection.find()))
-        selected_columns = ['firstname', 'last_name', 'room_num', 'status', 'date']
-        df_selected = df[selected_columns]
 
-        # เลือกแถวที่มีสถานะเป็น 'ยังไม่ได้รับ'
-        df_selected = df_selected[df_selected['status'] == 'ยังไม่ได้รับ']
 
-        # เปลี่ยนชื่อคอลัมน์
-        df_selected.columns = ['ชื่อ', 'นามสกุล', 'ห้อง', 'สถานะ', 'วันที่']
-
-        df_selected = df_selected.sort_values(by='ห้อง', ascending=True)
-
-        df_selected = df_selected[['ห้อง' ,'ชื่อ', 'นามสกุล','วันที่' ,'สถานะ']]
-
-        df_selected['วันที่'] = pd.to_datetime(df_selected['วันที่']).dt.date
-
-        return df_selected
-
-    # ส่วนที่ 2
-    df_selected = select_columns()
-
-    # ส่วนที่ 3
     dateToday = datetime.datetime.now().date()
-    dateMaxData = select_columns()['วันที่'].max()
-    df_selected_today = select_columns()
-    df_selected_today = df_selected_today[df_selected_today['วันที่'] == dateToday]
+    all_data = select_columns(collection)
+    df_selected_today = all_data[all_data['วันที่'] == dateToday]
+    df_selected_other = all_data[all_data['วันที่'] != dateToday]
 
-    if not df_selected.empty:
-        plt.title(f'รายชื่อพัสดุที่ยังไม่ได้รับวันที่ {dateToday}')
-        plt.table(cellText=df_selected_today.values,
-                colLabels=df_selected_today.columns,
-                cellLoc='center', loc='center')
-        plt.axis('off')
-        plt.savefig('วันนี้.png', bbox_inches='tight', dpi=500)
-        plt.close()
+    today_title = f'รายการพัสดุที่ยังไม่ได้รับวันนี้ {dateToday}'
+    other_title = f'รายการพัสดุที่ยังไม่ได้รับวันอื่นๆ'
+    
+    create_and_save_table_plot(df_selected_today, today_title, 'วันนี้.png')
+    create_and_save_table_plot(df_selected_other, other_title, 'วันอื่นๆ.png')
 
-    df_selected_other = select_columns()
-    df_selected_other = df_selected_other[df_selected_other['วันที่'] != dateToday]
+    # line_notify_token = "CCDXvamsMK3Cgcnu3k2sW5MdWgdLUvGbR7YtqteeH7W"
 
-    if not df_selected.empty:
-        plt.title(f'รายชื่อพัสดุที่ยังไม่ได้รับวันอื่นๆ')
-        plt.table(cellText=df_selected_other.values,
-                colLabels=df_selected_other.columns,
-                cellLoc='center', loc='center')
-        plt.axis('off')
-        plt.savefig('วันอื่นๆ.png', bbox_inches='tight', dpi=500)
-        plt.close()
+ 
+    #find Token all
+    token = Token.objects.last()
+    print(token)
 
-    line_notify_token = "CCDXvamsMK3Cgcnu3k2sW5MdWgdLUvGbR7YtqteeH7W"
+    if token is None:
+        return redirect('line_login')
+    else:
+        token = Token.objects.latest('created_at')
+        line_notify_token = token.token
+
+    
     line_notify_api_url = "https://notify-api.line.me/api/notify"
 
     headers = {
-        "Authorization": f"Bearer {line_notify_token}"
+         "Authorization": f"Bearer {line_notify_token}"
     }
-    data = {
-        "message": "รายการพัสดุที่ยังไม่ได้รับวันนี้",
-    }
-    files = {
-        "imageFile": ("วันนี้.png", open("วันนี้.png", "rb"), "image/png")
-    }
-    response = requests.post(line_notify_api_url, headers=headers, data=data, files=files)
+        
 
-    if response.status_code == 200:
-        print("ส่งรูปภาพสำเร็จ")
-    else:
-        print("เกิดข้อผิดพลาดในการส่งรูปภาพ")
-        print(response.text)
+    files = {'imageFile': open('วันนี้.png', 'rb')}
+    data = {'message': f'{today_title}'}
+    requests.post(line_notify_api_url, headers=headers, data=data, files=files)
 
+    files = {'imageFile': open('วันอื่นๆ.png', 'rb')}
+    data = {'message': f'{other_title}'}
+    requests.post(line_notify_api_url, headers=headers, data=data, files=files)
     
-    data = {
-        "message": "รายการพัสดุที่ยังไม่ได้รับวันอื่นๆ",
-    }
-    files = {
-        "imageFile": ("วันอื่นๆ.png", open("วันอื่นๆ.png", "rb"), "image/png")
-    }
-    response = requests.post(line_notify_api_url, headers=headers, data=data, files=files)
-    # ตรวจสอบสถานะการส่ง
-    if response.status_code == 200:
-        print("ส่งรูปภาพวันอื่นๆสำเร็จ")
-    else:
-        print("เกิดข้อผิดพลาดในการส่งรูปภาพวันอื่นๆ")
-        print(response.text)
+    client.close()
 
 
-    
+
+
     # คืนค่าเพื่อบอกว่าฟังก์ชันทำงานเสร็จสิ้น
     return redirect('summary')
 
@@ -156,100 +191,17 @@ def summary(request):
                 document.status = status
                 document.save()
 
-    return render(request, 'std/summary.html', {'documents': documents, 'received_documents': received_documents})
 
+    code = request.GET.get('code')
+    if code:
+        access_token = exchange_code_for_access_token(code)
 
-# ----------------------------------------------------------------------------------------
-
-
-# client = MongoClient('mongodb+srv://authachaizzz:1234@cluster0.xf2c6og.mongodb.net/?retryWrites=true&w=majority')
-# db = client['finaldatabase']
-# collection = db['ocr_document']
-
-
-# # เลือกฟิลด์ที่ต้องการใช้งาน
-# def select_columns():
-#     plt.rcParams['font.family'] = 'Angsana New'
-
-#     # เชื่อมต่อ MongoDB
+        print(access_token)
     
-#     df = pd.DataFrame(list(collection.find()))
-#     selected_columns = ['firstname', 'last_name', 'room_num', 'status', 'date']
+        
 
 
-#     df_selected = df[selected_columns]
-
-#     # เลือกแถวที่มีสถานะเป็น 'ยังไม่ได้รับ'
-#     df_selected = df_selected[df_selected['status'] == 'ยังไม่ได้รับ']
-
-#     # เปลี่ยนชื่อคอลัมน์
-#     df_selected.columns = ['ชื่อ', 'นามสกุล', 'ห้อง', 'สถานะ', 'วันที่']
-
-#     # filter ห้องน้อยก่อน
-#     df_selected = df_selected.sort_values(by='ห้อง', ascending=True)
-
-#     #สลับคอลัมน์
-#     df_selected = df_selected[['ห้อง' ,'ชื่อ', 'นามสกุล','วันที่' ,'สถานะ']]
-
-#     # แปลงคอลัมน์ 'date' ให้เป็นประเภท date
-#     df_selected['วันที่'] = pd.to_datetime(df_selected['วันที่']).dt.date
-#     return df_selected
-
-# dateToday = datetime.datetime.now().date()
-# dateMaxData = select_columns()['วันที่'].max()
-
-
-# df_selected = select_columns()
-# df_selected = df_selected[df_selected['วันที่'] == dateToday]
-# plt.title(f'รายชื่อพัสดุที่ยังไม่ได้รับวันที่ {dateToday}')
-# plt.table(cellText=df_selected.values,
-#         colLabels=df_selected.columns,
-#         cellLoc='center', loc='center')
-# plt.axis('off')
-# plt.savefig('วันนี้.png', bbox_inches='tight', dpi=300)
-
-# plt.close()
-# df_selected = select_columns()
-# df_selected = df_selected[df_selected['วันที่'] != dateToday]
-# plt.title(f'รายชื่อพัสดุที่ยังไม่ได้รับวันอื่นๆ')
-# plt.table(cellText=df_selected.values,
-#         colLabels=df_selected.columns,
-#         cellLoc='center', loc='center')
-# plt.axis('off')
-# plt.savefig('วันอื่นๆ.png', bbox_inches='tight', dpi=300)
-
-
-
-
-
-# # ข้อมูลสำหรับเชื่อมต่อกับ Line Notify API
-# line_notify_token = "CCDXvamsMK3Cgcnu3k2sW5MdWgdLUvGbR7YtqteeH7W"
-# line_notify_api_url = "https://notify-api.line.me/api/notify"
-
-# # ส่งรูปภาพ
-# headers = {
-#     "Authorization": f"Bearer {line_notify_token}"
-# }
-# data = {
-#     "message": "ข้อความที่คุณต้องการส่ง",
-# }
-# files = {
-#     "imageFile": ("output_image.png", open("output_image.png", "rb"), "image/png")
-# }
-# response = requests.post(line_notify_api_url, headers=headers, data=data, files=files)
-
-# # ตรวจสอบสถานะการส่ง
-# if response.status_code == 200:
-#     print("ส่งรูปภาพสำเร็จ")
-# else:
-#     print("เกิดข้อผิดพลาดในการส่งรูปภาพ")
-#     print(response.text)
-
-
-
-# ------------------------------------------------------------------------------------
-
-
+    return render(request, 'std/summary.html', {'documents': documents, 'received_documents': received_documents})
 
 
 

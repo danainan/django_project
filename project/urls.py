@@ -16,4 +16,5 @@ urlpatterns = [
     path("delete-room/<int:room_id>", delete_room, name="delete_room"),
     path("summary/", summary, name='summary'),
     path("save-img/", save_img, name="save_img"),
+    path("linelogin/", line_login, name="line_login"),
 ]
