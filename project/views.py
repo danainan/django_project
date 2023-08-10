@@ -11,7 +11,6 @@ from django.db.models import Q
 from ocr.models import Document
 import pandas as pd
 from pymongo import MongoClient
-import openpyxl
 import os
 from PIL import Image, ImageDraw, ImageFont
 import requests
@@ -48,11 +47,11 @@ def save_img(request):
 
         df_selected = df_selected.sort_values(by='ห้อง', ascending=True)
 
-        df_selected = df_selected[['ห้อง' ,'ชื่อ', 'นามสกุล','วันที่' ,'สถานะ']]
+        df_selected_grouped = df_selected.groupby(['ห้อง', 'ชื่อ', 'นามสกุล', 'วันที่', 'สถานะ']).size().reset_index(name='จำนวนพัสดุ(ชิ้น)')
 
-        df_selected['วันที่'] = pd.to_datetime(df_selected['วันที่']).dt.date
+        df_selected_grouped['วันที่'] = pd.to_datetime(df_selected_grouped['วันที่']).dt.date
 
-        return df_selected
+        return df_selected_grouped
 
     # ส่วนที่ 2
     df_selected = select_columns()
@@ -75,10 +74,11 @@ def save_img(request):
     df_selected_other = select_columns()
     df_selected_other = df_selected_other[df_selected_other['วันที่'] != dateToday]
 
-    if not df_selected.empty:
-        plt.title(f'รายชื่อพัสดุที่ยังไม่ได้รับวันอื่นๆ')
-        plt.table(cellText=df_selected_other.values,
-                colLabels=df_selected_other.columns,
+    if not df_selected_other.empty:
+        df_selected_grouped = df_selected_other.groupby(['ห้อง', 'ชื่อ', 'นามสกุล']).agg({'จำนวนพัสดุ(ชิ้น)': 'sum'}).reset_index()
+        plt.title(f'รายการพัสดุที่ยังไม่ได้รับวันอื่นๆ')
+        plt.table(cellText=df_selected_grouped[['ห้อง', 'ชื่อ', 'นามสกุล', 'จำนวนพัสดุ(ชิ้น)']].values,
+                colLabels=['ห้อง', 'ชื่อ', 'นามสกุล', 'จำนวนพัสดุ(ชิ้น)'],
                 cellLoc='center', loc='center')
         plt.axis('off')
         plt.savefig('วันอื่นๆ.png', bbox_inches='tight', dpi=500)
