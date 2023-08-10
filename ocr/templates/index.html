@@ -33,6 +33,11 @@
         var lastModalShownDate = localStorage.getItem('modalShownDate');
         var currentDateModal = new Date().toLocaleDateString();
 
+        const currentDate = new Date();
+        const formattedDate = currentDate.toISOString().split("T")[0];
+        document.getElementById("dateInput").value = formattedDate;
+        document.getElementById("dateInput").setAttribute("max", formattedDate);
+
         // model ทุกครั้งที่เข้าหน้าเว็บ
         // $(window).on('load', function () {
         //     $('#myModal').modal('show');
@@ -118,10 +123,7 @@
 
     });
 
-    const currentDate = new Date();
-    const formattedDate = currentDate.toISOString().split("T")[0];
-    document.getElementById("dateInput").value = formattedDate;
-    document.getElementById("dateInput").setAttribute("max", formattedDate);
+    
     document.getElementById('searchForm').addEventListener('input', function(event) {
         event.preventDefault();
         var tagValue = document.getElementById('tag').value;
@@ -393,10 +395,10 @@
                             <label for="date" class="header">วันนำส่ง</label>
                             <input type="date" name="dateInput" id="dateInput" value="{{dateInput}}" class="form-control" max="{{dateInput}}">
                         </div>
-                        <!-- <div class="col">
-                            <label for="status" class="header">สถานะ</label>
-                            <input type="text" name="status" value="ยังไม่ได้รับ" class="form-control" readonly style="font-style: italic;">
-                        </div> -->
+                        <div class="col">
+                            <label for="status" class="header" hidden>สถานะ</label>
+                            <input type="text" name="status" value="ยังไม่ได้รับ" class="form-control" readonly style="font-style: italic;" hidden>
+                        </div>
                     </div>
                     <div class="pt-2 w-50">
                         <button type="submit" class="btn btn-success w-50">บันทึกพัสดุ</button>

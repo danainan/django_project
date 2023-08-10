@@ -11,7 +11,6 @@ from django.db.models import Q
 from ocr.models import Document
 import pandas as pd
 from pymongo import MongoClient
-# import openpyxl
 import os
 from PIL import Image, ImageDraw, ImageFont
 import requests
@@ -80,12 +79,14 @@ def select_columns(collection):
     # เปลี่ยนชื่อคอลัมน์
     df_selected.columns = ['ชื่อ', 'นามสกุล', 'ห้อง', 'สถานะ', 'วันที่']
     df_selected = df_selected.sort_values(by='ห้อง', ascending=True)
-    df_selected = df_selected[['ห้อง' ,'ชื่อ', 'นามสกุล','วันที่' ,'สถานะ']]
+    df_selected = df_selected.groupby(['ห้อง', 'ชื่อ', 'นามสกุล', 'วันที่', 'สถานะ']).size().reset_index(name='จำนวนพัสดุ(ชิ้น)')
     df_selected['วันที่'] = pd.to_datetime(df_selected['วันที่']).dt.date
     
     return df_selected
 
 def create_and_save_table_plot(df, title, filename):
+       if os.path.exists(filename):
+           os.remove(filename)
        matplotlib.use('Agg')
        plt.title(title)
        table = plt.table(
@@ -98,7 +99,8 @@ def create_and_save_table_plot(df, title, filename):
        table.set_fontsize(10)
        table.scale(1.5, 1.5)  # Adjust the table size if needed
        plt.axis('off')
-       plt.savefig(filename, bbox_inches='tight', dpi=500)
+       path = os.path.join(settings.MEDIA_PROJECT)
+       plt.savefig(path + '/' + filename, bbox_inches='tight', dpi=500)
        plt.close()
 
 
@@ -109,25 +111,28 @@ def save_img(request):
     collection = db['ocr_document']
 
 
-
-
     dateToday = datetime.datetime.now().date()
     all_data = select_columns(collection)
+
     df_selected_today = all_data[all_data['วันที่'] == dateToday]
     df_selected_other = all_data[all_data['วันที่'] != dateToday]
+    df_selected_other = df_selected_other.groupby(['ห้อง', 'ชื่อ', 'นามสกุล']).agg({'จำนวนพัสดุ(ชิ้น)': 'sum'}).reset_index()
+
 
     today_title = f'รายการพัสดุที่ยังไม่ได้รับวันนี้ {dateToday}'
     other_title = f'รายการพัสดุที่ยังไม่ได้รับวันอื่นๆ'
     
-    create_and_save_table_plot(df_selected_today, today_title, 'วันนี้.png')
-    create_and_save_table_plot(df_selected_other, other_title, 'วันอื่นๆ.png')
+    if not df_selected_today.empty:
+        create_and_save_table_plot(df_selected_today, today_title, 'วันนี้.png')
+    if not df_selected_other.empty:
+        create_and_save_table_plot(df_selected_other, other_title, 'วันอื่นๆ.png')
+
 
     # line_notify_token = "CCDXvamsMK3Cgcnu3k2sW5MdWgdLUvGbR7YtqteeH7W"
 
  
     #find Token all
     token = Token.objects.last()
-    print(token)
 
     if token is None:
         return redirect('line_login')
@@ -141,15 +146,20 @@ def save_img(request):
     headers = {
          "Authorization": f"Bearer {line_notify_token}"
     }
+
+    path = os.path.join(settings.MEDIA_PROJECT)
         
+    if path + '/' + 'วันนี้.png' in os.listdir(path):
 
-    files = {'imageFile': open('วันนี้.png', 'rb')}
-    data = {'message': f'{today_title}'}
-    requests.post(line_notify_api_url, headers=headers, data=data, files=files)
+        files = {'imageFile': open(path + '/' + 'วันนี้.png', 'rb')}
+        data = {'message': f'{today_title}'}
+        requests.post(line_notify_api_url, headers=headers, data=data, files=files)
 
-    files = {'imageFile': open('วันอื่นๆ.png', 'rb')}
-    data = {'message': f'{other_title}'}
-    requests.post(line_notify_api_url, headers=headers, data=data, files=files)
+    if path + '/' + 'วันอื่นๆ.png' in os.listdir(path):
+        print('วันอื่นๆ.png')
+        files = {'imageFile': open(path + '/' + 'วันอื่นๆ.png', 'rb')}
+        data = {'message': f'{other_title}'}
+        requests.post(line_notify_api_url, headers=headers, data=data, files=files)
     
     client.close()
 
