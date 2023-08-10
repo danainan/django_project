@@ -115,6 +115,7 @@ def save_img(request):
     all_data = select_columns(collection)
 
     df_selected_today = all_data[all_data['วันที่'] == dateToday]
+    df_selected_today = df_selected_today.groupby(['ห้อง', 'ชื่อ', 'นามสกุล']).agg({'จำนวนพัสดุ(ชิ้น)': 'sum'}).reset_index()
     df_selected_other = all_data[all_data['วันที่'] != dateToday]
     df_selected_other = df_selected_other.groupby(['ห้อง', 'ชื่อ', 'นามสกุล']).agg({'จำนวนพัสดุ(ชิ้น)': 'sum'}).reset_index()
 
