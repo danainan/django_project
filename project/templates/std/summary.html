@@ -107,7 +107,7 @@
                         </table>
                     </div>
                     
-                    <button type="submit" class="btn btn-primary" style="margin-left: 900px;">บันทึกสถานะ</button>
+                    <button type="submit" class="btn btn-warning" style="margin-left: 900px;">บันทึกสถานะ</button>
                    
                     <hr>
                     <div style="max-height: 200px; overflow-y: auto; scrollbar-width: thin; scrollbar-color: gray gray;">
@@ -136,7 +136,7 @@
                 </form>
                 <form method="POST" action="{% url 'save_img' %}">
                     {% csrf_token %}
-                    <button type="submit" class="btn btn-primary"><i class="fa-brands fa-line"> ส่งข้อมูลไปยังกลุ่ม</i></button>
+                    <button type="submit" class="btn btn-success"><i class="fa-brands fa-line"> ส่งข้อมูลไปยังกลุ่ม</i></button>
                 </form>
 
                 <div id="alert-container">

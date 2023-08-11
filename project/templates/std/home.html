@@ -36,7 +36,6 @@
 </head>
 <body>
 {% include 'std/navbar.html' %}
-<h1 class="text-center my-3">การจัดการรายชื่อสมาชิกและห้องพัก</h1>
 <h3 class="text-center my-3">รายชื่อสมาชิกในหอพัก</h3>
 
 <div class="container">
@@ -81,6 +80,7 @@
         <div class="col-md-12">
             <div class="card">
                 <div class="card-body">
+                    <div style="max-height:500px; overflow-y: auto; scrollbar-width: thin; scrollbar-color: gray gray;">
                     <table class="table table-striped">
                         
                         <thead>
@@ -92,9 +92,9 @@
                                 <th>ไอดีไลน์</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            {% for u in users %}
-                                
+                        
+                        <tbody >
+                            {% for u in users %}   
                             <tr>
                                 <!-- <td>{{ forloop.counter }}</td> -->
                                 <td>{{ u.room_num }}</td>
@@ -107,9 +107,12 @@
                                     
                                 </td>
                             </tr>
+                            
                             {% endfor %}
                         </tbody>
+                        
                     </table>
+                </div>
                 </div>
             </div>
         </div>

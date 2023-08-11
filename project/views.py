@@ -97,7 +97,7 @@ def create_and_save_table_plot(df, title, filename):
        )
        table.auto_set_font_size(False)
        table.set_fontsize(10)
-       table.scale(1.5, 1.5)  # Adjust the table size if needed
+       table.scale(1.5, 1.5)  
        plt.axis('off')
        path = os.path.join(settings.MEDIA_PROJECT)
        plt.savefig(path + '/' + filename, bbox_inches='tight', dpi=500)
@@ -120,8 +120,10 @@ def save_img(request):
     df_selected_other = df_selected_other.groupby(['ห้อง', 'ชื่อ', 'นามสกุล']).agg({'จำนวนพัสดุ(ชิ้น)': 'sum'}).reset_index()
 
 
-    today_title = f'รายการพัสดุที่ยังไม่ได้รับวันนี้ {dateToday}'
+    today_title = f'รายการพัสดุที่ยังไม่ได้รับวันนี้'+str(dateToday)
     other_title = f'รายการพัสดุที่ยังไม่ได้รับวันอื่นๆ'
+
+    
     
     if not df_selected_today.empty:
         create_and_save_table_plot(df_selected_today, today_title, 'วันนี้.png')
@@ -131,8 +133,19 @@ def save_img(request):
 
     # line_notify_token = "CCDXvamsMK3Cgcnu3k2sW5MdWgdLUvGbR7YtqteeH7W"
 
- 
-    #find Token all
+    
+    client.close()
+
+    line_notify(today_title,dateToday)
+    line_notify(other_title,dateToday)
+
+
+
+
+    # คืนค่าเพื่อบอกว่าฟังก์ชันทำงานเสร็จสิ้น
+    return redirect('summary')
+
+def line_notify(messeageLine,dateToday):
     token = Token.objects.last()
 
     if token is None:
@@ -151,33 +164,28 @@ def save_img(request):
     path = os.path.join(settings.MEDIA_PROJECT)
 
         
-    if os.path.exists(path + '/' + 'วันนี้.png'):
-        files = {'imageFile': open(os.path.join(settings.MEDIA_PROJECT, 'วันนี้.png'), "rb")}
-        data = {'message': f'{today_title}'}
-        requests.post(line_notify_api_url, headers=headers, data=data, files=files)
-        pass
-    else :
-        data = {'message': f'{today_title} [ ไม่มีพัสดุ ]'}
-        requests.post(line_notify_api_url, headers=headers, data=data)
+    if messeageLine == 'รายการพัสดุที่ยังไม่ได้รับวันนี้'+str(dateToday):
+        if os.path.exists(path + '/' + 'วันนี้.png'):
+            files = {'imageFile': open(os.path.join(settings.MEDIA_PROJECT, 'วันนี้.png'), "rb")}
+            data = {'message': f'{messeageLine}'}
+            requests.post(line_notify_api_url, headers=headers, data=data, files=files)
+            pass
+        else :
+            data = {'message': f'{messeageLine} [ ไม่มีพัสดุ ]'}
+            requests.post(line_notify_api_url, headers=headers, data=data)
 
 
-    if os.path.exists(path + '/' + 'วันอื่นๆ.png'):
- 
-        files = {'imageFile': open(os.path.join(settings.MEDIA_PROJECT, 'วันอื่นๆ.png'), "rb")}
-        data = {'message': f'{other_title}'}
-        requests.post(line_notify_api_url, headers=headers, data=data, files=files)
-        pass
-    else :
-        data = {'message': f'{other_title} [ ไม่มีพัสดุ ]'}
-        requests.post(line_notify_api_url, headers=headers, data=data)
-    
-    client.close()
+    elif messeageLine == 'รายการพัสดุที่ยังไม่ได้รับวันอื่นๆ':
+        if os.path.exists(path + '/' + 'วันอื่นๆ.png'):
+            files = {'imageFile': open(os.path.join(settings.MEDIA_PROJECT, 'วันอื่นๆ.png'), "rb")}
+            data = {'message': f'{messeageLine}'}
+            requests.post(line_notify_api_url, headers=headers, data=data, files=files)
+            pass
+        else :
+            data = {'message': f'{messeageLine} [ ไม่มีพัสดุ ]'}
+            requests.post(line_notify_api_url, headers=headers, data=data)
 
 
-
-
-    # คืนค่าเพื่อบอกว่าฟังก์ชันทำงานเสร็จสิ้น
-    return redirect('summary')
 
 
 
