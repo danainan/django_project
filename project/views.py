@@ -409,7 +409,7 @@ def room_add(request):
 
 @login_required(login_url='/login/')
 def rooms_list(request):
-    rooms = Rooms.objects.all()
+    rooms = Rooms.objects.all().order_by('room_number')
     return render(request, 'std/rooms_list.html', {'rooms': rooms})
 
 
