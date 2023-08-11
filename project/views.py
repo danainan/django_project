@@ -204,9 +204,15 @@ def summary(request):
                 Q(firstname__icontains=search_query) |
                 Q(last_name__icontains=search_query) |
                 Q(room_num__icontains=search_query) 
-            ).order_by('room_num')
+            ).order_by('room_num','-date')
+
     else:
-        documents = Document.objects.all().order_by('room_num')
+        documents = Document.objects.all().order_by('room_num','-date')
+        
+        
+        
+
+        
 
     received_documents = [doc for doc in documents if doc.status == 'รับแล้ว']
 
