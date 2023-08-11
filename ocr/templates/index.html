@@ -29,54 +29,6 @@
         var text = document.getElementById('text');
         var tag = document.getElementById('tag');
         
-        
-        var lastModalShownDate = localStorage.getItem('modalShownDate');
-        var currentDateModal = new Date().toLocaleDateString();
-
-        const currentDate = new Date();
-        const formattedDate = currentDate.toISOString().split("T")[0];
-        document.getElementById("dateInput").value = formattedDate;
-        document.getElementById("dateInput").setAttribute("max", formattedDate);
-
-        // model ทุกครั้งที่เข้าหน้าเว็บ
-        // $(window).on('load', function () {
-        //     $('#myModal').modal('show');
-
-        //     // when button click
-        //     $('#buttonModal').click(function () {
-        //         $('#myModal').modal('hide');
-        //     });
-
-        //     // when the modal is closed
-        //     $('#myModal').on('hidden.bs.modal', function (e) {
-        //         // remove the backdrop
-        //         $('.modal-backdrop').remove();
-        //     });
-        // });
-        
-        
-        // model เฉพาะครั้งแรกของวัน
-        if (lastModalShownDate !== currentDateModal) {
-            // Show the modal
-            $('#myModal').modal('show');
-            // Set the modalShownDate in localStorage to today's date
-            localStorage.setItem('modalShownDate', currentDateModal);
-        }
-        // When the "Close" button is clicked
-        $('#buttonModal').click(function () {
-            $('#myModal').modal('hide');
-        });
-        // When the modal is closed
-        $('#myModal').on('hidden.bs.modal', function (e) {
-            // Remove the backdrop
-            $('.modal-backdrop').remove();
-        });
-
-        
-
-       
-      
-
         openCameraBtn.addEventListener('click', function () {
             fetch("{% url 'initialize_camera' %}")
                 .then(response => {
@@ -121,6 +73,11 @@
 
         });
 
+        var currentDate = new Date();
+        var formattedDate = currentDate.toISOString().split("T")[0];
+        document.getElementById("dateInput").value = formattedDate;
+        document.getElementById("dateInput").setAttribute("max", formattedDate);
+
     });
 
     
@@ -133,6 +90,47 @@
             alert('กรุณาเลือกข้อมูล');
         }
     });
+
+    var lastModalShownDate = localStorage.getItem('modalShownDate');
+    var currentDateModal = new Date().toLocaleDateString();
+    
+
+
+    
+
+    // model เฉพาะครั้งแรกของวัน
+    if (lastModalShownDate !== currentDateModal) {
+            // Show the modal
+            $('#myModal').modal('show');
+            // Set the modalShownDate in localStorage to today's date
+            localStorage.setItem('modalShownDate', currentDateModal);
+    }
+    // When the "Close" button is clicked
+    $('#buttonModal').click(function () {
+        $('#myModal').modal('hide');
+    });
+    // When the modal is closed
+    $('#myModal').on('hidden.bs.modal', function (e) {
+        // Remove the backdrop
+        $('.modal-backdrop').remove();
+    });
+
+
+        // model ทุกครั้งที่เข้าหน้าเว็บ
+        // $(window).on('load', function () {
+        //     $('#myModal').modal('show');
+
+        //     // when button click
+        //     $('#buttonModal').click(function () {
+        //         $('#myModal').modal('hide');
+        //     });
+
+        //     // when the modal is closed
+        //     $('#myModal').on('hidden.bs.modal', function (e) {
+        //         // remove the backdrop
+        //         $('.modal-backdrop').remove();
+        //     });
+        // });
 
     
     
@@ -155,6 +153,8 @@
     //         alert('กรุณาเลือกข้อมูล');
     //     }
     // });
+
+    
 
     
 
@@ -223,7 +223,7 @@
     <div class="container" style="border-radius: 25px;background-color: rgb(50, 47, 117);">
         <div class="row">
             <div class="col open-camera">
-                <button id="open-camera-btn" class="btn btn-primary">
+                <button id="open-camera-btn" class="btn btn-primary w-50">
                     <i class="fa fa-camera" aria-hidden="true"></i>
                     Open Camera
                 </button>
@@ -494,13 +494,18 @@
             /* Add more CSS properties as desired */
         }
 
-        .open-camera{
+        .open-camera {
+            display: flex;
+            justify-content: center;
+        }
+
+        /* .open-camera{
             display: flex;
             justify-content: center;
             background-color: darkgoldenrod;
             border-radius: 25px;
-            width: 150px;
-            height: 100px;
+            
+            
             border-style: inset;
             margin: 20px;
             align-items: center;
@@ -511,15 +516,13 @@
 
             background-color: darkgoldenrod;
             border-radius: 25px;
-            width: 150px;
-            height: 100px;
             border-style: inset;
             display: flex;
             justify-content: center;
             align-items: center;
             margin: 20px;
 
-        }
+        } */
 
         input[type="file"] {
             padding: 4px;
