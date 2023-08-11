@@ -204,8 +204,6 @@
                             <a>ตรง</a>
                         </div>
                     </div>
-
-    
                 </div>
             </div>
     
@@ -214,171 +212,179 @@
     
     
 
-    <div class="col text-center pt-2">
+    <div class="container pt-2" >
+
+    
+    <div class="col text-center pt-2 " style="background-color: rgba(14, 17, 23, 0.75); border-radius: 10px;">
         <h5 class="ocr-heading">ขั้นตอนที่ 1.นำเข้ารูปภาพ</h5>
     </div>
 
     
-
-    <div class="container" style="border-radius: 25px;background-color: rgb(50, 47, 117);">
-        <div class="row">
-            <div class="col open-camera">
-                <button id="open-camera-btn" class="btn btn-primary w-50">
-                    <i class="fa fa-camera" aria-hidden="true"></i>
-                    Open Camera
-                </button>
-                
-            </div>
-            <div class="col upload-image">
-                <form id="upload-form" action="upload_img" method="post" enctype="multipart/form-data">
-                    {% csrf_token %}
-                    <input type="file" accept="image/*" alt="file_image" name="file_image" id="file_image">
-                    <button id="upload-image-btn" class="btn btn-primary">Submit</button>
-                </form>
-            </div>
-        </div>
-        <div class="col" style="display: flex;
-        justify-content: center;
-        align-items: center;">
-            <div class="row pt-1">
-
-                <div id="video-container" class="video-container">
-                    
-                    {% if encoded_image %}
-                        <img src="https://baj.by/sites/default/files/event/preview/thumb-padrao-video.png" alt="" id="video"></img>
-                    {% else %}
-                        <img src="https://baj.by/sites/default/files/event/preview/thumb-padrao-video.png" alt="" id="video"></img>
-                    {% endif %}
-                    
-                </div>
-                
-            </div>
-            <div class="row pt-1">
-
-                <div id="image-container" class="image-container">
-                    <!-- {% csrf_token %} -->
-                    {% if encoded_image %}
-                        <img src="data:image/png;base64,{{ encoded_image }}" alt="" id="captured-image">
-                    {% else %}
-                        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRwZ4mTuUvdD6l60AzmWTIZ341ALx1udRQn3zv5va8czuI5VNApMbGqiIJGSuoe1EhreQY&usqp=CAU" alt="" id="captured-image">
-                    {% endif %}
-                </div>
-
-            </div>
-        </div>
-
-        <div class="row pt-2 pb-5 w-50 m-auto">
-            <p style="color: white;padding-left: -5em;">กดปุ่ม 'Q' บนคีย์บอร์ดเพื่อ 'ถ่ายภาพ'</p>
-            
-                <button id="reset-camera-btn" class="btn btn-secondary" >Reset Image</button>
-
-        </div>
-    </div>
-
-
-    <div class="col text-center">
-        <h5 class="ocr-heading">ขั้นตอนที่ 2.รู้จำภาพ</h5>
-    </div>
-    <div class="container" style="background-color: #3f99ca;border-radius: 25px;">
         
-        <div class="row pt-2 m-auto w-50">
-            <button id="ocr-btn" class="btn btn-success btn-lg">
-                <i class="fa fa-font" aria-hidden="true"></i>
-                <span class="text-decoration-underline">OCR BUTTON</span>
-                <i class="fa fa-search" aria-hidden="true"></i>
-            </button>
-        </div>
-        
-        <!-- OCR button and show text -->
-        <div class="col pb-3" style="margin-bottom: 5px;">
-            <div class="row border pb-2">
-                <div id="text-container">
-                    <p id="text" style="font-size: 1.3em;"></p>
+        <div class="container" style="border-radius: 25px;background-color: #292D33;">
+            <div class="row">
+                <div class="col open-camera">
+                    <button id="open-camera-btn" class="btn btn-primary w-50">
+                        <i class="fa fa-camera" aria-hidden="true"></i>
+                        Open Camera
+                    </button>
                     
                 </div>
-            </div>
-            <div class="row border pb-2">
-                <div class="col-6">
-                    <div id="text-container">
-                        <form action="search_name" method="post" enctype="multipart/form-data" class="form-control w-100" id="searchForm">
-                            {% csrf_token %}
-                            <div class="input-group">
-                                <input type="text" id="tag" value="{{tag}}" class="form-control" name="tag">
-                                <button type="submit" class="btn btn-primary" id="submitBtn">
-                                    <i class="fa fa-search" aria-hidden="true"></i>
-                                </button>
-                            </div>
-                        
-                        </form>
-                        
-                    </div>
+                <div class="col upload-image">
+                    <form id="upload-form" action="upload_img" method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <input type="file" accept="image/*" alt="file_image" name="file_image" id="file_image" style="color: #000000;">
+                        <button id="upload-image-btn" class="btn btn-primary">Submit</button>
+                    </form>
                 </div>
-                <div class="col-6 pb-2">
-                
-                    <div class="row" style="max-height: 200px; overflow-y: auto; scrollbar-width: thin; scrollbar-color: gray gray;">
-                        {% for doc in document %}
-                        {% if document != ' ' %}
-                        <form method="post" action="get_document/{{ doc.id }}" enctype="multipart/form-data" class="form-control">
-                            {% csrf_token %}
-                            <button type="submit" class="card hover-effect" onclick="selectCard(this)">
-                                <div class="name-room-container">
-                                    <span class="confident" style="
-                                    border: 2px solid #d57815; 
-                                    padding: 5px;
-                                    background-color: #d57815;
-                                    color: white;
-                                    border-radius: 5px;
-                                    width: 60px;
-                                    "
-                                    >
-                                        {{ doc.confidence}}
-                                    </span>
-                                    <span class="name">
-                                        {{ doc.firstname }} {{ doc.last_name }}
-                                    </span>
-                                    <span class="room">
-                                        ห้อง {{ doc.room_num }}
-                                    </span>
-                                </div>
-                                <input type="hidden" name="id" value="{{ doc.id }}" class="form-control">
-                                <input type="hidden" name="firstname" value="{{ doc.firstname }}" class="form-control">
-                                <input type="hidden" name="last_name" value="{{ doc.last_name }}" class="form-control">
-                                <input type="hidden" name="line_id" value="{{ doc.line_id }}" class="form-control">
-                                <input type="hidden" name="room_num" value="{{ doc.room_num }}" class="form-control">
-                            </button>
-                        </form>
-                       
+            </div>
+            <div class="col" style="display: flex;
+            justify-content: center;
+            align-items: center;">
+                <div class="row pt-1">
+
+                    <div id="video-container" class="video-container">
                         
-                        {% elif document == ' ' %}
-                            <p>
-                                ไม่พบข้อมูล
-                            </p>
+                        {% if encoded_image %}
+                            <img src="https://baj.by/sites/default/files/event/preview/thumb-padrao-video.png" alt="" id="video"></img>
+                        {% else %}
+                            <img src="https://baj.by/sites/default/files/event/preview/thumb-padrao-video.png" alt="" id="video"></img>
                         {% endif %}
+                        
+                        
+                    </div>
+                    <p style="color: white;padding-left: 210px;">กดปุ่ม 'Q' บนคีย์บอร์ดเพื่อ 'ถ่ายภาพ'</p>
+                    
+                </div>
+                <div class="row pt-1">
 
-                        {% endfor %}
+                    <div id="image-container" class="image-container">
+                        <!-- {% csrf_token %} -->
+                        {% if encoded_image %}
+                            <img src="data:image/png;base64,{{ encoded_image }}" alt="" id="captured-image">
+                        {% else %}
+                            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRwZ4mTuUvdD6l60AzmWTIZ341ALx1udRQn3zv5va8czuI5VNApMbGqiIJGSuoe1EhreQY&usqp=CAU" alt="" id="captured-image">
+                        {% endif %}
+                    </div>
+                    <p style="color:#292D33 ;padding-left: 210px;">                       '</p>
+                </div>
+            </div>
+
+            <div class="row pt-2 pb-5 w-50 m-auto">
+                
+                    <button id="reset-camera-btn" class="btn btn-secondary" >Reset Image</button>
+
+            </div>
+        </div>
+    </div>
+
+
+    <div class="container pt-2">
+        <div class="col text-center">
+            <h5 class="ocr-heading" style="background-color: rgba(14, 17, 23, 0.75); border-radius: 10px;">ขั้นตอนที่ 2.รู้จำภาพ</h5>
+        </div>
+        <div class="container" style="background-color: #292D33;border-radius: 25px;">
+            
+            <div class="row pt-2 m-auto" style="padding-left: 430px;" >
+                <button id="ocr-btn" class="btn btn-primary w-50" >
+                    <i class="fa fa-font" aria-hidden="true"></i>
+                    <span class="text-decoration-underline">OCR BUTTON</span>
+                    <i class="fa fa-search" aria-hidden="true"></i>
+                </button>
+            </div>
+            
+            <!-- OCR button and show text -->
+            <div class="col pb-3" style="margin-bottom: 5px;">
+                <div class="row border pb-2" style="min-height: 50px; background-color: #ffffff;">
+                    <div id="text-container">
+                        <p id="text" style="font-size: 1.3em;"></p>
+                        
                     </div>
                 </div>
+                <div class="row border pb-2" style="background-color: #ffffff;">
+                    <div class="col-md-6 ">
+                        <div id="text-container">
+                            <form action="search_name" method="post" enctype="multipart/form-data" class="form-control w-100" id="searchForm">
+                                {% csrf_token %}
+                                <div class="input-group">
+                                    <input type="text" id="tag" value="{{tag}}" class="form-control" name="tag">
+                                    <button type="submit" class="btn btn-primary" id="submitBtn">
+                                        <i class="fa fa-search" aria-hidden="true"></i>
+                                    </button>
+                                </div>
+                            
+                            </form>
+                            
+                        </div>
+                    </div>
+                    <div class="col-6 pb-2">
+                    
+                        <div class="row" style="max-height: 200px; overflow-y: auto; scrollbar-width: thin; scrollbar-color: gray gray;">
+                            {% for doc in document %}
+                            {% if document != ' ' %}
+                            <form method="post" action="get_document/{{ doc.id }}" enctype="multipart/form-data" class="form-control">
+                                {% csrf_token %}
+                                <button type="submit" class="card hover-effect" onclick="selectCard(this)">
+                                    <div class="name-room-container">
+                                        <span class="confident" style="
+                                        border: 2px solid #d57815; 
+                                        padding: 5px;
+                                        background-color: #d57815;
+                                        color: white;
+                                        border-radius: 5px;
+                                        width: 60px;
+                                        "
+                                        >
+                                            {{ doc.confidence}}
+                                        </span>
+                                        <span class="name">
+                                            {{ doc.firstname }} {{ doc.last_name }}
+                                        </span>
+                                        <span class="room">
+                                            ห้อง {{ doc.room_num }}
+                                        </span>
+                                    </div>
+                                    <input type="hidden" name="id" value="{{ doc.id }}" class="form-control">
+                                    <input type="hidden" name="firstname" value="{{ doc.firstname }}" class="form-control">
+                                    <input type="hidden" name="last_name" value="{{ doc.last_name }}" class="form-control">
+                                    <input type="hidden" name="line_id" value="{{ doc.line_id }}" class="form-control">
+                                    <input type="hidden" name="room_num" value="{{ doc.room_num }}" class="form-control">
+                                </button>
+                            </form>
+                        
+                            
+                            {% elif document == ' ' %}
+                                <p>
+                                    ไม่พบข้อมูล
+                                </p>
+                            {% endif %}
+
+                            {% endfor %}
+                        </div>
+                    </div>
 
 
 
-        
-            </div>
+            
+                </div>
+            
+                
         
             
-       
-        
-        
-        
-        
+            
+            
+            
+            </div>
         </div>
-
-   
     </div>
+
+
+    <div class="container pt-2">
         <div class="col text-center">
-            <h5 class="ocr-heading">ขั้นตอนที่ 3.บันทึกข้อมูลพัสดุ</h5>
+            <h5 class="ocr-heading" style="background-color: rgba(14, 17, 23, 0.75); border-radius: 10px;">ขั้นตอนที่ 3.บันทึกข้อมูลพัสดุ</h5>
         </div>
 
-        <div class="container d-flex justify-content-center" style="background-color: #93a432;border-radius: 25px;">
+        <div class="container d-flex justify-content-center" style="background-color: #292D33;border-radius: 25px;">
             
             <div style="border-radius: 25px; margin-top: 25px;" class="row pt-3 w-50 pb-3">
                 {% if result_parcels %}
@@ -420,7 +426,6 @@
     </div>
 
 
-    </div>
 
 
 
@@ -494,19 +499,19 @@
             /* Add more CSS properties as desired */
         }
 
-        .open-camera {
+        /* .open-camera {
             display: flex;
             justify-content: center;
-        }
+        } */
 
-        /* .open-camera{
+        .open-camera{
             display: flex;
             justify-content: center;
-            background-color: darkgoldenrod;
-            border-radius: 25px;
+            background-color: #5C636A;
+            border-radius: 15px;
             
             
-            border-style: inset;
+            height: 60px;
             margin: 20px;
             align-items: center;
                 
@@ -514,15 +519,14 @@
 
         .upload-image{
 
-            background-color: darkgoldenrod;
-            border-radius: 25px;
-            border-style: inset;
+            background-color: #5C636A;
+            border-radius: 15px;
             display: flex;
             justify-content: center;
             align-items: center;
             margin: 20px;
 
-        } */
+        }
 
         input[type="file"] {
             padding: 4px;
@@ -536,7 +540,7 @@
               padding: 0 16px;
               height: 40px;
               cursor: pointer;
-              background-color: white;
+              background-color: #ffffff;
               border: 1px solid rgba(#000, 0.16);
               box-shadow: 0px 1px 0px rgba(#000, 0.05);
               margin-right: 16px;
@@ -613,7 +617,7 @@
 
         .video-container, .image-container {
             position: relative;
-            width: 500px;
+            width: 620px;
             height: 500px;
             margin: 30px;
             background-size: cover;
