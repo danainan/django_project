@@ -40,8 +40,7 @@
 
 <body>
     {% include 'std/navbar.html' %}
-    <h3 class="text-center my-3">พัสดุที่ยังไม่ได้รับ</h3>
-    <div class="container">
+    <div class="container pt-2">
         <div class="row justify-content-center">
             <div class="col-md-10">
                 {% if messages %}
@@ -74,7 +73,7 @@
 
                 
                 
-
+                <h4 class="text-center my-3">พัสดุที่ยังไม่ได้รับ</h4>
                 <form method="POST">
                     <div style="max-height: 200px; overflow-y: auto; scrollbar-width: thin; scrollbar-color: gray gray;">
                         {% csrf_token %}
@@ -110,8 +109,9 @@
                     <button type="submit" class="btn btn-warning" style="margin-left: 900px;">บันทึกสถานะ</button>
                    
                     <hr>
+                    <h4 class="text-center my-3">พัสดุที่รับแล้ว</h4>
                     <div style="max-height: 200px; overflow-y: auto; scrollbar-width: thin; scrollbar-color: gray gray;">
-                        <h3 class="text-center my-3">พัสดุที่รับแล้ว</h3>
+                        
                         <table class="table table-striped">
                             <thead>
                                 <tr>
