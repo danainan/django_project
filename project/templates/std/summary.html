@@ -74,7 +74,7 @@
                 
                 
                 <h4 class="text-center my-3">พัสดุที่ยังไม่ได้รับ</h4>
-                <form method="POST">
+                <form method="POST" action="{% url 'save_status' %}">
                     <div style="max-height: 200px; overflow-y: auto; scrollbar-width: thin; scrollbar-color: gray gray;">
                         {% csrf_token %}
                         <table class="table table-striped">
@@ -92,6 +92,7 @@
                                     <td>{{ document.room_num }}</td>
                                     <td>{{ document.firstname }} {{document.last_name}}</td>
                                     <td>{{ document.date }}</td>
+                                    
                                     <td>
                                         <input type="radio" name="status_{{ document.pk }}" value="รับแล้ว" {% if document.status == 'รับแล้ว' %}checked{% endif %}>
                                         รับแล้ว
@@ -100,6 +101,7 @@
                                         <input type="radio" name="status_{{ document.pk }}" value="ยังไม่ได้รับ" {% if document.status == 'ยังไม่ได้รับ' %}checked{% endif %}>
                                         ยังไม่ได้รับ
                                     </td>
+
                                 </tr>
                                 {% endfor %}
                             </tbody>

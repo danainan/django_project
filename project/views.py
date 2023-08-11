@@ -218,14 +218,10 @@ def summary(request):
 
     documents = [doc for doc in documents if doc not in received_documents]
 
-    if request.method == 'POST':
-        for document in documents:
-            status = request.POST.get(f"status_{document.pk}", None)
-            if status in ['รับแล้ว', 'ยังไม่ได้รับ']:
-                document.status = status
-                document.save()
+    
 
-
+        
+        
     code = request.GET.get('code')
     if code:
         access_token = exchange_code_for_access_token(code)
@@ -236,6 +232,18 @@ def summary(request):
 
 
     return render(request, 'std/summary.html', {'documents': documents, 'received_documents': received_documents})
+
+def save_status(request):
+    if request.method == 'POST':
+    
+        remaining_documents = Document.objects.exclude(status='รับแล้ว')
+
+        for document in remaining_documents:
+            status = request.POST.get(f"status_{document.pk}")
+            if status:
+                document.status = status
+                document.save()
+        return redirect('summary')
 
 
 
