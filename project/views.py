@@ -340,9 +340,11 @@ def users_add(request):
 
     for room in rooms:
         current_occupancy = Users.objects.filter(room_num=room.room_number).count()
-        room_status = f"{room.room_number} (ห้องพักเต็มแล้ว)" if current_occupancy >= int(room.room_capacity) else f"{room.room_number} ({current_occupancy}/{room.room_capacity} คน)"
+        room_status = f"{room.room_number} ({current_occupancy}/{room.room_capacity} คน) (ห้องเต็ม)" if current_occupancy >= int(room.room_capacity) else f"{room.room_number} ({current_occupancy}/{room.room_capacity} คน)"
         room_options.append((room.room_number, room_status))
 
+    #sort room_options by room number
+    room_options.sort(key=lambda x: x[0])
 
     return render(request, 'std/add_u.html', {'room_options': room_options})
 
@@ -357,13 +359,18 @@ def users_delete(request,roll):
 def users_update(request, roll):
     project = Users.objects.get(pk=roll)
     rooms = Rooms.objects.all()
+
     room_data = []
-
-
     for room in rooms:
         current_occupancy = Users.objects.filter(room_num=room.room_number).exclude(pk=roll).count()
-        room_status = f"{room.room_number} (ห้องพักเต็มแล้ว)" if current_occupancy >= int(room.room_capacity) else f"{room.room_number} ({current_occupancy}/{room.room_capacity} คน)"
+        room_status = f"{room.room_number} ({current_occupancy}/{room.room_capacity} คน) (ห้องเต็ม)" if current_occupancy >= int(room.room_capacity) else f"{room.room_number} ({current_occupancy}/{room.room_capacity} คน)"
         room_data.append((room.room_number, room_status))
+
+    #sort room_data by room number
+    room_data.sort(key=lambda x: x[0])
+
+    
+
 
     return render(request, 'std/update_u.html', {'project': project, 'room_data': room_data})
 
