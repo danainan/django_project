@@ -232,22 +232,18 @@ def summary(request):
         documents = sorted(documents, key=lambda doc: doc.room_num, reverse=True)
         new_sort_room_order = 'asc'
 
-<<<<<<< HEAD
-    new_sort_room_order = 'asc' if sort_room_order == 'desc' else 'desc'
-=======
-def save_status(request):
-    if request.method == 'POST':
-    
-        remaining_documents = Document.objects.exclude(status='รับแล้ว')
+    # def save_status(request):
+    #     if request.method == 'POST':
+        
+    #         remaining_documents = Document.objects.exclude(status='รับแล้ว')
 
-        for document in remaining_documents:
-            status = request.POST.get(f"status_{document.pk}")
-            if status:
-                document.status = status
-                document.save()
-        return redirect('summary')
+    #         for document in remaining_documents:
+    #             status = request.POST.get(f"status_{document.pk}")
+    #             if status:
+    #                 document.status = status
+    #                 document.save()
+    #         return redirect('summary')
 
->>>>>>> 9912ae062bb3914280593f42e8168faac54e9fbf
 
     
     return render(request, 'std/summary.html', {'documents': documents, 'received_documents': received_documents, 'sort_order': new_sort_order, 'sort_room_order': new_sort_room_order})
