@@ -46,8 +46,8 @@
 <body>
     {% include 'std/navbar.html' %}
     <div class="container pt-2">
-        <div class="row justify-content-center">
-            <div class="col-md-10">
+        <div class="col justify-content-center">
+            <div class="row-md-10">
                 {% if messages %}
                 <div class="container">
                     <div class="row">
@@ -77,72 +77,75 @@
                 
 
                 
-                
-                <h4 class="text-center my-3">พัสดุที่ยังไม่ได้รับ</h4>
-                <form method="POST" action="{% url 'save_status' %}">
-                    <div style="max-height: 200px; overflow-y: auto; scrollbar-width: thin; scrollbar-color: gray gray;">
-                        {% csrf_token %}
-                        <table class="table table-striped">
-                            <thead>
-                                <tr>
-                                    <th scope="col">
-                                        <a class="sort-link" href="?sort_room={{ sort_room_order }}">หมายเลขห้องพัก <i class="fas fa-sort"></i></a>
-                                    </th>                                                                      
-                                    <th scope="col">ชื่อ-นามสกุล</th>
-                                    <th scope="col">
-                                        <a class="sort-link" href="?sort={{ sort_order }}">วันที่พัสดุจัดส่ง <i class="fas fa-sort"></i></a>
-                                    </th>
-                                    <th scope="col">สถานะพัสดุ</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for document in documents %}
-                                <tr>
-                                    <td>{{ document.room_num }}</td>
-                                    <td>{{ document.firstname }} {{document.last_name}}</td>
-                                    <td>{{ document.date }}</td>
+                <div class="col">
+                    <h4 class="text-center my-3">พัสดุที่ยังไม่ได้รับ</h4>
+                    <form method="POST" action="{% url 'save_status' %}">
+                        <div style="max-height: 200px; overflow-y: auto; scrollbar-width: thin; scrollbar-color: gray gray;">
+                            {% csrf_token %}
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">
+                                            <a class="sort-link" href="?sort_room={{ sort_room_order }}">หมายเลขห้องพัก <i class="fas fa-sort"></i></a>
+                                        </th>                                                                      
+                                        <th scope="col">ชื่อ-นามสกุล</th>
+                                        <th scope="col">
+                                            <a class="sort-link" href="?sort={{ sort_order }}">วันที่พัสดุจัดส่ง <i class="fas fa-sort"></i></a>
+                                        </th>
+                                        <th scope="col">สถานะพัสดุ</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for document in documents %}
+                                    <tr>
+                                        <td>{{ document.room_num }}</td>
+                                        <td>{{ document.firstname }} {{document.last_name}}</td>
+                                        <td>{{ document.date }}</td>
+                                        
+                                        <td>
+                                            <input type="radio" name="status_{{ document.pk }}" value="รับแล้ว" {% if document.status == 'รับแล้ว' %}checked{% endif %}>
+                                            รับแล้ว
+                                        </td>
+                                        <td>
+                                            <input type="radio" name="status_{{ document.pk }}" value="ยังไม่ได้รับ" {% if document.status == 'ยังไม่ได้รับ' %}checked{% endif %}>
+                                            ยังไม่ได้รับ
+                                        </td>
                                     
-                                    <td>
-                                        <input type="radio" name="status_{{ document.pk }}" value="รับแล้ว" {% if document.status == 'รับแล้ว' %}checked{% endif %}>
-                                        รับแล้ว
-                                    </td>
-                                    <td>
-                                        <input type="radio" name="status_{{ document.pk }}" value="ยังไม่ได้รับ" {% if document.status == 'ยังไม่ได้รับ' %}checked{% endif %}>
-                                        ยังไม่ได้รับ
-                                    </td>
-
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                </div>
                     
                     <button type="submit" class="btn btn-warning" style="margin-left: 900px;">บันทึกสถานะ</button>
-                   
-                    <hr>
-                    <h4 class="text-center my-3">พัสดุที่รับแล้ว</h4>
-                    <div style="max-height: 200px; overflow-y: auto; scrollbar-width: thin; scrollbar-color: gray gray;">
-                        
-                        <table class="table table-striped">
-                            <thead>
-                                <tr>
-                                    <th scope="col">หมายเลขห้องพัก</th>
-                                    <th scope="col">ชื่อ-นามสกุล</th>
-                                    <th scope="col">วันที่พัสดุจัดส่ง</th>
-                                    <th scope="col">สถานะพัสดุ</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for document in received_documents %}
-                                <tr>
-                                    <td>{{ document.room_num }}</td>
-                                    <td>{{ document.firstname }} {{document.last_name}}</td>
-                                    <td>{{ document.date }}</td>
-                                    <td>{{ document.status }}</td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
+                    </div>
+
+                    <div class="col">
+                        <hr>
+                        <h4 class="text-center my-3">พัสดุที่รับแล้ว</h4>
+                        <div style="max-height: 200px; overflow-y: auto; scrollbar-width: thin; scrollbar-color: gray gray;">
+
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">หมายเลขห้องพัก</th>
+                                        <th scope="col">ชื่อ-นามสกุล</th>
+                                        <th scope="col">วันที่พัสดุจัดส่ง</th>
+                                        <th scope="col">สถานะพัสดุ</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for document in received_documents %}
+                                    <tr>
+                                        <td>{{ document.room_num }}</td>
+                                        <td>{{ document.firstname }} {{document.last_name}}</td>
+                                        <td>{{ document.date }}</td>
+                                        <td>{{ document.status }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </form>
                 <form method="POST" action="{% url 'save_img' %}">
@@ -161,6 +164,8 @@
                 <a href="/linelogin">
                     เชื่อมต่อ
                 </a>
+
+            </div>
                 
 
 
