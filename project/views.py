@@ -221,17 +221,12 @@ def summary(request):
     documents = [doc for doc in documents if doc not in received_documents]
 
     
-
-        
-        
     code = request.GET.get('code')
     if code:
         access_token = exchange_code_for_access_token(code)
 
         print(access_token)
 
-
-    
     sort_order = request.GET.get('sort')
     if sort_order == 'asc':
         documents = sorted(documents, key=lambda doc: doc.date)
@@ -239,7 +234,6 @@ def summary(request):
         documents = sorted(documents, key=lambda doc: doc.date, reverse=True)
     
     new_sort_order = 'asc' if sort_order == 'desc' else 'desc'
-
 
     sort_room_order = request.GET.get('sort_room')
     if sort_room_order == 'asc':
