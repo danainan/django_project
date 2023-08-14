@@ -194,27 +194,17 @@ def summary(request):
     else:
         documents = Document.objects.all().order_by('room_num','-date')
         
-        
-        
-
-        
-
     received_documents = [doc for doc in documents if doc.status == 'รับแล้ว']
 
     documents = [doc for doc in documents if doc not in received_documents]
 
     
-
-        
-        
     code = request.GET.get('code')
     if code:
         access_token = exchange_code_for_access_token(code)
 
         print(access_token)
 
-
-    
     sort_order = request.GET.get('sort')
     if sort_order == 'asc':
         documents = sorted(documents, key=lambda doc: doc.date)
@@ -222,7 +212,6 @@ def summary(request):
         documents = sorted(documents, key=lambda doc: doc.date, reverse=True)
     
     new_sort_order = 'asc' if sort_order == 'desc' else 'desc'
-
 
     sort_room_order = request.GET.get('sort_room')
     if sort_room_order == 'asc':
@@ -232,10 +221,15 @@ def summary(request):
         documents = sorted(documents, key=lambda doc: doc.room_num, reverse=True)
         new_sort_room_order = 'asc'
 
-    # def save_status(request):
-    #     if request.method == 'POST':
-        
-    #         remaining_documents = Document.objects.exclude(status='รับแล้ว')
+    new_sort_room_order = 'asc' if sort_room_order == 'desc' else 'desc'
+
+    return render(request, 'std/summary.html', {'documents': documents, 'received_documents': received_documents, 'sort_order': new_sort_order, 'sort_room_order': new_sort_room_order})
+
+
+def save_status(request):
+    if request.method == 'POST':
+    
+        remaining_documents = Document.objects.exclude(status='รับแล้ว')
 
     #         for document in remaining_documents:
     #             status = request.POST.get(f"status_{document.pk}")
@@ -243,10 +237,6 @@ def summary(request):
     #                 document.status = status
     #                 document.save()
     #         return redirect('summary')
-
-
-    
-    return render(request, 'std/summary.html', {'documents': documents, 'received_documents': received_documents, 'sort_order': new_sort_order, 'sort_room_order': new_sort_room_order})
 
 def index(request):
     return render(request, 'std/index.html')
