@@ -223,6 +223,7 @@ def summary(request):
 
     new_sort_room_order = 'asc' if sort_room_order == 'desc' else 'desc'
 
+    
     return render(request, 'std/summary.html', {'documents': documents, 'received_documents': received_documents, 'sort_order': new_sort_order, 'sort_room_order': new_sort_room_order})
 
 
@@ -231,12 +232,12 @@ def save_status(request):
     
         remaining_documents = Document.objects.exclude(status='รับแล้ว')
 
-    #         for document in remaining_documents:
-    #             status = request.POST.get(f"status_{document.pk}")
-    #             if status:
-    #                 document.status = status
-    #                 document.save()
-    #         return redirect('summary')
+        for document in remaining_documents:
+            status = request.POST.get(f"status_{document.pk}")
+            if status:
+                document.status = status
+                document.save()
+        return redirect('summary')
 
 def index(request):
     return render(request, 'std/index.html')
