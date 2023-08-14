@@ -23,6 +23,9 @@ import datetime
 from django.http import JsonResponse
 from django.conf import settings
 from urllib.parse import unquote
+from operator import attrgetter
+from django.db import DatabaseError
+
 
 
 
@@ -59,16 +62,6 @@ def exchange_code_for_access_token(code):
     else:
         return None
 
-
-
-
-    
-    
-
-
-
-
-# เลือกฟิลด์ที่ต้องการใช้งาน
 def select_columns(collection):
     plt.rcParams['font.family'] = 'Angsana New'
     df = pd.DataFrame(list(collection.find()))
@@ -102,8 +95,6 @@ def create_and_save_table_plot(df, title, filename):
        path = os.path.join(settings.MEDIA_PROJECT)
        plt.savefig(path + '/' + filename, bbox_inches='tight', dpi=500)
        plt.close()
-
-
 
 def save_img(request):
     client = MongoClient('mongodb+srv://authachaizzz:1234@cluster0.xf2c6og.mongodb.net/?retryWrites=true&w=majority')
@@ -185,12 +176,6 @@ def line_notify(messeageLine,dateToday):
             data = {'message': f'{messeageLine} [ ไม่มีพัสดุ ]'}
             requests.post(line_notify_api_url, headers=headers, data=data)
 
-
-
-
-
-
-
 @login_required(login_url='/login/')
 def summary(request):
     documents = Document.objects.all()
@@ -225,17 +210,33 @@ def summary(request):
         access_token = exchange_code_for_access_token(code)
 
         print(access_token)
+
+
     
-        
+    sort_order = request.GET.get('sort')
+    if sort_order == 'asc':
+        documents = sorted(documents, key=lambda doc: doc.date)
+    elif sort_order == 'desc':
+        documents = sorted(documents, key=lambda doc: doc.date, reverse=True)
+    
+    new_sort_order = 'asc' if sort_order == 'desc' else 'desc'
 
 
-    return render(request, 'std/summary.html', {'documents': documents, 'received_documents': received_documents})
+    sort_room_order = request.GET.get('sort_room')
+    if sort_room_order == 'asc':
+        documents = sorted(documents, key=lambda doc: doc.room_num)
+        new_sort_room_order = 'desc'
+    elif sort_room_order == 'desc':
+        documents = sorted(documents, key=lambda doc: doc.room_num, reverse=True)
+        new_sort_room_order = 'asc'
 
+    new_sort_room_order = 'asc' if sort_room_order == 'desc' else 'desc'
 
+    
+    return render(request, 'std/summary.html', {'documents': documents, 'received_documents': received_documents, 'sort_order': new_sort_order, 'sort_room_order': new_sort_room_order})
 
 def index(request):
     return render(request, 'std/index.html')
-
 
 def login(request):
     if request.method == 'POST':
@@ -250,12 +251,9 @@ def login(request):
         
     return render(request, 'std/login.html')
 
-
-
 def logout(request):
     auth_logout(request)
     return redirect('login')
-
 
 @login_required(login_url='/login/')
 def home(request):
@@ -276,8 +274,6 @@ def home(request):
         users = Users.objects.all().order_by('room_num')
 
     return render(request, 'std/home.html', {'users': users, 'rooms': rooms})
-
-
 
 @login_required(login_url='/login/')
 def users_add(request):
@@ -332,13 +328,11 @@ def users_add(request):
 
     return render(request, 'std/add_u.html', {'room_options': room_options})
 
-
 def users_delete(request,roll):
     u=Users.objects.get(pk=roll)
     u.delete()
 
     return redirect("/project/home")
-
 
 def users_update(request, roll):
     project = Users.objects.get(pk=roll)
@@ -352,7 +346,6 @@ def users_update(request, roll):
         room_data.append((room.room_number, room_status))
 
     return render(request, 'std/update_u.html', {'project': project, 'room_data': room_data})
-
 
 @login_required(login_url='/login/')
 def do_users_update(request, roll):
@@ -385,9 +378,6 @@ def do_users_update(request, roll):
 
         return redirect("/project/home")
 
-
-
-
 @login_required(login_url='/login/')
 def room_add(request):
     if request.method == 'POST':
@@ -405,8 +395,6 @@ def room_add(request):
 
     return render(request, 'std/add_room.html', {})
 
-
-
 @login_required(login_url='/login/')
 def rooms_list(request):
     rooms = Rooms.objects.all().order_by('room_number')
@@ -414,15 +402,93 @@ def rooms_list(request):
 
 
 
+
+# def delete_room(request, room_id):
+#     room = get_object_or_404(Rooms, id=room_id)
+
+#     if request.method == 'POST':
+#         room.delete()
+#         return redirect('rooms_list')
+
+#     return render(request, 'std/delete_room.html', {'room': room})
+
+
+
+
 def delete_room(request, room_id):
+    try:
+        room = Rooms.objects.filter(id=room_id).first()
+        
+        if room is None:
+            messages.error(request, "ไม่พบห้องที่ต้องการลบ")
+        elif Users.objects.filter(room_num=room.room_number).exists():
+            messages.warning(request, "มีผู้เข้าพักอยู่ในห้องนี้ ไม่สามารถลบห้องนี้ได้")
+        else:
+            deleted_room_number = room.room_number
+            room.delete()
+            messages.success(request, f"ลบห้อง {deleted_room_number} เรียบร้อยแล้ว")
+        
+    except DatabaseError as e:
+        messages.error(request, f"มีผู้เข้าพักอยู่ในห้องนี้ ไม่สามารถลบห้องนี้ได้ {e}")
+    
+    return redirect('rooms_list')
+
+
+
+# @login_required(login_url='/login/')
+# def update_room(request, room_id):
+#     room = get_object_or_404(Rooms, id=room_id)
+#     rooms = Rooms.objects.all()
+#     room_data = []
+
+#     for r in rooms:
+#         occupancy = Users.objects.filter(room_num=r.room_number).exclude(pk=room_id).count()
+#         room_status = f"{r.room_number} (ห้องพักเต็มแล้ว)" if occupancy >= int(r.room_capacity) else r.room_number
+#         room_data.append((r.room_number, room_status))
+    
+#     if request.method == 'POST':
+#         new_room_number = request.POST.get("room_number")
+#         new_room_capacity = request.POST.get("room_capacity")
+        
+#         # Update the room details
+#         room.room_number = new_room_number
+#         room.room_capacity = new_room_capacity
+#         room.save()
+        
+#         return redirect('rooms_list')
+    
+#     return render(request, 'std/update_room.html', {'room': room, 'room_data': room_data})
+
+
+@login_required(login_url='/login/')
+def update_room(request, room_id):
     room = get_object_or_404(Rooms, id=room_id)
+    rooms = Rooms.objects.all()
+    room_data = []
 
+    for r in rooms:
+        occupancy = Users.objects.filter(room_num=r.room_number).exclude(pk=room_id).count()
+        room_status = f"{r.room_number} (ห้องพักเต็มแล้ว)" if occupancy >= int(r.room_capacity) else r.room_number
+        room_data.append((r.room_number, room_status))
+    
     if request.method == 'POST':
-        room.delete()
+        new_room_number = request.POST.get("room_number")
+        new_room_capacity = request.POST.get("room_capacity")
+        
+        # Check if there are occupants in the room
+        occupancy = Users.objects.filter(room_num=room.room_number).count()
+        
+        if occupancy > 0:
+            # If there are occupants, the new capacity must be greater than or equal to the current occupancy
+            if int(new_room_capacity) < occupancy:
+                error_message = "จำนวนผู้พักอาศัยในห้องต้องไม่น้อยกว่าจำนวนผู้พักอาศัยเดิมในห้อง"
+                return render(request, 'std/update_room.html', {'room': room, 'room_data': room_data, 'error_message': error_message})
+        
+        # Update the room details
+        room.room_number = new_room_number
+        room.room_capacity = new_room_capacity
+        room.save()
+        
         return redirect('rooms_list')
-
-    return render(request, 'std/delete_room.html', {'room': room})
-
-
-
-
+    
+    return render(request, 'std/update_room.html', {'room': room, 'room_data': room_data})
