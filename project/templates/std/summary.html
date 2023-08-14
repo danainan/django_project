@@ -34,6 +34,11 @@
           color: #080710;
         }
 
+        a.sort-link {
+        color: black; /* กำหนดสีตัวอักษรเป็นสีดำ */
+        text-decoration: none; /* ลบขีดเส้นใต้ลิงก์ */
+    }
+
     </style>
     
 </head>
@@ -60,7 +65,7 @@
                     <div class="input-group mb-3">
                         <input type="text" name="search" class="form-control" placeholder="ค้นหาด้วยชื่อ-นามสกุล หรือ หมายเลขห้องพัก">
                         <div class="input-group-append">
-                            <button type="submit" class="btn btn-primary">ค้นหาสมาชิก</button>
+                            <button type="submit" class="btn btn-primary">ค้นหา</button>
                         </div>
                     </div>
                 </form>
@@ -80,9 +85,13 @@
                         <table class="table table-striped">
                             <thead>
                                 <tr>
-                                    <th scope="col">หมายเลขห้องพัก</th>
+                                    <th scope="col">
+                                        <a class="sort-link" href="?sort_room={{ sort_room_order }}">หมายเลขห้องพัก <i class="fas fa-sort"></i></a>
+                                    </th>                                                                      
                                     <th scope="col">ชื่อ-นามสกุล</th>
-                                    <th scope="col">วันที่พัสดุจัดส่ง</th>
+                                    <th scope="col">
+                                        <a class="sort-link" href="?sort={{ sort_order }}">วันที่พัสดุจัดส่ง <i class="fas fa-sort"></i></a>
+                                    </th>
                                     <th scope="col">สถานะพัสดุ</th>
                                 </tr>
                             </thead>
