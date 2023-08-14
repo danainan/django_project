@@ -18,4 +18,6 @@ urlpatterns = [
     path("summary/", summary, name='summary'),
     path("save-img/", save_img, name="save_img"),
     path("linelogin/", line_login, name="line_login"),
+    path("save_status", save_status, name="save_status"),
+    
 ]

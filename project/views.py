@@ -189,22 +189,24 @@ def summary(request):
                 Q(firstname__icontains=search_query) |
                 Q(last_name__icontains=search_query) |
                 Q(room_num__icontains=search_query) 
-            ).order_by('room_num')
+            ).order_by('room_num','-date')
+
     else:
-        documents = Document.objects.all().order_by('room_num')
+        documents = Document.objects.all().order_by('room_num','-date')
+        
+        
+        
+
+        
 
     received_documents = [doc for doc in documents if doc.status == 'รับแล้ว']
 
     documents = [doc for doc in documents if doc not in received_documents]
 
-    if request.method == 'POST':
-        for document in documents:
-            status = request.POST.get(f"status_{document.pk}", None)
-            if status in ['รับแล้ว', 'ยังไม่ได้รับ']:
-                document.status = status
-                document.save()
+    
 
-
+        
+        
     code = request.GET.get('code')
     if code:
         access_token = exchange_code_for_access_token(code)
@@ -230,7 +232,22 @@ def summary(request):
         documents = sorted(documents, key=lambda doc: doc.room_num, reverse=True)
         new_sort_room_order = 'asc'
 
+<<<<<<< HEAD
     new_sort_room_order = 'asc' if sort_room_order == 'desc' else 'desc'
+=======
+def save_status(request):
+    if request.method == 'POST':
+    
+        remaining_documents = Document.objects.exclude(status='รับแล้ว')
+
+        for document in remaining_documents:
+            status = request.POST.get(f"status_{document.pk}")
+            if status:
+                document.status = status
+                document.save()
+        return redirect('summary')
+
+>>>>>>> 9912ae062bb3914280593f42e8168faac54e9fbf
 
     
     return render(request, 'std/summary.html', {'documents': documents, 'received_documents': received_documents, 'sort_order': new_sort_order, 'sort_room_order': new_sort_room_order})
@@ -322,9 +339,11 @@ def users_add(request):
 
     for room in rooms:
         current_occupancy = Users.objects.filter(room_num=room.room_number).count()
-        room_status = f"{room.room_number} (ห้องพักเต็มแล้ว)" if current_occupancy >= int(room.room_capacity) else f"{room.room_number} ({current_occupancy}/{room.room_capacity} คน)"
+        room_status = f"{room.room_number} ({current_occupancy}/{room.room_capacity} คน) (ห้องเต็ม)" if current_occupancy >= int(room.room_capacity) else f"{room.room_number} ({current_occupancy}/{room.room_capacity} คน)"
         room_options.append((room.room_number, room_status))
 
+    #sort room_options by room number
+    room_options.sort(key=lambda x: x[0])
 
     return render(request, 'std/add_u.html', {'room_options': room_options})
 
@@ -337,13 +356,18 @@ def users_delete(request,roll):
 def users_update(request, roll):
     project = Users.objects.get(pk=roll)
     rooms = Rooms.objects.all()
+
     room_data = []
-
-
     for room in rooms:
         current_occupancy = Users.objects.filter(room_num=room.room_number).exclude(pk=roll).count()
-        room_status = f"{room.room_number} (ห้องพักเต็มแล้ว)" if current_occupancy >= int(room.room_capacity) else f"{room.room_number} ({current_occupancy}/{room.room_capacity} คน)"
+        room_status = f"{room.room_number} ({current_occupancy}/{room.room_capacity} คน) (ห้องเต็ม)" if current_occupancy >= int(room.room_capacity) else f"{room.room_number} ({current_occupancy}/{room.room_capacity} คน)"
         room_data.append((room.room_number, room_status))
+
+    #sort room_data by room number
+    room_data.sort(key=lambda x: x[0])
+
+    
+
 
     return render(request, 'std/update_u.html', {'project': project, 'room_data': room_data})
 

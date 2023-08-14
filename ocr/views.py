@@ -35,6 +35,8 @@ import json
 from bson import ObjectId
 from .models import *
 from django.contrib.auth.decorators import login_required
+import difflib
+
 
 
 
@@ -309,13 +311,32 @@ def get_person_names(text):
 
     person = []
     _pharse = []
+    
+
+    # for i in merged_ner:
+    #     if i[1].startswith("B-PERSON") and i[0] != ' ' and len(i[0]) > 5:
+    #         _pharse.append(i)
+    #         person.append(i[0])
+    #         #remove prefix in person name
+    #         for j in prefix:
+    #             if j in person[0]:
+    #                 person[0] = person[0].replace(j,'')
+    #                 person[0] = person[0].strip()
+
 
     for i in merged_ner:
         if i[1].startswith("B-PERSON") and i[0] != ' ' and len(i[0]) > 5:
             _pharse.append(i)
             person.append(i[0])
 
+            
+    
+
+
+
     return person
+
+
 
 def ocr(request):
     media_path = os.path.join(settings.MEDIA_ROOT, 'capture.jpg')
@@ -343,16 +364,24 @@ def ocr(request):
             person_names = get_person_names(text)
 
             if len(person_names) == 0:
+
+                
                 return JsonResponse({'tag1': 'ไม่พบข้อมูล', 'tag': 'ไม่พบข้อมูล', 'text': _engine.tag(text,tag=True)}, status=200)
 
             elif len(person_names) == 1:
-                sender, receiver = person_names[0], person_names[0]
+                #sender, receiver = person_names[0], person_names[0]
+                person = person_names[0]
+                person = remove_prefix(person)
+                sender, receiver = person, person
 
             elif len(person_names) == 2:
-                sender, receiver = person_names[0], person_names[1]
-
+                #sender, receiver = person_names[0], person_names[1]
+                sender = remove_prefix(person_names[0])
+                receiver = remove_prefix(person_names[1])
             else:
-                sender, receiver = person_names[0], ' '.join(person_names[1:])
+                #sender, receiver = person_names[0], ' '.join(person_names[1:])
+                sender = remove_prefix(person_names[0])
+                receiver = remove_prefix(' '.join(person_names[1:]))
 
             print('ผู้ส่ง:', sender)
             print('ผู้รับ:', receiver)
@@ -361,6 +390,22 @@ def ocr(request):
 
     else:
         return JsonResponse({'tag1': 'ไม่พบข้อมูล', 'tag': 'ไม่พบข้อมูล', 'tex': _engine.tag(text,tag=True)}, status=200)
+    
+
+def remove_prefix(person):
+    prefixs = ['นาย', 'นาง', 'นางสาว'] 
+
+    best_match_position = -1
+    best_match_ratio = 0 
+    for i, p in enumerate(prefixs):
+        match = difflib.SequenceMatcher(None, p, person).find_longest_match(0, len(p), 0, len(person))
+        if match.size > best_match_ratio:
+            best_match_position = match.b
+            best_match_ratio = match.size  
+    if best_match_position >= 0:
+        person = person[:best_match_position] + person[best_match_position + best_match_ratio:]
+
+    return person
 
 
 def search_name(request):
@@ -393,7 +438,10 @@ def search_name(request):
             data_lastname.append(document['last_name'])
 
         for i in range(len(data_firstname)):
+            
             confidence = fuzz.ratio(search_string_firstname, data_firstname[i])
+
+            
 
             if confidence >= confidence_threshold:
                 document = db['project_users'].find({'firstname': data_firstname[i]})
@@ -460,10 +508,8 @@ def save_document(request):
         status = request.POST.get('status')
         date = request.POST.get('dateInput')
 
-        client = MongoClient(settings.MONGODB_URI)
-        db = client[settings.MONGODB_NAME]
+        time = datetime.datetime.now()
         
-
 
         d = Document()
         d.firstname = firstname

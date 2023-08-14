@@ -17,6 +17,8 @@
     crossorigin="anonymous"></script>
 <script src="https://kit.fontawesome.com/b56c1cd1e7.js" crossorigin="anonymous"></script>
 <script>
+    
+
     $(document).ready(function () {
         var video = document.getElementById('video');
         var openCameraBtn = document.getElementById('open-camera-btn');
@@ -28,6 +30,25 @@
         var ocrBtn = document.getElementById('ocr-btn');
         var text = document.getElementById('text');
         var tag = document.getElementById('tag');
+
+        const lastModalShownDate = localStorage.getItem('modalShownDate');
+        const currentDateModal = new Date().toLocaleDateString();
+
+        if (lastModalShownDate !== currentDateModal) {
+            // Show the modal
+            $('#myModal').modal('show');
+            // Set the modalShownDate in localStorage to today's date
+            localStorage.setItem('modalShownDate', currentDateModal);
+        }
+        // When the "Close" button is clicked
+        $('#buttonModal').click(function () {
+            $('#myModal').modal('hide');
+        });
+        // When the modal is closed
+        $('#myModal').on('hidden.bs.modal', function (e) {
+            // Remove the backdrop
+            $('.modal-backdrop').remove();
+        });
         
         openCameraBtn.addEventListener('click', function () {
             fetch("{% url 'initialize_camera' %}")
@@ -72,11 +93,20 @@
                 });
 
         });
-
+       
         var currentDate = new Date();
         var formattedDate = currentDate.toISOString().split("T")[0];
+        
         document.getElementById("dateInput").value = formattedDate;
         document.getElementById("dateInput").setAttribute("max", formattedDate);
+    
+    
+
+        
+
+        
+
+        
 
     });
 
@@ -91,29 +121,29 @@
         }
     });
 
-    var lastModalShownDate = localStorage.getItem('modalShownDate');
-    var currentDateModal = new Date().toLocaleDateString();
+    // var lastModalShownDate = localStorage.getItem('modalShownDate');
+    // var currentDateModal = new Date().toLocaleDateString();
     
 
 
     
 
     // model เฉพาะครั้งแรกของวัน
-    if (lastModalShownDate !== currentDateModal) {
-            // Show the modal
-            $('#myModal').modal('show');
-            // Set the modalShownDate in localStorage to today's date
-            localStorage.setItem('modalShownDate', currentDateModal);
-    }
-    // When the "Close" button is clicked
-    $('#buttonModal').click(function () {
-        $('#myModal').modal('hide');
-    });
-    // When the modal is closed
-    $('#myModal').on('hidden.bs.modal', function (e) {
-        // Remove the backdrop
-        $('.modal-backdrop').remove();
-    });
+    // if (lastModalShownDate !== currentDateModal) {
+    //         // Show the modal
+    //         $('#myModal').modal('show');
+    //         // Set the modalShownDate in localStorage to today's date
+    //         localStorage.setItem('modalShownDate', currentDateModal);
+    // }
+    // // When the "Close" button is clicked
+    // $('#buttonModal').click(function () {
+    //     $('#myModal').modal('hide');
+    // });
+    // // When the modal is closed
+    // $('#myModal').on('hidden.bs.modal', function (e) {
+    //     // Remove the backdrop
+    //     $('.modal-backdrop').remove();
+    // });
 
 
         // model ทุกครั้งที่เข้าหน้าเว็บ
@@ -242,6 +272,11 @@
             justify-content: center;
             align-items: center;">
                 <div class="row pt-1">
+                    <p style="padding-left: 210px;color: white;">
+                        กดปุ่ม <span style="background-color: rgb(47, 143, 181); padding: 2px;">'Q'</span> บนคีย์บอร์ดเพื่อ
+                        <span style="background-color: rgb(47, 143, 181); padding: 2px;">'ถ่ายภาพ'</span> 
+                        
+                    </p>
 
                     <div id="video-container" class="video-container">
                         
@@ -253,15 +288,11 @@
                         
                         
                     </div>
-                    <p style="padding-left: 210px;color: white;">
-                        กดปุ่ม <span style="background-color: rgb(47, 143, 181); padding: 2px;">'Q'</span> บนคีย์บอร์ดเพื่อ
-                        <span style="background-color: rgb(47, 143, 181); padding: 2px;">'ถ่ายภาพ'</span> 
-                        
-                    </p>
+                    
                     
                 </div>
                 <div class="row pt-1">
-
+                    <p style="color:#292D33 ;padding-left: 210px;">                       '</p>
                     <div id="image-container" class="image-container">
                         <!-- {% csrf_token %} -->
                         {% if encoded_image %}
@@ -270,7 +301,7 @@
                             <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRwZ4mTuUvdD6l60AzmWTIZ341ALx1udRQn3zv5va8czuI5VNApMbGqiIJGSuoe1EhreQY&usqp=CAU" alt="" id="captured-image">
                         {% endif %}
                     </div>
-                    <p style="color:#292D33 ;padding-left: 210px;">                       '</p>
+                    
                 </div>
             </div>
 

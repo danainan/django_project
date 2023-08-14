@@ -70,15 +70,15 @@
                             </div>
                             <div class="md-3">
                                 <label for="firstname">ชื่อ</label>
-                                <input name="project_firstname" type="text" id="firstname" class="form-control" placeholder="ชื่อผู้อาศัย">
+                                <input name="project_firstname" type="text" id="firstname" class="form-control" placeholder="ชื่อ">
                             </div>
                             <div class="md-3">
                                 <label for="last_name">นามสกุล</label>
-                                <input name="project_last_name" type="text" id="last_name" class="form-control" placeholder="นามสกุลผู้อาศัย">
+                                <input name="project_last_name" type="text" id="last_name" class="form-control" placeholder="นามสกุล">
                             </div>
                             <div class="md-3">
                                 <label for="line_id">Line ID</label>
-                                <input name="project_line_id" type="text" id="line_id" class="form-control" placeholder="Line ID ผู้อาศัย">
+                                <input name="project_line_id" type="text" id="line_id" class="form-control" placeholder="Line ID" onkeypress="return (event.charCode >= 64 && event.charCode <= 90) || (event.charCode >= 97 && event.charCode <= 122) || (event.charCode >= 32 && event.charCode <= 57 )"> 
                             {% if room_full %}
                                 <p class="text-danger">ห้องพักเต็มแล้ว ไม่สามารถเพิ่มสมาชิกได้</p>
                             {% endif %}

@@ -57,12 +57,6 @@
                         <form action="/project/doupdate-users/{{project.id}}" method="POST">
                             {% csrf_token %}
                             <div class="form-group">
-                                <!-- <label for="room_num">ห้องพัก</label>
-                                <select name="project_room_num" id="room_num" class="form-control">
-                                    {% for room_option, room_status in room_data %}
-                                        <option value="{{ room_option }}" {% if room_option == project.room_num %}selected{% endif %}>{{ room_status }}</option>
-                                    {% endfor %}
-                                </select> -->
 
                                 <label for="room_num">ห้องพัก</label>
                                 <select name="project_room_num" id="room_num" class="form-control">
@@ -81,7 +75,7 @@
                             </div>
                             <div class="form-group">
                                 <label for="line_id">Line ID</label>
-                                <input name="project_line_id" type="text" id="line_id" class="form-control" placeholder="Line ID ผู้อาศัย" required value="{{project.line_id}}">
+                                <input name="project_line_id" type="text" id="line_id" class="form-control" placeholder="Line ID" onkeypress="return (event.charCode >= 64 && event.charCode <= 90) || (event.charCode >= 97 && event.charCode <= 122) || (event.charCode >= 32 && event.charCode <= 57 )" required value="{{project.line_id}}"> 
                             {% if room_full %}
                                 <p class="text-danger">ห้องพักเต็มแล้ว ไม่สามารถเพิ่มสมาชิกได้</p>
                             {% endif %}
