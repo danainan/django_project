@@ -43,16 +43,32 @@
           background-color: #ffffff;
           color: #080710;
         }
+
+        input[type=text]:focus {
+            border: #FDC350 solid 2px;
+            box-shadow: #FFFDE7 0px 0px 0px 5px;
+         
+        }
+
+        #room_num:focus {
+            border: #FDC350 solid 2px;
+            box-shadow: #FFFDE7 0px 0px 0px 5px;
+        }
     </style>
 
   </head>
-  <body>
+  <body style="background-color: #F1F5F8;">
     {% include 'std/navbar.html' %}
-    <h1 class="text-center my-3">แก้ไขสมาชิกในหอพัก</h1>
-    <div class="container">
+    <div class="container" style="display: flex;
+        justify-content: center; 
+        align-items: center; ">
+    
+    <div class="card" style="width: 50rem;margin-top: 100px;">
+        <h4 class="card-header border-0" style="background-color: #FFFDE7;color: #7E6701;height: 5rem;justify-content: center;display: flex;align-items: center;">แก้ไขสมาชิก</h4>
+        <div class="container">
         <div class="row">
-            <div class="col-md-6 offset-md-3">
-                <div class="card bg-dark text-white">
+            <div class="col">
+                <div class="card text-dark border-0">
                     <div class="card-body">
                         <form action="/project/doupdate-users/{{project.id}}" method="POST">
                             {% csrf_token %}
@@ -90,6 +106,7 @@
                 </div>
             </div>
         </div>
+    </div>
     </div>
 
     <!-- Optional JavaScript -->
