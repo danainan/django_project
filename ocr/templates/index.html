@@ -17,20 +17,8 @@
     crossorigin="anonymous"></script>
 <script src="https://kit.fontawesome.com/b56c1cd1e7.js" crossorigin="anonymous"></script>
 <script>
-    
 
     $(document).ready(function () {
-        var video = document.getElementById('video');
-        var openCameraBtn = document.getElementById('open-camera-btn');
-        var uploadImageBtn = document.getElementById('upload-image-btn');
-        var uploadImageInput = document.getElementById
-            ('upload-image-input');
-        var resetCameraBtn = document.getElementById('reset-camera-btn');
-        var image = document.getElementById('captured-image');
-        var ocrBtn = document.getElementById('ocr-btn');
-        var text = document.getElementById('text');
-        var tag = document.getElementById('tag');
-
         const lastModalShownDate = localStorage.getItem('modalShownDate');
         const currentDateModal = new Date().toLocaleDateString();
 
@@ -49,27 +37,35 @@
             // Remove the backdrop
             $('.modal-backdrop').remove();
         });
+    });
+    
+
+    $(document).ready(function () {
+        var video = document.getElementById('video');
+        var openCameraBtn = document.getElementById('open-camera-btn');
+        var uploadImageBtn = document.getElementById('upload-image-btn');
+        var uploadImageInput = document.getElementById
+            ('upload-image-input');
+        var resetCameraBtn = document.getElementById('reset-camera-btn');
+        var image = document.getElementById('captured-image');
+        var ocrBtn = document.getElementById('ocr-btn');
+        var text = document.getElementById('text');
+        var tag = document.getElementById('tag');
+
+        var searchForm = document.getElementById('searchForm');
+        var section2 = document.getElementById('section2');
+        var submitBtn = document.getElementById('submitBtn');
+    
+
         
-        openCameraBtn.addEventListener('click', function () {
-            fetch("{% url 'initialize_camera' %}")
-                .then(response => {
-                    if (response.ok) {
-                        video.src = "{% url 'livefe' %}";
-                        image.src = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRwZ4mTuUvdD6l60AzmWTIZ341ALx1udRQn3zv5va8czuI5VNApMbGqiIJGSuoe1EhreQY&usqp=CAU';
-                    }
-                    
 
-                });
-        });
 
-        resetCameraBtn.addEventListener('click', function () {
-            location.href = "{% url 'index' %}";
-            
-        });
 
-        
         ocrBtn.addEventListener('click', function () {
-            text.innerHTML = '<div class="loader"></div><span>Loading...</span>';
+            // text.innerHTML = '<div class="loader"></div><span>Loading...</span>';
+            text.innerHTML = '<div class="loader"><div class="justify-content-center jimu-primary-loading"></div';
+            
+            
             fetch("{% url 'ocr' %}")
                 .then(response => {
                     if (response.ok) {            
@@ -80,12 +76,12 @@
                 .then(data => {
                     text.innerHTML = data.text;
                     tag.value = data.tag;
-                    // tag1.innerHTML = data.tag1;
-                    // const form = document.getElementById('searchForm');
-                    // form.method = 'post';
-                    // form.action = 'search_name';
-                    // form.submit();
+
+                    section2.scrollIntoView({behavior: "smooth"});
+
                     
+                    
+
 
 
                 }).catch(error => {
@@ -93,39 +89,113 @@
                 });
 
         });
+        
        
+        
+    
+
+    });
+
+    $(document).ready(function () {
         var currentDate = new Date();
         var formattedDate = currentDate.toISOString().split("T")[0];
         
         document.getElementById("dateInput").value = formattedDate;
         document.getElementById("dateInput").setAttribute("max", formattedDate);
-    
-    
-
-        
-
-        
-
-        
-
     });
 
     
-    document.getElementById('searchForm').addEventListener('input', function(event) {
-        event.preventDefault();
-        var tagValue = document.getElementById('tag').value;
-        if (tagValue) {
-            fetch("{% url 'search_name' %}")
-        }else {
-            alert('กรุณาเลือกข้อมูล');
-        }
+
+
+
+
+    
+    // $(document).ready(function () {
+    //     document.getElementById('searchForm').addEventListener('input', function(event) {
+    //         event.preventDefault();
+    //         var tagValue = document.getElementById('tag').value;
+    //         if (tagValue) {
+    //             fetch("{% url 'search_name' %}")
+    //         }else {
+    //             alert('กรุณาเลือกข้อมูล');
+    //         }
+    //     });
+    // });
+
+
+
+    $(document).ready(function() {
+        $("#video-container").hide();
+        
+        
+        
+        
+
+        $("#camera-option").change(function() {
+            var selectedOption = $(this).val();
+            
+            if (selectedOption === "camera") {
+                // Show the video container and hide the image container
+                $("#video-container").show();
+                $("#video-container").prepend(`
+                <div style="display:flex;justify-content:center;">
+                <p style="color: rgb(0, 0, 0);">
+                        กดปุ่ม <span style="background-color: rgb(47, 143, 181); padding: 2px;">'Q'</span> บนคีย์บอร์ดเพื่อ
+                        <span style="background-color: rgb(47, 143, 181); padding: 2px;">'ถ่ายภาพ'</span> 
+                        
+                </p></div>
+                <img src="{% url 'livefe' %}">`);
+                $("#image-container").hide();
+                $("#form-container").hide();
+            } else if (selectedOption === "upload") {
+                // Show the image container and hide the video container
+                $("#image-container").show();
+                $("#form-container").show();
+                $("#video-container").hide();
+                $("#video-container").empty();
+                fetch("{% url 'reset_cam' %}")
+            }
+        });
+
+
+        
     });
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const fileInput = document.getElementById('file_image');
+        const uploadButton = document.getElementById('upload-image-btn');
+
+        fileInput.addEventListener('change', function() {
+            const formData = new FormData();
+            formData.append('file_image', fileInput.files[0]);
+
+            fetch('upload_img', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}'
+                }
+                
+            })
+            .then(response => response.text())
+            .then(encoded_image => {
+                const imageElement = document.getElementById('uploaded-image');
+                imageElement.src = 'data:image/jpeg;base64,' + encoded_image;
+            });
+        });
+
+        
+    });
+
+    
+
+    
+
 
     // var lastModalShownDate = localStorage.getItem('modalShownDate');
     // var currentDateModal = new Date().toLocaleDateString();
     
-
-
+    
     
 
     // model เฉพาะครั้งแรกของวัน
@@ -200,12 +270,10 @@
 
 </script>
 
-<body style="background-color: #ffffff;">
+<body style="background-color: #F1F5F8;">
     {% include 'navbar.html' %}
 
     
-   
-
     <!-- Modal -->
     <div class="modal fade" id="myModal" role="dialog" aria-controls="modal-body">
         <div class="modal-dialog">
@@ -245,87 +313,100 @@
     <div class="container pt-2" >
 
     
-    <div class="col text-center pt-2 " style="background-color: rgba(14, 17, 23, 0.75); border-radius: 10px;">
-        <h5 class="ocr-heading">ขั้นตอนที่ 1.นำเข้ารูปภาพ</h5>
+        <div class="col text-center pt-2 " style="background-color: #7E6701; border-radius: 10px;">
+            <h5 class="ocr-heading text-white">ขั้นตอนที่ 1.นำเข้ารูปภาพ</h5>
+        </div>
     </div>
 
     
-        
-        <div class="container" style="border-radius: 25px;background-color: #292D33;">
-            <div class="row">
-                <div class="col open-camera">
-                    <button id="open-camera-btn" class="btn btn-primary w-50">
-                        <i class="fa fa-camera" aria-hidden="true"></i>
-                        Open Camera
-                    </button>
-                    
-                </div>
-                <div class="col upload-image">
+    
+    <div class="container" style="border-radius: 25px;background-color: #FFFDE7;">
+        <div class="row pt-3" style="display: flex;justify-content: center;">
+            <div class="col-3">
+                <select id="camera-option" class="form-select">
+                    <option value="camera">&#128248; Open camera </option>
+                    <option value="upload" selected>&#128193 Upload Image</option>
+                </select>
+            </div>
+            <div class="col-9" style="display:flex;justify-content: center;align-items: center;">
+                <div class="container" style="display: flex;justify-content: start;align-items: center;" id="form-container">
                     <form id="upload-form" action="upload_img" method="post" enctype="multipart/form-data">
                         {% csrf_token %}
-                        <input type="file" accept="image/*" alt="file_image" name="file_image" id="file_image" style="color: #000000;">
-                        <button id="upload-image-btn" class="btn btn-primary">Submit</button>
+                        <div>
+                            <input type="file" accept="image/*" alt="file_image" name="file_image"      id="file_image"style="color:#000000;width:100%">
+                        </div>    
                     </form>
                 </div>
             </div>
+        </div>
+        <div class="row">
             <div class="col" style="display: flex;
-            justify-content: center;
-            align-items: center;">
-                <div class="row pt-1">
-                    <p style="padding-left: 210px;color: white;">
-                        กดปุ่ม <span style="background-color: rgb(47, 143, 181); padding: 2px;">'Q'</span> บนคีย์บอร์ดเพื่อ
-                        <span style="background-color: rgb(47, 143, 181); padding: 2px;">'ถ่ายภาพ'</span> 
-                        
-                    </p>
-
-                    <div id="video-container" class="video-container">
-                        
-                        {% if encoded_image %}
-                            <img src="https://baj.by/sites/default/files/event/preview/thumb-padrao-video.png" alt="" id="video"></img>
-                        {% else %}
-                            <img src="https://baj.by/sites/default/files/event/preview/thumb-padrao-video.png" alt="" id="video"></img>
-                        {% endif %}
-                        
-                        
-                    </div>
-                    
-                    
-                </div>
-                <div class="row pt-1">
-                    <p style="color:#292D33 ;padding-left: 210px;">                       '</p>
-                    <div id="image-container" class="image-container">
-                        <!-- {% csrf_token %} -->
-                        {% if encoded_image %}
-                            <img src="data:image/png;base64,{{ encoded_image }}" alt="" id="captured-image">
-                        {% else %}
-                            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRwZ4mTuUvdD6l60AzmWTIZ341ALx1udRQn3zv5va8czuI5VNApMbGqiIJGSuoe1EhreQY&usqp=CAU" alt="" id="captured-image">
-                        {% endif %}
-                    </div>
-                    
-                </div>
-            </div>
-
-            <div class="row pt-2 pb-5 w-50 m-auto">
+                justify-content: center;
+                align-items: center;
+               
+                ">
                 
-                    <button id="reset-camera-btn" class="btn btn-secondary" >Reset Image</button>
+                <div class="row pt-2" style="display: flex;justify-content: center;">
+                    <div id="video-container" class="video-container"></div>
+                </div>
 
+                <div class="row pt-2" style="display: flex;justify-content: center;">
+                        
+                        
+                        <div id="image-container" class="image-container">
+                            {% csrf_token %} 
+                            <img id="uploaded-image" src="https://static.vecteezy.com/system/resources/previews/004/141/669/non_2x/no-photo-or-blank-image-icon-loading-images-or-missing-image-mark-image-not-available-or-image-coming-soon-sign-simple-nature-silhouette-in-frame-isolated-illustration-vector.jpg">
+
+                        </div>
+                    
+                </div>
             </div>
         </div>
-    </div>
-
-
-    <div class="container pt-2">
-        <div class="col text-center">
-            <h5 class="ocr-heading" style="background-color: rgba(14, 17, 23, 0.75); border-radius: 10px;">ขั้นตอนที่ 2.รู้จำภาพ</h5>
-        </div>
-        <div class="container" style="background-color: #292D33;border-radius: 25px;">
-            
-            <div class="row pt-2 m-auto" style="padding-left: 430px;" >
-                <button id="ocr-btn" class="btn btn-primary w-50" >
-                    <i class="fa fa-font" aria-hidden="true"></i>
-                    <span class="text-decoration-underline">OCR BUTTON</span>
-                    <i class="fa fa-search" aria-hidden="true"></i>
+    
+        <div class="row pb-3">
+            <div class="col d-flex" style="justify-content: flex-end;"">
+                <button id="ocr-btn" class="ocr-btn">
+                    <span class="text-white fw-bold">OCR</span>
+                    <i class="fa fa-search-plus" aria-hidden="true"></i>
                 </button>
+            </div>
+            <div class="col d-flex" style="justify-content: flex-start;">
+                {% url 'index' as index_url %}
+                    <button onclick="window.location.href = '{{ index_url }}'" class="btn btn-outline-primary fw-bold" 
+                    style="
+                           width: 70px;
+                           border-radius: 15px;
+                    "
+                    >Reset <i class="fa fa-refresh"></i></button>
+                <!-- <div class="container" style="display: grid; place-items: center;">
+                    {% url 'index' as index_url %}
+                    <button onclick="window.location.href = '{{ index_url }}'" class="btn btn-primary" 
+                    style="
+                           width: 350px;
+                    "
+                    >Reset <i class="fa-solid fa-rotate-right"></i></button>
+                </div> -->
+            </div>
+        </div>
+        
+
+    </div>
+            
+       
+
+
+    <div class="container pt-2" id="section2">
+        <div class="col text-center">
+            <h5 class="ocr-heading text-white" style="background-color: #7E6701; border-radius: 10px;">ขั้นตอนที่ 2.รู้จำภาพ</h5>
+        </div>
+        <div class="container" style="background-color: #FFFDE7;border-radius: 25px;">
+            
+            <div class="row pt-2" style="padding-left: 430px;" >
+                <!-- <button id="ocr-btn" class="btn btn-outline-warning w-50" >
+                    <i class="fa fa-font" aria-hidden="true"></i>
+                    <span class="text-decoration-underline text-dark">OCR BUTTON</span>
+                    <i class="fa fa-search" aria-hidden="true"></i>
+                </button> -->
             </div>
             
             <!-- OCR button and show text -->
@@ -336,12 +417,13 @@
                         
                     </div>
                 </div>
-                <div class="row border pb-2" style="background-color: #ffffff;">
+                <div class="row border pb-2" style="background-color: #F1F5F8;">
                     <div class="col-md-6 ">
                         <div id="text-container">
-                            <form action="search_name" method="post" enctype="multipart/form-data" class="form-control w-100" id="searchForm">
+                            <form action="search_name" method="post" enctype="multipart/form-data" class="form-control w-100 border-0" id="searchForm" style="background-color: #F1F5F8;">
                                 {% csrf_token %}
                                 <div class="input-group">
+                                    <span class="input-group-text" id="basic-addon1">ค้นหา</span>
                                     <input type="text" id="tag" value="{{tag}}" class="form-control" name="tag">
                                     <button type="submit" class="btn btn-primary" id="submitBtn">
                                         <i class="fa fa-search" aria-hidden="true"></i>
@@ -373,7 +455,7 @@
                                             {{ doc.confidence}}
                                         </span>
                                         <span class="name">
-                                            {{ doc.firstname }} {{ doc.last_name }}
+                                            {{ doc.firstname }} {{ doc.last_name }} 
                                         </span>
                                         <span class="room">
                                             ห้อง {{ doc.room_num }}
@@ -416,10 +498,10 @@
 
     <div class="container pt-2">
         <div class="col text-center">
-            <h5 class="ocr-heading" style="background-color: rgba(14, 17, 23, 0.75); border-radius: 10px;">ขั้นตอนที่ 3.บันทึกข้อมูลพัสดุ</h5>
+            <h5 class="ocr-heading text-white" style="background-color: #7E6701; border-radius: 10px;">ขั้นตอนที่ 3.บันทึกข้อมูลพัสดุ</h5>
         </div>
 
-        <div class="container d-flex justify-content-center" style="background-color: #292D33;border-radius: 25px;">
+        <div class="container d-flex justify-content-center" style="background-color: #FFFDE7;border-radius: 25px;">
             
             <div style="border-radius: 25px; margin-top: 25px;" class="row pt-3 w-50 pb-3">
                 {% if result_parcels %}
@@ -458,6 +540,7 @@
 
 
 
+
     </div>
 
 
@@ -477,288 +560,359 @@
 </body>
 
 <style>
-        .header {
-            font-size: 15px;
-            font-weight: bold;
-            color: #000000;
+    .ocr-btn{
+        display: inline-block;
+        padding: 15px 25px;
+        font-size: 18px;
+        cursor: pointer;
+        text-align: center;
+        text-decoration: none;
+        outline: none;
+        color: #fff;
+        background-color: #FDD835;
+        border: none;
+        border-radius: 15px;
+        box-shadow: 0 9px #999;
+    }
+    .ocr-btn:hover {background-color: #F1F5F8}
+
+    .ocr-btn:active {
+      background-color: #FDD835;
+      box-shadow: 0 10px #666;
+      transform: translateY(4px);
+    }
+    
+    .header {
+        font-size: 15px;
+        font-weight: bold;
+        color: #000000;
+    }
+
+    h1 {
+        text-align: center;
+        margin-bottom: 10px;
+        font-size: 48px;
+        font-weight: bold;
+        color: #622A1F;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4);
+    }
+    .heading-container {
+        display: flex;
+        padding: 50px;
+        background-color: #413939;
+        border: 2px solid #964D32;
+        border-radius: 16px;
+        justify-content: center;
+        align-items: center;
+        height: 12vh;
+        width: 400px;
+    }
+    .border {
+        margin-bottom: 5px;
+        border: 2px solid #5e5252;
+        border-radius: 8px;
+        padding: 20px;
+        background-color: #B0B0B0;
+        margin: 10px;
+    }
+    PERSON {
+        font-weight: bold;
+        background-color: #FCE7F3;
+        color: #C55C4D;
+        /* Add more CSS properties as desired */
+    }
+    PERSON::before {
+        font-size: 0.8em;
+        content: "PERSON";
+        color: rgb(255, 255, 255);
+        background-image: -webkit-gradient(linear, left top, left bottom, from(#ec489ab8), to(#ec489ab8));
+        border-radius: 15%;
+        padding-left: 5px;
+        padding-right: 5px;
+        /* Add more CSS properties as desired */
+    }
+    /* .open-camera {
+        display: flex;
+        justify-content: center;
+    } */
+    .open-camera{
+        display: flex;
+        justify-content: center;
+        background-color: #5C636A;
+        border-radius: 15px;
+        
+        
+        height: 60px;
+        margin: 20px;
+        align-items: center;
+            
+    }
+    .upload-image{
+        background-color: #5C636A;
+        border-radius: 15px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin: 20px;
+    }
+    input[type="file"] {
+        padding: 4px;
+        margin: -4px;
+        position: relative;
+        outline: none;
+        --primary-color: #000000;
+        /* File Selector Button Styles */
+        &::file-selector-button {
+          border-radius: 4px;
+          padding: 0 16px;
+          height: 40px;
+          cursor: pointer;
+          background-color: #ffffff;
+          border: 1px solid rgba(#000000, 0.16);
+          box-shadow: 0px 1px 0px rgba(#000000, 0.05);
+          margin-right: 16px;
+        
+          /*
+            This is a hack to change the button label. 
+            I'm hiding the default label and then 
+            manually applying the width based on 
+            updated icon and label.
+          */
+          width: 132px;
+          color: transparent;
+        
+          /*
+            Firefox doesn't support the pseudo ::before 
+            or ::after elements on this input field so 
+            we need to use the @supports rule to enable 
+            default styles fallback for Firefox.
+          */
+          @supports (-moz-appearance: none) {
+            color: var(--primary-color);
+          }
+      
+          &:hover {
+            background-color: #f5f6f3;
+          }
+      
+          &:active {
+            background-color: #e5e7eb;
+          }
         }
     
-        h1 {
-            text-align: center;
-            margin-bottom: 10px;
-            font-size: 48px;
-            font-weight: bold;
-            color: #622A1F;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4);
+        /* Faked label styles and icon */
+        &::before {
+          position: absolute;
+          pointer-events: none;
+          top: 14px;
+          left: 16px;
+          height: 20px;
+          width: 20px;
+          content: "";
+          background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%230964B0'%3E%3Cpath d='M18 15v3H6v-3H4v3c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2v-3h-2zM7 9l1.41 1.41L11 7.83V16h2V7.83l2.59 2.58L17 9l-5-5-5 5z'/%3E%3C/svg%3E");
         }
-
-        .heading-container {
-            display: flex;
-            padding: 50px;
-            background-color: #413939;
-            border: 2px solid #964D32;
-            border-radius: 16px;
-            justify-content: center;
-            align-items: center;
-            height: 12vh;
-            width: 400px;
+        &::after {
+          position: absolute;
+          pointer-events: none;
+          top: 16px;
+          left: 40px;
+          color: var(--primary-color);
+          content: "Upload File";
         }
-
-
-
-        .border {
-            margin-bottom: 5px;
-            border: 2px solid #5e5252;
-            border-radius: 8px;
-            padding: 20px;
-            background-color: #B0B0B0;
-            margin: 10px;
+    
+        /* Handle Component Focus */
+        &:focus-within::file-selector-button,
+        &:focus::file-selector-button {
+          outline: 2px solid var(--primary-color);
+          outline-offset: 2px;
         }
-
-        PERSON {
-            font-weight: bold;
-            background-color: #FCE7F3;
-            color: #C55C4D;
-            /* Add more CSS properties as desired */
-
+        &:focus-within::after,
+        &:focus::after {
+          color: var(--primary-color);
         }
-
-        PERSON::before {
-            font-size: 0.8em;
-            content: "PERSON";
-            color: rgb(255, 255, 255);
-            background-image: -webkit-gradient(linear, left top, left bottom, from(#ec489ab8), to(#ec489ab8));
-            border-radius: 15%;
-            padding-left: 5px;
-            padding-right: 5px;
-            /* Add more CSS properties as desired */
-        }
-
-        /* .open-camera {
-            display: flex;
-            justify-content: center;
-        } */
-
-        .open-camera{
-            display: flex;
-            justify-content: center;
-            background-color: #5C636A;
-            border-radius: 15px;
-            
-            
-            height: 60px;
-            margin: 20px;
-            align-items: center;
-                
-        }
-
-        .upload-image{
-
-            background-color: #5C636A;
-            border-radius: 15px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin: 20px;
-
-        }
-
-        input[type="file"] {
-            padding: 4px;
-            margin: -4px;
-            position: relative;
-            outline: none;
-
-            /* File Selector Button Styles */
-            &::file-selector-button {
-              border-radius: 4px;
-              padding: 0 16px;
-              height: 40px;
-              cursor: pointer;
-              background-color: #ffffff;
-              border: 1px solid rgba(#000, 0.16);
-              box-shadow: 0px 1px 0px rgba(#000, 0.05);
-              margin-right: 16px;
-            
-              /*
-                This is a hack to change the button label. 
-                I'm hiding the default label and then 
-                manually applying the width based on 
-                updated icon and label.
-              */
-              width: 132px;
-              color: transparent;
-            
-              /*
-                Firefox doesn't support the pseudo ::before 
-                or ::after elements on this input field so 
-                we need to use the @supports rule to enable 
-                default styles fallback for Firefox.
-              */
-              @supports (-moz-appearance: none) {
-                color: var(--primary-color);
-              }
-          
-              &:hover {
-                background-color: #f3f4f6;
-              }
-          
-              &:active {
-                background-color: #e5e7eb;
-              }
-            }
+    }
+    
+    .ocr-heading {
+        font-size: 24px;
+        font-weight: bold;
+        color: #ffffff;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4);
+    }
+    .video-container, .image-container {
+        position: relative;
+        width: 720px;
+        height: 480px;
+        max-width: 100%; 
+        max-height: 100%;
+        margin: 30px;
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        border-radius: 10px;
+        overflow: hidden;
+    
+    }
+    .image-container {
+        margin-right: 30px; /* Add margin on the right side */
+    }
+    #video, #captured-image, #uploaded-image {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: calc(100% - 0px);
+        height: calc(100% - 0px);
+        object-fit: contain;
+    }
+    .card-container {
+      flex: 0 0 auto;
+      width: 300px; /* Adjust the width as needed */
+      margin-right: 10px; /* Adjust the margin as needed */
+    }
+    .card {
+      background-color: #d3a2a250;
+      padding: 10px;
+      border-radius: 5px;
+    }
+    /* Styling for scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #f1f1f1;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: gray;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: darkgray;
+    }
+    .hover-effect:hover {
+        background-color: #f0f0f0;
+        cursor: pointer;
+    }
+    .selected {
+        background-color: #c0c0c0;
+        /* Add more styling properties as desired */
+    }
+    .name-room-container {
+        display: flex;
+        align-items: center;
+    }
+    .name {
+        font-weight: bold;
+        font-style: italic;
+        font-size: 1.2em;
+        margin-right: 10px;
+    }
+    .room {
+        font-size: 1.1em;
+    }
+    .confidence{
+        font-size: 1.1em;
+        font-style: italic;
         
-            /* Faked label styles and icon */
-            &::before {
-              position: absolute;
-              pointer-events: none;
-              top: 14px;
-              left: 16px;
-              height: 20px;
-              width: 20px;
-              content: "";
-              background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%230964B0'%3E%3Cpath d='M18 15v3H6v-3H4v3c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2v-3h-2zM7 9l1.41 1.41L11 7.83V16h2V7.83l2.59 2.58L17 9l-5-5-5 5z'/%3E%3C/svg%3E");
-            }
-
-            &::after {
-              position: absolute;
-              pointer-events: none;
-              top: 16px;
-              left: 40px;
-              color: var(--primary-color);
-              content: "Upload File";
-            }
+    }
+    /* .loader {
+        border: 16px solid #F1F5F8; 
+        border-top: 16px solid #FDD835; 
+        border-radius: 50%;
+        width: 80px;
+        height: 80px;
+        animation: spin 2s linear infinite;   
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    } */
+    .loader {
+      top: 0;
+      bottom: 0;
+      left: 0;
+      right: 0;
+    }
+    .jimu-primary-loading:before,
+    .jimu-primary-loading:after {
+      position: absolute;
+      top: 0;
+      content: '';
+    }
+    .jimu-primary-loading:before {
+      left: -19.992px;
+    }
+    .jimu-primary-loading:after {
+      left: 19.992px;
+      -webkit-animation-delay: 0.32s !important;
+      animation-delay: 0.32s !important;
+    }
+    .jimu-primary-loading:before,
+    .jimu-primary-loading:after,
+    .jimu-primary-loading {
+      background: #FDC350;
+      -webkit-animation: loading-keys-app-loading 0.8s infinite ease-in-out;
+      animation: loading-keys-app-loading 0.8s infinite ease-in-out;
+      width: 13.6px;
+      height: 32px;
+    }
+    .jimu-primary-loading {
+      text-indent: -9999em;
+      margin: 30px auto 0;
+      position: absolute;
+      right: calc(50% - 6.8px);
+      top: calc(50% - 16px);
+      -webkit-animation-delay: 0.16s !important;
+      animation-delay: 0.16s !important;
+    }
+    @-webkit-keyframes loading-keys-app-loading {
+    
+      0%,
+      80%,
+      100% {
+        opacity: .75;
+        box-shadow: 0 0 #FDC350;
+        height: 32px;
+      }
+    
+      40% {
+        opacity: 1;
+        box-shadow: 0 -8px #FDC350;
+        height: 40px;
+      }
+    }
+    @keyframes loading-keys-app-loading {
+    
+      0%,
+      80%,
+      100% {
+        opacity: .75;
+        box-shadow: 0 0 #FDC350;
+        height: 32px;
+      }
+    
+      40% {
+        opacity: 1;
+        box-shadow: 0 -8px #FDC350;
+        height: 40px;
+      }
+    }
+    /* .loader-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100%;
+    } */
+    .modal-dialog {
+        max-width: 1000px; /* Set your desired width here */
+    }
+    #camera-option {
+        margin-top: 20px;
+        margin-bottom: 20px;
+        width: 300px;
         
-            /* Handle Component Focus */
-            &:focus-within::file-selector-button,
-            &:focus::file-selector-button {
-              outline: 2px solid var(--primary-color);
-              outline-offset: 2px;
-            }
-
-            &:focus-within::after,
-            &:focus::after {
-              color: var(--primary-color);
-            }
-        }
-        
-
-        .ocr-heading {
-            font-size: 24px;
-            font-weight: bold;
-            color: #ffffff;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4);
-        }
-
-        .video-container, .image-container {
-            position: relative;
-            width: 620px;
-            height: 500px;
-            margin: 30px;
-            background-size: cover;
-            background-position: center;
-       
-        }
-
-        .image-container {
-            margin-right: 30px; /* Add margin on the right side */
-        }
-
-        #video, #captured-image {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .card-container {
-          flex: 0 0 auto;
-          width: 300px; /* Adjust the width as needed */
-          margin-right: 10px; /* Adjust the margin as needed */
-        }
-
-        .card {
-          background-color: #d3a2a250;
-          padding: 10px;
-          border-radius: 5px;
-        }
-
-        /* Styling for scrollbar */
-        ::-webkit-scrollbar {
-          width: 8px;
-        }
-
-        ::-webkit-scrollbar-track {
-          background: #f1f1f1;
-        }
-
-        ::-webkit-scrollbar-thumb {
-          background: gray;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-          background: darkgray;
-        }
-
-        .hover-effect:hover {
-            background-color: #f0f0f0;
-            cursor: pointer;
-        }
-
-        .selected {
-            background-color: #c0c0c0;
-            /* Add more styling properties as desired */
-        }
-
-        .name-room-container {
-            display: flex;
-            align-items: center;
-        }
-
-        .name {
-            font-weight: bold;
-            font-style: italic;
-            font-size: 1.2em;
-            margin-right: 10px;
-        }
-
-        .room {
-            font-size: 1.1em;
-        }
-
-        .confidence{
-            font-size: 1.1em;
-            font-style: italic;
-            
-        }
-
-        .loader {
-         border: 16px solid #f3f3f3; /* Light grey */
-         border-top: 16px solid #3498db; /* Blue */
-         border-radius: 50%;
-         width: 80px;
-         height: 80px;
-         animation: spin 2s linear infinite;
-        }
-
-        @keyframes spin {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
-        }
-
-        .loader-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100%;
-        }
-
-        .modal-dialog {
-            max-width: 1000px; /* Set your desired width here */
-        }
-
+    }
+    #camera-option:focus {
+        border: #FDC350 solid 2px;
+        box-shadow: #FFFDE7 0px 0px 0px 5px;
+    }
 
         
 

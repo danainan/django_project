@@ -12,5 +12,6 @@ urlpatterns = [
         path('get_document/<int:roll>', get_document_id, name='get_document'),
         path('save_document', save_document, name='save_document'),
         path('reset_camera', index, name='reset_camera'),
+        path('reset_cam', reset_camera, name='reset_cam'),
 
 ]
