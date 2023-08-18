@@ -36,7 +36,11 @@ from bson import ObjectId
 from .models import *
 from django.contrib.auth.decorators import login_required
 import difflib
-import pytz
+import json
+from django.core import serializers
+from django.core.serializers.json import DjangoJSONEncoder
+
+
 
 
 
@@ -44,6 +48,8 @@ import pytz
 
 @login_required(login_url='../project/login/')
 def index(request, *args, **kwargs):
+
+
 
     image = 'https://baj.by/sites/default/files/event/preview/thumb-padrao-video.png'
 
@@ -55,8 +61,8 @@ status = {"new_image_available": False}
 class VideoCamera(object):
     def __init__(self):
         self.video = cv2.VideoCapture(0, cv2.CAP_DSHOW)
-        # self.video.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
-        # self.video.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
+        self.video.set(cv2.CAP_PROP_FRAME_WIDTH, 720)
+        self.video.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
         # self.video.set(cv2.CAP_PROP_FPS, 30)
         self.grabbed, self.frame = self.video.read()
         threading.Thread(target=self.update, args=()).start()
@@ -68,17 +74,22 @@ class VideoCamera(object):
         
 
     def release_camera(self):
-        if self.video is not None:
-            self.video.release()
-            self.video = None
-            self.frame = None
-            cv2.destroyAllWindows()
-            cv2.waitKey(1)
+        # if self.video is not None:
+        #     self.video.release()
+        #     self.video = None
+        #     self.frame = None
+        #     cv2.destroyAllWindows()
+        #     cv2.waitKey(1)
+        cv2.destroyAllWindows()
+        cv2.waitKey(0)
+
+
 
     def initialize_camera(self):
         self.release_camera()
         # cv2.CAP_DSHOW
-        self.video = cv2.VideoCapture(0, cv2.CAP_DSHOW)
+        # self.video = cv2.VideoCapture(0, cv2.CAP_DSHOW)
+        VideoCamera.__init__(self)
 
     def get_frame(self):
         # image = self.frame
@@ -140,30 +151,55 @@ def upload_img(request):
             request.session['file_image'] = filename
             with open(media_path, 'rb') as image_file:
                 encoded_image = base64.b64encode(image_file.read()).decode('utf-8')
-            return render(request, 'index.html', {'encoded_image': encoded_image})
+            # return render(request, 'index.html', {'encoded_image': encoded_image})
+            return HttpResponse(encoded_image)
             
 
-        return render(request, 'index.html')
-    
+        # return render(request, 'index.html')
+        return HttpResponse()
+
+
 def reset_camera(request):
+    print('reset')
     if 'camera' in request.session:
         camera = request.session['camera']
-        camera.release_camera()
+        cv2.destroyAllWindows()
+        VideoCamera.release_camera(camera)
+        camera = None
         del request.session['camera']
+        del request.session['livefe']
+    VideoCamera.release_camera(self=None)
+    request.session['camera'] = None
+    request.session['livefe'] = None
+
     return redirect('index')
 
-def gen(camera, request):
-    if camera is None:
-        camera = VideoCamera()
 
-    while True: 
-        frame = camera.get_frame()
-        yield(b'--frame\r\n'
-              b'Content-Type: image/png\r\n\r\n' + frame + b'\r\n\r\n')
-        if  keyboard.is_pressed('q'):
-            camera.save_img()
-            camera.send_image(request)
-            break
+
+
+
+def gen(camera, request):
+    # if camera is None:
+    #     camera = VideoCamera()
+
+    if camera is not None:
+        camera = VideoCamera()
+        while True: 
+            frame = camera.get_frame()
+            
+            yield(b'--frame\r\n'
+                  b'Content-Type: image/png\r\n\r\n' + frame + b'\r\n\r\n')
+            if  keyboard.is_pressed('q'):
+                camera.save_img()
+                camera.send_image(request)
+                break
+
+
+    else:
+        return redirect('index')
+    
+   
+
         
 
 def capture(request):
@@ -193,7 +229,15 @@ def livefe(request):
         cam = VideoCamera()
         return StreamingHttpResponse(gen(cam, request),content_type="multipart/x-mixed-replace;boundary=frame")
     except :
-        pass
+        if  upload_img(request).request.method == 'POST':
+            cam.frame = None
+            cam.video = None
+            cam = None
+            
+
+
+   
+    
 
 
 
@@ -388,6 +432,7 @@ def ocr(request):
             print('ผู้ส่ง:', sender)
             print('ผู้รับ:', receiver)
 
+        
             return JsonResponse({'tag1': sender, 'tag': receiver, 'text': _engine.tag(text,tag=True)}, status=200)
 
     else:
@@ -395,7 +440,8 @@ def ocr(request):
     
 
 def remove_prefix(person):
-    prefixs = ['นาย', 'นาง', 'นางสาว'] 
+    prefixs = ['นาย', 'นาง', 'นางสาว']
+    
 
     best_match_position = -1
     best_match_ratio = 0 
@@ -414,6 +460,8 @@ def search_name(request):
     if request.method == 'POST':
         search_string = request.POST.get('tag')
         text = request.POST.get('text')
+        
+
         search_string_parts = search_string.split(' ')
         if len(search_string_parts) >= 2:
             search_string_firstname = search_string_parts[0]
@@ -462,7 +510,20 @@ def search_name(request):
             result = db['project_users'].find_one({'firstname': matching_data_firstname[0]['firstname']})
             print(result)
 
-            return render(request, 'index.html', {'result_parcels': result, 'document': matching_data_firstname, 'conf': confidence, 'result': matching_data_firstname[0], 'tag': search_string})
+            context = {
+                'result_parcels': result,
+                'document': matching_data_firstname,
+                'conf': confidence,
+                'result': matching_data_firstname[0],
+                'tag': search_string,
+                'text': text
+            }
+
+            html_res = render(request, 'index.html', context)
+
+            
+            # return render(request, 'index.html', {'result_parcels': result, 'document': matching_data_firstname, 'conf': confidence, 'result': matching_data_firstname[0], 'tag': search_string})
+            return html_res 
             
 
         elif len(matching_data_firstname) > 1:
@@ -471,6 +532,13 @@ def search_name(request):
 
         else:
             return render(request, 'index.html', {'result': 'ไม่พบข้อมูล', 'document': ' ', 'conf': 'ไม่พบข้อมูล'})
+
+        
+            
+        
+            
+        
+
             
             
 
@@ -497,7 +565,7 @@ def get_document_id(request, roll):
     else:
         return render(request, 'index.html', {'result': 'ไม่พบข้อมูล'})
 
-    return render(request, 'index.html')
+
 
 
 

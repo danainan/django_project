@@ -1,49 +1,54 @@
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-    <a class="navbar-brand h5" href="/project/home">ผู้ดูแลระบบ</a>
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-    </button>
-  
-    <div class="collapse navbar-collapse" id="navbarSupportedContent">
-        <ul class="navbar-nav me-auto">
-            <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                ผู้เข้าพัก
-              </a>
-              <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                <li><a class="dropdown-item" href="/project/home">รายการผู้เข้าพัก</a></li>
-                <li><a class="dropdown-item" href="/project/add-users">เพิ่มรายชื่อผู้เข้าพัก</a></li>
-              </ul>
-            </li>
-            <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                ห้องพัก
-              </a>
-              <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                <li><a class="dropdown-item" href="/project/rooms-list">รายการห้องพัก</a></li>
-                <li><a class="dropdown-item" href="/project/add-rooms">เพิ่มห้องพัก</a></li>
-                
-              </ul>
-            </li>
-  
-            <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                พัสดุ
-              </a>
-              <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                <li><a class="dropdown-item" href="/project/summary">รายการพัสดุ</a></li>
-                <li><a class="dropdown-item" href="/ocr">OCR</a></li>
-              </ul>
-            </li>
-            <!-- <li class="nav-item">
-              <a class="nav-link h5 " href="">Search Index</a>
-            </li> -->
-        </ul>
-        <ul class="navbar-nav">
-            <li class="nav-item">
-                <a class="nav-link h5 " href="/project/logout">ออกจากระบบ</a>
-            </li>
-        </ul>
-    </div>
-  </nav>
-  
+<nav class="navbar navbar-expand-lg" style="background-color: #1c045d;">
+  <a class="navbar-brand h5 text-white" href="/project/home">ผู้ดูแลระบบ</a>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+  </button>
+
+  <div class="collapse navbar-collapse" id="navbarSupportedContent" >
+      <ul class="navbar-nav me-auto">
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle text-white" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              ผู้เข้าพัก
+            </a>
+            <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+              <li><a class="dropdown-item" href="/project/home">รายการผู้เข้าพัก</a></li>
+              <li><a class="dropdown-item" href="/project/add-users">เพิ่มรายชื่อผู้เข้าพัก</a></li>
+            </ul>
+          </li>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle text-white" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              ห้องพัก
+            </a>
+            <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+              <li><a class="dropdown-item" href="/project/rooms-list">รายการห้องพัก</a></li>
+              <li><a class="dropdown-item" href="/project/add-rooms">เพิ่มห้องพัก</a></li>
+              
+            </ul>
+          </li>
+
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle text-white" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              พัสดุ
+            </a>
+            <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+              <li><a class="dropdown-item" href="/project/summary">รายการพัสดุ</a></li>
+              <li><a class="dropdown-item" href="/ocr">OCR</a></li>
+            </ul>
+          </li>
+          <!-- <li class="nav-item">
+            <a class="nav-link h5 " href="">Search Index</a>
+          </li> -->
+      </ul>
+      <ul class="navbar-nav">
+          <li class="nav-item">
+              <a class="nav-link h5 text-white" href="/project/logout">ออกจากระบบ</a>
+          </li>
+      </ul>
+  </div>
+</nav>
+
+<style>
+  .dropdown-item:hover{
+    background-color: #C7DEFD;
+  }
+</style>

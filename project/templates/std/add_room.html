@@ -41,15 +41,25 @@
           background-color: #ffffff;
           color: #080710;
         }
+        #room_cap {
+            /* icon dropdown */
+            background-image: url("https://static.thenounproject.com/png/1586563-200.png");
+            background-repeat: no-repeat;
+            background-position: right 0.7em top 50%, 0 0;
+            background-size: 1.5em auto, 100%;
+
+        }
+
 
         #room_cap:focus {
-            border: #FDC350 solid 2px;
-            box-shadow: #FFFDE7 0px 0px 0px 5px;
+            border: #1C045D solid 2px;
+            box-shadow: #C7DEFD 0px 0px 0px 5px;
+            
         }
 
         #room_num:focus {
-            border: #FDC350 solid 2px;
-            box-shadow: #FFFDE7 0px 0px 0px 5px;
+            border: #1C045D solid 2px;
+            box-shadow: #C7DEFD 0px 0px 0px 5px;
         }
 
     </style>
@@ -66,7 +76,7 @@
         align-items: center; ">
     
     <div class="card" style="width: 50rem;margin-top: 100px;">
-        <h4 class="card-header border-0" style="background-color: #FFFDE7;color: #7E6701;height: 5rem;justify-content: center;display: flex;align-items: center;">เพิ่มห้องในหอพัก</h4>
+        <h4 class="card-header border-0" style="background-color: #C7DEFD;color: #1C045D;height: 5rem;justify-content: center;display: flex;align-items: center;">เพิ่มห้องในหอพัก</h4>
     <div class="container">
         <div class="row">
             <div class="col">
@@ -88,6 +98,7 @@
                                             <option value="2">2 คน</option>
                                             <option value="3">3 คน</option>
                                             <option value="4">4 คน</option>
+                                            <i class="fa fa-caret-down"></i>
                                         </select>
                                         {% if error %}
                                             <p style="color: red;">{{ error }}</p>

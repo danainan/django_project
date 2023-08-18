@@ -34,8 +34,8 @@
         }
 
         input[type=text]:focus {
-            border: #FDC350 solid 2px;
-            box-shadow: #FFFDE7 0px 0px 0px 5px;
+            border: #1C045D solid 2px;
+            box-shadow: #3b8af0 0px 0px 0px 5px;
          
         }
 
@@ -47,22 +47,24 @@
 
         #sum_all_text {
             text-decoration: underline;
-            color: #ffaa00;
+            color: #3b8af0;
+            
         }
 
         #sum_all_text:hover {
-            color: #000000;
+            color: #1C045D;
         }
+     
     </style>
 </head>
 <body style="background-color: #F1F5F8;">
 {% include 'std/navbar.html' %}
 
-<div class="container pt-1 mt-2 pb-2" style="background-color: #FFFDE7;border-radius: 15px;" >
+<div class="container pt-1 mt-2 pb-2" style="background-color: #c7defd;border-radius: 15px;" >
 
     <div>
         
-        <h3 class="text-center my-3" style="color: #7E6701">รายชื่อสมาชิกในหอพัก</h3>
+        <h3 class="text-center my-3" style="color: #1C045D">รายชื่อสมาชิกในหอพัก</h3>
     </div>
     <div class="container" style="padding-bottom: 12px;width: 50rem;">
             <div class="col">
@@ -84,7 +86,7 @@
                         <span class="input-group-text" id="basic-addon1"><i class="fa fa-search" aria-hidden="true"></i></span>
                         <input type="text" name="search" class="form-control" placeholder="ค้นหาด้วยชื่อ-นามสกุล หรือ หมายเลขห้องพัก" tabindex="1">
                         <div class="input-group-append">
-                            <button type="submit" class="btn btn-outline-warning bg-white">ค้นหาสมาชิก</button>
+                            <button type="submit" class="btn bg-white" style="border-color: #1C045D;">ค้นหา</button>
                         </div>
                     </div>
                 </form>
@@ -112,7 +114,7 @@
         <div class="col">
             <div class="card" style="margin-left: 60px; margin-right: 60px">
                 <div class="card-body">
-                    <div style="max-height:500px; overflow-y: auto; scrollbar-width: thin; scrollbar-color: gray gray;">
+                    <div style="max-height:500px; overflow-y: auto; scrollbar-width: thin; scrollbar-color: grey grey;">
                     <table class="table table-striped">
                         
                         <thead>
@@ -135,8 +137,8 @@
                                 <td>{{ u.last_name }}</td>
                                 <td>{{ u.line_id }}</td>
                                 <td>
-                                    <a href="/project/update-users/{{ u.id }}" class="btn btn-outline-warning md-sm ">แก้ไข</a>
-                                    <a href="/project/delete-users/{{ u.id }}" class="btn btn-outline-danger md-sm">ลบ</a>
+                                    <a href="/project/update-users/{{ u.id }}" class="btn btn-warning md-sm "><i class="fa fa-pencil-square-o"></i> แก้ไข</a>
+                                    <a href="/project/delete-users/{{ u.id }}" class="btn btn-danger md-sm "><i class="fa fa-trash-o"></i> ลบ</a>
                                     
                                 </td>
                             </tr>
