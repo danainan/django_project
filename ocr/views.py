@@ -36,6 +36,8 @@ from bson import ObjectId
 from .models import *
 from django.contrib.auth.decorators import login_required
 import difflib
+import pytz
+
 
 
 
@@ -481,19 +483,19 @@ def get_document_id(request, roll):
 
         result = db['project_users'].find_one({'id': int(roll)}, {'_id': 0, 'firstname': 1, 'last_name': 1, 'room_num': 1})
 
-        if result:
-            getfirstname = result['firstname']
-            getlastname = result['last_name']
-            getroom = result['room_num']
+        # if result:
+        #     getfirstname = result['firstname']
+        #     getlastname = result['last_name']
+        #     getroom = result['room_num']
 
-            media_path = os.path.join(settings.MEDIA_ROOT, 'capture.jpg')
-            with open(media_path, 'rb') as f:
-                data = f.read()
-            encoded_string = base64.b64encode(data).decode('utf-8')
+        #     media_path = os.path.join(settings.MEDIA_ROOT, 'capture.jpg')
+        #     with open(media_path, 'rb') as f:
+        #         data = f.read()
+        #     encoded_string = base64.b64encode(data).decode('utf-8')
 
-            return render(request, 'index.html', {'result_parcels': result, 'encoded_string': encoded_string})
-        else:
-            return render(request, 'index.html', {'result': 'ไม่พบข้อมูล'})
+        return render(request, 'index.html', {'result_parcels': result})
+    else:
+        return render(request, 'index.html', {'result': 'ไม่พบข้อมูล'})
 
     return render(request, 'index.html')
 
@@ -508,18 +510,21 @@ def save_document(request):
         status = request.POST.get('status')
         date = request.POST.get('dateInput')
 
-        time = datetime.datetime.now()
+        current_time = datetime.datetime.now()
+        current_time = current_time.strftime(date+ f' {current_time.hour}:{current_time.minute}:{current_time.second}')
+
+    
         
 
-        d = Document()
-        d.firstname = firstname
-        d.last_name = last_name
-        d.room_num = room_num
-        d.status = status
-        d.date = date
+        d = Document(
+            firstname=firstname,
+            last_name=last_name,
+            room_num=room_num,
+            status=status,
+            date=current_time
+        )
         d.save()
 
-        print("Document saved successfully")
         
 
         return redirect('index')

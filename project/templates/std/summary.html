@@ -37,17 +37,43 @@
         a.sort-link {
         color: black; /* กำหนดสีตัวอักษรเป็นสีดำ */
         text-decoration: none; /* ลบขีดเส้นใต้ลิงก์ */
-    }
+        }
+
+        table {
+            border-collapse: collapse;
+            border-radius: 1em;
+            overflow: hidden;
+        }
+
+        .table th {
+            position: sticky;
+            top: 0; 
+            z-index: 1;
+        }
+
+        input[type=text]:focus {
+            border: #FDC350 solid 2px;
+            box-shadow: #FFFDE7 0px 0px 0px 5px;
+         
+        }
+        #sum_all_text {
+            text-decoration: underline;
+            color: #ffaa00;
+        }
+
+        #sum_all_text:hover {
+            color: #000000;
+        }
 
     </style>
     
 </head>
 
-<body>
+<body style="background-color: #F1F5F8;">
     {% include 'std/navbar.html' %}
     <div class="container pt-2">
-        <div class="row justify-content-center">
-            <div class="col-md-10">
+        <div class="col justify-content-center">
+            <div class="row-md-10">
                 {% if messages %}
                 <div class="container">
                     <div class="row">
@@ -63,24 +89,26 @@
                 {% endif %}
                 <form method="GET">
                     <div class="input-group mb-3">
+                        <span class="input-group-text" id="basic-addon1"><i class="fa fa-search" aria-hidden="true"></i></span>
                         <input type="text" name="search" class="form-control" placeholder="ค้นหาด้วยชื่อ-นามสกุล หรือ หมายเลขห้องพัก">
                         <div class="input-group-append">
-                            <button type="submit" class="btn btn-primary">ค้นหา</button>
+                            <button type="submit" class="btn btn-outline-warning bg-white">ค้นหา</button>
                         </div>
                     </div>
                 </form>
                 <form method="GET">
                     <div class="input-group mb-3">
-                        <button type="submit" href="/project/summary/" class="btn btn-primary">แสดงรายการพัสดุทั้งหมด</button>
+                        <a type="submit" href="/project/summary/" id="sum_all_text">แสดงรายการพัสดุทั้งหมด</a>
                     </div>
                 </form>
                 
 
                 
+                <div class="container" style="background-color: #FFFDE7;border-radius: 25px;padding:10px 10px 25px 10px;">
+                    <h4 class="text-center my-3" style="color: #7E6701">พัสดุที่ยังไม่ได้รับ</h4>
                 
-                <h4 class="text-center my-3">พัสดุที่ยังไม่ได้รับ</h4>
                 <form method="POST" action="{% url 'save_status' %}">
-                    <div style="max-height: 200px; overflow-y: auto; scrollbar-width: thin; scrollbar-color: gray gray;">
+                    <div style="max-height: 500px; overflow-y: auto; scrollbar-width: thin; scrollbar-color: gray gray;">
                         {% csrf_token %}
                         <table class="table table-striped">
                             <thead>
@@ -93,6 +121,7 @@
                                         <a class="sort-link" href="?sort={{ sort_order }}">วันที่พัสดุจัดส่ง <i class="fas fa-sort"></i></a>
                                     </th>
                                     <th scope="col">สถานะพัสดุ</th>
+                                    <th scope="col"></th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -117,11 +146,34 @@
                         </table>
                     </div>
                     
-                    <button type="submit" class="btn btn-warning" style="margin-left: 900px;">บันทึกสถานะ</button>
+                    <div class="d-flex justify-content-end">
+                        <button type="submit" class="btn btn-warning" style="margin-right: 20px;">บันทึกสถานะ</button>
+                    </div>
+                    
+                    <div class="container">
+                        <form method="POST" action="{% url 'save_img' %}">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-success"><i class="fa-brands fa-line"> ส่งข้อมูลไปยังกลุ่ม</i></button>
+                        </form>
+        
+                        <div id="alert-container">
+                            {% for message in messages %}
+                            <div class="alert alert-warning">{{ message }}</div>
+                            {% endfor %}
+                        </div>
+        
+                        <div class="row">
+                            <p>เปลี่ยนกลุ่มไลน์ Notify <span><a href="/linelogin">
+                                >> เชื่อมต่อ <<
+                            </a></span></p>
+                        </div>
+                    </div>
+
+                    </div>
                    
                     <hr>
                     <h4 class="text-center my-3">พัสดุที่รับแล้ว</h4>
-                    <div style="max-height: 200px; overflow-y: auto; scrollbar-width: thin; scrollbar-color: gray gray;">
+                    <div style="max-height: 300px; overflow-y: auto; scrollbar-width: thin; scrollbar-color: gray gray;">
                         
                         <table class="table table-striped">
                             <thead>
@@ -145,22 +197,7 @@
                         </table>
                     </div>
                 </form>
-                <form method="POST" action="{% url 'save_img' %}">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-success"><i class="fa-brands fa-line"> ส่งข้อมูลไปยังกลุ่ม</i></button>
-                </form>
-
-                <div id="alert-container">
-                    {% for message in messages %}
-                    <div class="alert alert-warning">{{ message }}</div>
-                    {% endfor %}
-                </div>
-
                 
-                เปลี่ยนกลุ่มไลน์ Notify คลิ๊ก>>
-                <a href="/linelogin">
-                    เชื่อมต่อ
-                </a>
                 
 
 

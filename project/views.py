@@ -78,23 +78,41 @@ def select_columns(collection):
     return df_selected
 
 def create_and_save_table_plot(df, title, filename):
-       if os.path.exists(filename):
-           os.remove(filename)
-       matplotlib.use('Agg')
-       plt.title(title)
-       table = plt.table(
-           cellText=df.values,
-           colLabels=df.columns,
-           cellLoc='center',
-           loc='center'
-       )
-       table.auto_set_font_size(False)
-       table.set_fontsize(10)
-       table.scale(1.5, 1.5)  
-       plt.axis('off')
-       path = os.path.join(settings.MEDIA_PROJECT)
-       plt.savefig(path + '/' + filename, bbox_inches='tight', dpi=500)
-       plt.close()
+    path = os.path.join(settings.MEDIA_PROJECT)
+    if os.path.exists(path + '/' + filename):
+        os.remove(path + '/' + filename)
+        matplotlib.use('Agg')
+        plt.title(title)
+        table = plt.table(
+            cellText=df.values,
+            colLabels=df.columns,
+            cellLoc='center',
+            loc='center'
+        )
+        table.auto_set_font_size(False)
+        table.set_fontsize(10)
+        table.scale(1.5, 1.5)  
+        plt.axis('off')
+        plt.savefig(path + '/' + filename, bbox_inches='tight', dpi=500)
+        plt.close()
+
+    else:
+        matplotlib.use('Agg')
+        plt.title(title)
+        table = plt.table(
+            cellText=df.values,
+            colLabels=df.columns,
+            cellLoc='center',
+            loc='center'
+        )
+        table.auto_set_font_size(False)
+        table.set_fontsize(10)
+        table.scale(1.5, 1.5)  
+        plt.axis('off')
+        plt.savefig(path + '/' + filename, bbox_inches='tight', dpi=500)
+        plt.close()
+
+
 
 def save_img(request):
     client = MongoClient('mongodb+srv://authachaizzz:1234@cluster0.xf2c6og.mongodb.net/?retryWrites=true&w=majority')
@@ -112,14 +130,21 @@ def save_img(request):
 
 
     today_title = f'รายการพัสดุที่ยังไม่ได้รับวันนี้'+str(dateToday)
-    other_title = f'รายการพัสดุที่ยังไม่ได้รับวันอื่นๆ'
+    other_title = f'รายการพัสดุที่ยังค้างรับ'
 
     
     
     if not df_selected_today.empty:
         create_and_save_table_plot(df_selected_today, today_title, 'วันนี้.png')
+        line_notify(today_title,dateToday)
+    else:
+        line_notify('ไม่มีพัสดุสำหรับวันนี้',dateToday)
+      
     if not df_selected_other.empty:
         create_and_save_table_plot(df_selected_other, other_title, 'วันอื่นๆ.png')
+        line_notify(other_title,dateToday)
+    else:
+        line_notify('ไม่มีพัสดุค้างรับ',dateToday)
 
 
     # line_notify_token = "CCDXvamsMK3Cgcnu3k2sW5MdWgdLUvGbR7YtqteeH7W"
@@ -127,8 +152,8 @@ def save_img(request):
     
     client.close()
 
-    line_notify(today_title,dateToday)
-    line_notify(other_title,dateToday)
+    
+    
 
 
 
@@ -136,45 +161,41 @@ def save_img(request):
     # คืนค่าเพื่อบอกว่าฟังก์ชันทำงานเสร็จสิ้น
     return redirect('summary')
 
-def line_notify(messeageLine,dateToday):
+def line_notify(messeageLine, dateToday):
     token = Token.objects.last()
 
     if token is None:
         return redirect('line_login')
-    else:
-        token = Token.objects.latest('created_at')
-        line_notify_token = token.token
-
     
+    line_notify_token = token.token
     line_notify_api_url = "https://notify-api.line.me/api/notify"
-
     headers = {
          "Authorization": f"Bearer {line_notify_token}"
     }
-
+    
     path = os.path.join(settings.MEDIA_PROJECT)
-
-        
-    if messeageLine == 'รายการพัสดุที่ยังไม่ได้รับวันนี้'+str(dateToday):
-        if os.path.exists(path + '/' + 'วันนี้.png'):
-            files = {'imageFile': open(os.path.join(settings.MEDIA_PROJECT, 'วันนี้.png'), "rb")}
+    image_files = {
+        f'รายการพัสดุที่ยังไม่ได้รับวันนี้{dateToday}': 'วันนี้.png',
+        'รายการพัสดุที่ยังค้างรับ': 'วันอื่นๆ.png'
+    }
+    
+    if messeageLine in image_files:
+        image_file_name = image_files[messeageLine]
+        image_path = os.path.join(path, image_file_name)
+        if os.path.exists(image_path):
+            files = {'imageFile': open(image_path, "rb")}
             data = {'message': f'{messeageLine}'}
             requests.post(line_notify_api_url, headers=headers, data=data, files=files)
-            pass
-        else :
-            data = {'message': f'{messeageLine} [ ไม่มีพัสดุ ]'}
-            requests.post(line_notify_api_url, headers=headers, data=data)
+    
+    elif messeageLine == 'ไม่มีพัสดุสำหรับวันนี้':
+        data = {'message': f'{messeageLine} {dateToday}'}
+        requests.post(line_notify_api_url, headers=headers, data=data)
+    
+    elif messeageLine == 'ไม่มีพัสดุค้างรับ':
+        data = {'message': f'{messeageLine}'}
+        requests.post(line_notify_api_url, headers=headers, data=data)
 
-
-    elif messeageLine == 'รายการพัสดุที่ยังไม่ได้รับวันอื่นๆ':
-        if os.path.exists(path + '/' + 'วันอื่นๆ.png'):
-            files = {'imageFile': open(os.path.join(settings.MEDIA_PROJECT, 'วันอื่นๆ.png'), "rb")}
-            data = {'message': f'{messeageLine}'}
-            requests.post(line_notify_api_url, headers=headers, data=data, files=files)
-            pass
-        else :
-            data = {'message': f'{messeageLine} [ ไม่มีพัสดุ ]'}
-            requests.post(line_notify_api_url, headers=headers, data=data)
+    
 
 @login_required(login_url='/login/')
 def summary(request):
@@ -194,6 +215,7 @@ def summary(request):
     else:
         documents = Document.objects.all().order_by('room_num','-date')
         
+    
     received_documents = [doc for doc in documents if doc.status == 'รับแล้ว']
 
     documents = [doc for doc in documents if doc not in received_documents]

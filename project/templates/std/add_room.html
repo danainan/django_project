@@ -42,6 +42,16 @@
           color: #080710;
         }
 
+        #room_cap:focus {
+            border: #FDC350 solid 2px;
+            box-shadow: #FFFDE7 0px 0px 0px 5px;
+        }
+
+        #room_num:focus {
+            border: #FDC350 solid 2px;
+            box-shadow: #FFFDE7 0px 0px 0px 5px;
+        }
+
     </style>
 </head>
 <script>
@@ -49,13 +59,18 @@
         inputElement.value = inputElement.value.replace(/\D/g, '');
     }
 </script>
-<body>
+<body style="background-color: #F1F5F8;">
     {% include 'std/navbar.html' %}
-    <h1 class="text-center my-3">เพิ่มห้องในหอพัก</h1>
+    <div class="container" style="display: flex;
+        justify-content: center; 
+        align-items: center; ">
+    
+    <div class="card" style="width: 50rem;margin-top: 100px;">
+        <h4 class="card-header border-0" style="background-color: #FFFDE7;color: #7E6701;height: 5rem;justify-content: center;display: flex;align-items: center;">เพิ่มห้องในหอพัก</h4>
     <div class="container">
         <div class="row">
-            <div class="col-md-6 offset-md-3">
-                <div class="card bg-dark text-white">
+            <div class="col">
+                <div class="card border-0 text-dark">
                     <div class="card-body">
                         <form action="/project/add-rooms/" method="POST">
                             {% csrf_token %}
@@ -91,6 +106,9 @@
             </div>
         </div>
     </div>
+    </div>
+    </div>
+
 <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>   
