@@ -288,6 +288,10 @@ def users_add(request):
         projects_line_id = request.POST.get("project_line_id")
         projects_room_num = request.POST.get("project_room_num")
 
+        if not projects_firstname or not projects_last_name or not projects_line_id or not projects_room_num:
+            messages.warning(request, 'กรุณากรอกข้อมูลให้ครบถ้วน')
+            return redirect("/project/add-users")
+
         existing_user = Users.objects.filter(firstname=projects_firstname, last_name=projects_last_name).first()
         
         
@@ -394,6 +398,9 @@ def room_add(request):
     if request.method == 'POST':
         room_number = request.POST.get("room_number")
         room_capacity = request.POST.get("room_capacity")
+
+        if not room_number:
+            return render(request, 'std/add_room.html', {'error': 'กรุณากรอกข้อมูลหมายเลขห้องพัก'})
 
         if Rooms.objects.filter(room_number=room_number).count() > 0:
             return render(request, 'std/add_room.html', {'error': 'ห้องพักนี้มีอยู่เเล้ว กรุณากรอกหมายเลขห้องพักอื่น'})
