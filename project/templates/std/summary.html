@@ -52,17 +52,18 @@
         }
 
         input[type=text]:focus {
-            border: #FDC350 solid 2px;
-            box-shadow: #FFFDE7 0px 0px 0px 5px;
+            border: #1C045D solid 2px;
+            box-shadow: #3b8af0 0px 0px 0px 5px;
          
         }
         #sum_all_text {
             text-decoration: underline;
-            color: #ffaa00;
+            color: #3b8af0;
+            
         }
 
         #sum_all_text:hover {
-            color: #000000;
+            color: #1C045D;
         }
 
     </style>
@@ -92,7 +93,7 @@
                         <span class="input-group-text" id="basic-addon1"><i class="fa fa-search" aria-hidden="true"></i></span>
                         <input type="text" name="search" class="form-control" placeholder="ค้นหาด้วยชื่อ-นามสกุล หรือ หมายเลขห้องพัก">
                         <div class="input-group-append">
-                            <button type="submit" class="btn btn-outline-warning bg-white">ค้นหา</button>
+                            <button type="submit" class="btn bg-white" style="border-color: #1C045D;">ค้นหา</button>
                         </div>
                     </div>
                 </form>
@@ -104,8 +105,8 @@
                 
 
                 
-                <div class="container" style="background-color: #FFFDE7;border-radius: 25px;padding:10px 10px 25px 10px;">
-                    <h4 class="text-center my-3" style="color: #7E6701">พัสดุที่ยังไม่ได้รับ</h4>
+                <div class="container" style="background-color: #C7DEFD;border-radius: 25px;padding:10px 10px 25px 10px;">
+                    <h4 class="text-center my-3" style="color: #1C045D">พัสดุที่ยังไม่ได้รับ</h4>
                 
                 <form method="POST" action="{% url 'save_status' %}">
                     <div style="max-height: 500px; overflow-y: auto; scrollbar-width: thin; scrollbar-color: gray gray;">
@@ -147,7 +148,7 @@
                     </div>
                     
                     <div class="d-flex justify-content-end">
-                        <button type="submit" class="btn btn-warning" style="margin-right: 20px;">บันทึกสถานะ</button>
+                        <button type="submit" class="btn btn-warning" style="margin-right: 20px;">บันทึก</button>
                     </div>
                     
                     <div class="container">
