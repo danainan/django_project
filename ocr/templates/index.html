@@ -1,4 +1,3 @@
-
 {% load static %}
 <!DOCTYPE html>
 <html>
@@ -6,281 +5,922 @@
 <head>
     <meta charset="UTF-8">
     <title>OCR App</title>
+
     
-    <link rel="stylesheet" href="{% static 'style.css' %}">
 </head>
+<link rel="stylesheet" href="{% static 'style.css' %}">
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz"
+    crossorigin="anonymous"></script>
 <script src="https://kit.fontawesome.com/b56c1cd1e7.js" crossorigin="anonymous"></script>
 <script>
-    $(document).ready(function() {
+
+    $(document).ready(function () {
+        const lastModalShownDate = localStorage.getItem('modalShownDate');
+        const currentDateModal = new Date().toLocaleDateString();
+
+        if (lastModalShownDate !== currentDateModal) {
+            // Show the modal
+            $('#myModal').modal('show');
+            // Set the modalShownDate in localStorage to today's date
+            localStorage.setItem('modalShownDate', currentDateModal);
+        }
+        // When the "Close" button is clicked
+        $('#buttonModal').click(function () {
+            $('#myModal').modal('hide');
+        });
+        // When the modal is closed
+        $('#myModal').on('hidden.bs.modal', function (e) {
+            // Remove the backdrop
+            $('.modal-backdrop').remove();
+        });
+    });
+    
+
+    $(document).ready(function () {
         var video = document.getElementById('video');
         var openCameraBtn = document.getElementById('open-camera-btn');
         var uploadImageBtn = document.getElementById('upload-image-btn');
         var uploadImageInput = document.getElementById
-        ('upload-image-input');
+            ('upload-image-input');
         var resetCameraBtn = document.getElementById('reset-camera-btn');
         var image = document.getElementById('captured-image');
         var ocrBtn = document.getElementById('ocr-btn');
         var text = document.getElementById('text');
         var tag = document.getElementById('tag');
 
-        openCameraBtn.addEventListener('click', function() {
-            fetch("{% url 'initialize_camera' %}")
-                .then(response => {
-                    if (response.ok) {
-                        video.src = "{% url 'livefe' %}";
-                        image.style.display = 'none';
-                    }
-                });
-        });
-
-        resetCameraBtn.addEventListener('click', function() {
-            video.src = "";
-            image.src = "";
-        });
-
+        var searchForm = document.getElementById('searchForm');
+        var section2 = document.getElementById('section2');
+        var submitBtn = document.getElementById('submitBtn');
     
 
-       
-
         
 
 
-        
 
-        ocrBtn.addEventListener('click', function() {
+        ocrBtn.addEventListener('click', function () {
+            // text.innerHTML = '<div class="loader"></div><span>Loading...</span>';
+            text.innerHTML = '<div class="loader"><div class="justify-content-center jimu-primary-loading"></div';
+            
+            
             fetch("{% url 'ocr' %}")
                 .then(response => {
-                    if (response.ok) {
+                    if (response.ok) {            
                         return response.json();
+                        
                     }
                 })
                 .then(data => {
                     text.innerHTML = data.text;
                     tag.value = data.tag;
-                    // tag1.innerHTML = data.tag1;
+
+                    section2.scrollIntoView({behavior: "smooth"});
+
                     
-        
+                    
+
+
+
+                }).catch(error => {
+                    text.innerHTML = "ไม่สามารถาอ่านข้อมูลได้ กรุณานำเข้ารูปภาพใหม่";
                 });
+
         });
-
-
-
-
-
-
         
-
+       
         
-    
-
     
 
     });
 
-
-
-</script>
-<body>
-    {% include 'navbar.html' %}
-    <div class="container">
-        <div class="heading-container">
-            <h1 class="ocr-heading">OCR </h1>
-        </div>
-    </div>
-    <div class="col text-center">
-        <h5 class="ocr-heading">Choose how to import images.</h5>
-    </div>
-        <div class="row">
-            <div class="col border">
-                <button id="open-camera-btn" class="btn btn-primary">Open Camera</button>
-            </div>
-            <div class="col border">
-                <button id="reset-camera-btn" class="btn btn-secondary">Reset Image</button>
-            </div>
-
-            <!-- <div class="col">
-                <form action="reset-camera">
-                    <button type="submit" class="btn btn-secondary" >reset camera</button>
-                </form>
-            </div> -->
-            <div class="col border">
-                <form action="upload_img" method="post" enctype="multipart/form-data">
-                    {% csrf_token %}
-                    <input type="file" accept="image/*" alt="file_image" name="file_image" id="file_image">
-                    <button id="upload-image-btn" class="btn btn-primary">Upload Image</button>
-                </form>
-            </div>
-        </div>
-
-       
+    $(document).ready(function () {
+        var currentDate = new Date();
+        var formattedDate = currentDate.toISOString().split("T")[0];
+        
+        document.getElementById("dateInput").value = formattedDate;
+        document.getElementById("dateInput").setAttribute("max", formattedDate);
+    });
 
     
 
-    <!-- <form action="upload_img" method="post" enctype="multipart/form-data">
-        {% csrf_token %}
-        <input type="file" accept="image/*" alt="file_image" name="file_image" id="file_image">
-        <button id="upload-image-btn" class="btn btn-primary">upload</button>
-    </form>
 
-    {% if request.session.file_image %}
-    <img src="{{ MEDIA_URL }}{{ request.session.file_image }}" alt="Uploaded Image">
-    {% endif %}
-     -->
-    <!-- <div id="video-container" class="video-container">
-        <img src="" alt="Camera Stream" id="video">
+
+
+    
+    // $(document).ready(function () {
+    //     document.getElementById('searchForm').addEventListener('input', function(event) {
+    //         event.preventDefault();
+    //         var tagValue = document.getElementById('tag').value;
+    //         if (tagValue) {
+    //             fetch("{% url 'search_name' %}")
+    //         }else {
+    //             alert('กรุณาเลือกข้อมูล');
+    //         }
+    //     });
+    // });
+
+
+
+    $(document).ready(function() {
+        $("#video-container").hide();
+        
+        
+        
+        
+
+        $("#camera-option").change(function() {
+            var selectedOption = $(this).val();
+            
+            if (selectedOption === "camera") {
+                // Show the video container and hide the image container
+                $("#video-container").show();
+                $("#video-container").prepend(`
+                <div style="display:flex;justify-content:center;">
+                <p style="color: rgb(0, 0, 0);">
+                        กดปุ่ม <span style="background-color: rgb(47, 143, 181); padding: 2px;">'Q'</span> บนคีย์บอร์ดเพื่อ
+                        <span style="background-color: rgb(47, 143, 181); padding: 2px;">'ถ่ายภาพ'</span> 
+                        
+                </p></div>
+                <div class="card">
+                    
+                </div>
+                <img src="{% url 'livefe' %}">`);
+                $("#image-container").hide();
+                $("#form-container").hide();
+            } else if (selectedOption === "upload") {
+                // Show the image container and hide the video container
+                $("#image-container").show();
+                $("#form-container").show();
+                $("#video-container").hide();
+                $("#video-container").empty();
+                fetch("{% url 'reset_cam' %}")
+            }
+        });
+
+
+        
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const fileInput = document.getElementById('file_image');
+        const uploadButton = document.getElementById('upload-image-btn');
+
+        fileInput.addEventListener('change', function() {
+            const formData = new FormData();
+            formData.append('file_image', fileInput.files[0]);
+
+            fetch('upload_img', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}'
+                }
+                
+            })
+            .then(response => response.text())
+            .then(encoded_image => {
+                const imageElement = document.getElementById('uploaded-image');
+                imageElement.src = 'data:image/jpeg;base64,' + encoded_image;
+            });
+        });
+
+        
+    });
+
+    
+
+    
+
+
+    // var lastModalShownDate = localStorage.getItem('modalShownDate');
+    // var currentDateModal = new Date().toLocaleDateString();
+    
+    
+    
+
+    // model เฉพาะครั้งแรกของวัน
+    // if (lastModalShownDate !== currentDateModal) {
+    //         // Show the modal
+    //         $('#myModal').modal('show');
+    //         // Set the modalShownDate in localStorage to today's date
+    //         localStorage.setItem('modalShownDate', currentDateModal);
+    // }
+    // // When the "Close" button is clicked
+    // $('#buttonModal').click(function () {
+    //     $('#myModal').modal('hide');
+    // });
+    // // When the modal is closed
+    // $('#myModal').on('hidden.bs.modal', function (e) {
+    //     // Remove the backdrop
+    //     $('.modal-backdrop').remove();
+    // });
+
+
+        // model ทุกครั้งที่เข้าหน้าเว็บ
+        // $(window).on('load', function () {
+        //     $('#myModal').modal('show');
+
+        //     // when button click
+        //     $('#buttonModal').click(function () {
+        //         $('#myModal').modal('hide');
+        //     });
+
+        //     // when the modal is closed
+        //     $('#myModal').on('hidden.bs.modal', function (e) {
+        //         // remove the backdrop
+        //         $('.modal-backdrop').remove();
+        //     });
+        // });
+
+    
+    
+
+
+
+    // const currentDate = new Date();
+    // const formattedDate = currentDate.toISOString().split("T")[0];
+    // var lastModalShownDate = localStorage.getItem('modalShownDate');
+    // var currentDateModal = new Date().toLocaleDateString();
+    
+    // document.getElementById("dateInput").value = formattedDate;
+    // document.getElementById("dateInput").setAttribute("max", formattedDate);
+    // document.getElementById('searchForm').addEventListener('input', function(event) {
+    //     event.preventDefault();
+    //     var tagValue = document.getElementById('tag').value;
+    //     if (tagValue) {
+    //         fetch("{% url 'search_name' %}")
+    //     }else {
+    //         alert('กรุณาเลือกข้อมูล');
+    //     }
+    // });
+
+    
+
+    
+
+    
+    
+
+  
+
+
+    
+
+
+
+</script>
+
+<body style="background-color: #F1F5F8;">
+    {% include 'navbar.html' %}
+
+    
+    <!-- Modal -->
+    <div class="modal fade" id="myModal" role="dialog" aria-controls="modal-body">
+        <div class="modal-dialog">
+    
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">ตัวอย่างรูปภาพสำหรับการทำ OCR</h4>
+                    <span><button type="button" class="btn-close" aria-label="Close" id="buttonModal"></button></span>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col">
+                            <img src="https://github.com/danainan/linenotify_django/assets/71175110/f9465c50-8dec-440f-b386-7008407a641e"
+                            width="300px" height="250px">
+                            <a>คม</a>
+                        </div>
+                        <div class="col">
+                            <img src="https://github.com/danainan/linenotify_django/assets/71175110/b2897db2-71e2-4cf8-8118-df87276acd0f"
+                            width="300px" height="250px">
+                            <a>ชัด</a>
+                        </div>
+                        <div class="col">
+                            <img src="https://github.com/danainan/linenotify_django/assets/71175110/411e39bb-a2e7-4974-ac18-09afd9c504b9"
+                            width="300px" height="250px">
+                            <a>ตรง</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    
+        </div>
+    </div>
+    
+    
+
+    <div class="container pt-2" >
+
+    
+        <div class="col text-center pt-2 " style="background-color: #1C045D; border-radius: 10px;">
+            <h5 class="ocr-heading text-white">ขั้นตอนที่ 1.นำเข้ารูปภาพ</h5>
+        </div>
     </div>
 
-
-    <div id="image-container">
-        <img src="" alt="Captured Image" id="captured-image">
-    </div>
-    <button id="ocr-btn">OCR</button>
-    {% if text %}
-    <div id="text-container">
-        <p id="text">{{ text }}</p>
-    </div>
-    {% endif %} -->
-
-    <div class="row pt-5">
-        <div class="col">
-            <div id="video-container" class="video-container">
-                <img src="" alt="Camera Stream" id="video">
+    
+    
+    <div class="container" style="border-radius: 25px;background-color: #C7DEFD;">
+        <div class="row pt-3" style="display: flex;justify-content: center;">
+            <div class="col-3">
+                <select id="camera-option" class="form-select">
+                    <option value="upload" selected>&#128193 Upload Image</option>
+                </select>
+            </div>
+            <div class="col-9" style="display:flex;justify-content: center;align-items: center;">
+                <div class="container" style="display: flex;justify-content: start;align-items: center;" id="form-container">
+                    <form id="upload-form" action="upload_img" method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div>
+                            <input type="file" accept="image/*" alt="file_image" name="file_image"  id="file_image"style="color:#000000;width:100%">
+                        </div>    
+                    </form>
+                </div>
             </div>
         </div>
-        <div class="col">
-            <div id="image-container">
-                <!-- {% csrf_token %} -->
-                <img src="data:image/png;base64,{{ encoded_image }}" width="500" height="300" alt="Image" id="captured-image">
+        <div class="row">
+            <div class="col" style="display: flex;
+                justify-content: center;
+                align-items: center;
+               
+                ">
+                
+                <div class="row pt-2" style="display: flex;justify-content: center;">
+                    <div id="video-container" class="video-container"></div>
+                </div>
+
+                <div class="row pt-2" style="display: flex;justify-content: center;">
+                        
+                        
+                        <div id="image-container" class="image-container">
+                            {% csrf_token %} 
+                            <img id="uploaded-image" src="https://static.vecteezy.com/system/resources/previews/004/141/669/non_2x/no-photo-or-blank-image-icon-loading-images-or-missing-image-mark-image-not-available-or-image-coming-soon-sign-simple-nature-silhouette-in-frame-isolated-illustration-vector.jpg">
+
+                        </div>
+                    
+                </div>
             </div>
-            <div class="pt-2">
-                <button id="ocr-btn" class="btn btn-success btn-lg">OCR</button>
+        </div>
+    
+        <div class="row pb-3">
+            <div class="col d-flex" style="justify-content: flex-end;"">
+                <button id="ocr-btn" class="ocr-btn">
+                    <span class="text-white fw-bold">OCR</span>
+                    <i class="fa fa-search-plus" aria-hidden="true"></i>
+                </button>
+            </div>
+            <div class="col d-flex" style="justify-content: flex-start;">
+                {% url 'index' as index_url %}
+                    <button onclick="window.location.href = '{{ index_url }}'" class="btn btn-outline-primary fw-bold" 
+                    style="
+                           width: 90px;
+                           border-radius: 15px;
+                    "
+                    >Reset <i class="fa fa-refresh"></i></button>
+                <!-- <div class="container" style="display: grid; place-items: center;">
+                    {% url 'index' as index_url %}
+                    <button onclick="window.location.href = '{{ index_url }}'" class="btn btn-primary" 
+                    style="
+                           width: 350px;
+                    "
+                    >Reset <i class="fa-solid fa-rotate-right"></i></button>
+                </div> -->
+            </div>
+        </div>
+        
+
+    </div>
+            
+       
+
+
+    <div class="container pt-2" id="section2">
+        <div class="col text-center">
+            <h5 class="ocr-heading text-white" style="background-color: #1C045D; border-radius: 10px;">ขั้นตอนที่ 2.รู้จำภาพ</h5>
+        </div>
+        <div class="container" style="background-color: #C7DEFD;border-radius: 25px;">
+            
+            <div class="row pt-2" style="padding-left: 430px;" >
+                <!-- <button id="ocr-btn" class="btn btn-outline-warning w-50" >
+                    <i class="fa fa-font" aria-hidden="true"></i>
+                    <span class="text-decoration-underline text-dark">OCR BUTTON</span>
+                    <i class="fa fa-search" aria-hidden="true"></i>
+                </button> -->
             </div>
             
             <!-- OCR button and show text -->
-            <div class="col">
-                <div class="row border">
+            <div class="col pb-3" style="margin-bottom: 5px;">
+                <div class="row border pb-2" style="min-height: 50px; background-color: #ffffff;">
                     <div id="text-container">
                         <p id="text" style="font-size: 1.3em;"></p>
                         
                     </div>
                 </div>
-                <div class="row border">
-                    <div class="col-6">
+                <div class="row border pb-2" style="background-color: #F1F5F8;">
+                    <div class="col-md-6 ">
                         <div id="text-container">
-                            <form action="search_name" method="post" enctype="multipart/form-data" class="form-control">
+                            <form action="search_name" method="post" enctype="multipart/form-data" class="form-control w-100 border-0" id="searchForm" style="background-color: #F1F5F8;">
                                 {% csrf_token %}
-                                <input type="text" id="tag" value="{{tag.data}}" class="form-control" name="tag">
-                                <button type="submit" style="background-color: #ff000000; border-color: #5e525200;display: flex;  justify-content: flex-end;">
-                                    <i class="fa fa-search " aria-hidden="true" style="font-size: 2em;"></i>
-                                </button>
+                                <div class="input-group">
+                                    <span class="input-group-text" id="basic-addon1">ค้นหา</span>
+                                    <input type="text" id="tag" value="{{tag}}" class="form-control" name="tag">
+                                    <button type="submit" class="btn btn-primary" id="submitBtn">
+                                        <i class="fa fa-search" aria-hidden="true"></i>
+                                    </button>
+                                </div>
+                            
                             </form>
+                            
                         </div>
                     </div>
+                    <div class="col-6 pb-2">
                     
-                </div>
+                        <div class="row" style="max-height: 200px; overflow-y: auto; scrollbar-width: thin; scrollbar-color: gray gray;">
+                            {% for doc in document %}
+                            {% if document != ' ' %}
+                            <form method="post" action="get_document/{{ doc.id }}" enctype="multipart/form-data" class="form-control">
+                                {% csrf_token %}
+                                <button type="submit" class="card hover-effect" onclick="selectCard(this)">
+                                    <div class="name-room-container">
+                                        <span class="confident" style="
+                                        border: 2px solid #d57815; 
+                                        padding: 5px;
+                                        background-color: #d57815;
+                                        color: white;
+                                        border-radius: 5px;
+                                        width: 60px;
+                                        "
+                                        >
+                                            {{ doc.confidence}}
+                                        </span>
+                                        <span class="name">
+                                            {{ doc.firstname }} {{ doc.last_name }} 
+                                        </span>
+                                        <span class="room">
+                                            ห้อง {{ doc.room_num }}
+                                        </span>
+                                    </div>
+                                    <input type="hidden" name="id" value="{{ doc.id }}" class="form-control">
+                                    <input type="hidden" name="firstname" value="{{ doc.firstname }}" class="form-control">
+                                    <input type="hidden" name="last_name" value="{{ doc.last_name }}" class="form-control">
+                                    <input type="hidden" name="line_id" value="{{ doc.line_id }}" class="form-control">
+                                    <input type="hidden" name="room_num" value="{{ doc.room_num }}" class="form-control">
+                                </button>
+                            </form>
+                        
+                            
+                            {% elif document == ' ' %}
+                                <p>
+                                    ไม่พบข้อมูล
+                                </p>
+                            {% endif %}
 
-                {% for doc in document %}
-                      <div class="row">
-                        <div class="card">
-                            {{doc.firstname}}
-                            {{doc.last_name}} 
-                            {{doc.line_id}}
-                            {{doc.room_num}}
+                            {% endfor %}
                         </div>
-                      </div>
-                {% endfor %}
+                    </div>
 
-                
-                      
-              
-               
 
-             
-            </div>
 
             
+                </div>
+            
+                
+        
+            
+            
+            
+            
+            </div>
+        </div>
+    </div>
 
 
+    <div class="container pt-2">
+        <div class="col text-center">
+            <h5 class="ocr-heading text-white" style="background-color: #1C045D; border-radius: 10px;">ขั้นตอนที่ 3.บันทึกข้อมูลพัสดุ</h5>
+        </div>
 
-
+        <div class="container d-flex justify-content-center" style="background-color: #C7DEFD;border-radius: 25px;">
+            
+            <div style="border-radius: 25px; margin-top: 25px;" class="row pt-3 w-50 pb-3">
+                {% if result_parcels %}
+                <form action="{% url 'save_document' %}" method="post" enctype="multipart/form-data" class="form-control">
+                    {% csrf_token %}
+                    <label for="firstname" class="header">ชื่อ</label>
+                    <input type="text" name="firstname" value="{{result_parcels.firstname}}" class="form-control" readonly>
+                    <label for="last_name" class="header">นามสกุล</label>
+                    <input type="text" name="last_name" value="{{result_parcels.last_name}}" class="form-control" readonly>
+                    <label for="room_num" class="header">ห้อง</label>
+                    <input type="text" name="room_num" value="{{result_parcels.room_num}}" class="form-control" readonly>
+                    <div class="row">
+                        <div class="col">
+                            <label for="date" class="header">วันนำส่ง</label>
+                            <input type="date" name="dateInput" id="dateInput" value="{{dateInput}}" class="form-control" max="{{dateInput}}">
+                        </div>
+                        <div class="col">
+                            <label for="status" class="header" hidden>สถานะ</label>
+                            <input type="text" name="status" value="ยังไม่ได้รับ" class="form-control" readonly style="font-style: italic;" hidden>
+                        </div>
+                    </div>
+                    <div class="pt-2 w-50">
+                        <button type="submit" class="btn btn-success w-50">บันทึกพัสดุ</button>
+                    </div>
+                </form>
+                {% endif %}
+            </div>
 
         </div>
 
 
+
+
+
+
+
+
+
+
     </div>
-    <style>
-        body {
-            background-color: #EAE6DF;
-        }
-        h1 {
-            text-align: center;
-            margin-bottom: 10px;  
-            font-size: 48px;
-            font-weight: bold;
-            color: #622A1F;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4);
-        }
-    
-        .heading-container {
-            display: flex;
-            padding: 50px;
-            background-color: #ffffff;
-            border: 2px solid #964D32;
-            border-radius: 16px;
-            justify-content: center;
-            align-items: center;
-            height: 12vh;
-            width: 400px;
-        }
-        .container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin-bottom: 30px;
-            padding-top: 20px;
-        }
-        .border {
-            margin-bottom: 5px;
-            border: 2px solid #5e5252;
-            border-radius: 8px;
-            padding: 20px;
-            background-color: #B0B0B0;
-            margin: 10px;
-        }
-
-        PERSON {
-            font-weight: bold;
-            background-color: #FCE7F3;
-            color: #C55C4D;
-            /* Add more CSS properties as desired */
-        
-        }
-
-        PERSON::before {
-            font-size: 0.8em;
-            content: "PERSON";
-            color: rgb(255, 255, 255);
-            background-image: -webkit-gradient(linear, left top, left bottom, from(#ec489ab8), to(#ec489ab8));
-            border-radius: 15%;
-            padding-left: 5px;
-            padding-right: 5px;
-            /* Add more CSS properties as desired */
-        }
-    
-        
-    
-    </style>    
 
 
 
 
-    
+
+
+
+
+
+
+
+
+
 
 
 </body>
+
+<style>
+    .ocr-btn{
+        display: inline-block;
+        padding: 15px 25px;
+        font-size: 18px;
+        cursor: pointer;
+        text-align: center;
+        text-decoration: none;
+        outline: none;
+        color: #fff;
+        background-color: #1C045D;
+        border: none;
+        border-radius: 15px;
+        box-shadow: 0 9px #999;
+    }
+    .ocr-btn:hover {background-color: #0D6EFD}
+
+    .ocr-btn:active {
+      background-color: #1C045D;
+      box-shadow: 0 10px #666;
+      transform: translateY(4px);
+    }
+    
+    .header {
+        font-size: 15px;
+        font-weight: bold;
+        color: #000000;
+    }
+
+    h1 {
+        text-align: center;
+        margin-bottom: 10px;
+        font-size: 48px;
+        font-weight: bold;
+        color: #622A1F;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4);
+    }
+    .heading-container {
+        display: flex;
+        padding: 50px;
+        background-color: #413939;
+        border: 2px solid #964D32;
+        border-radius: 16px;
+        justify-content: center;
+        align-items: center;
+        height: 12vh;
+        width: 400px;
+    }
+    .border {
+        margin-bottom: 5px;
+        border: 2px solid #5e5252;
+        border-radius: 8px;
+        padding: 20px;
+        background-color: #B0B0B0;
+        margin: 10px;
+    }
+    PERSON {
+        font-weight: bold;
+        background-color: #FCE7F3;
+        color: #C55C4D;
+        /* Add more CSS properties as desired */
+    }
+    PERSON::before {
+        font-size: 0.8em;
+        content: "PERSON";
+        color: rgb(255, 255, 255);
+        background-image: -webkit-gradient(linear, left top, left bottom, from(#ec489ab8), to(#ec489ab8));
+        border-radius: 15%;
+        padding-left: 5px;
+        padding-right: 5px;
+        /* Add more CSS properties as desired */
+    }
+    /* .open-camera {
+        display: flex;
+        justify-content: center;
+    } */
+    .open-camera{
+        display: flex;
+        justify-content: center;
+        background-color: #5C636A;
+        border-radius: 15px;
+        
+        
+        height: 60px;
+        margin: 20px;
+        align-items: center;
+            
+    }
+    .upload-image{
+        background-color: #5C636A;
+        border-radius: 15px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin: 20px;
+    }
+    input[type="file"] {
+        padding: 4px;
+        margin: -4px;
+        position: relative;
+        outline: none;
+        --primary-color: #000000;
+        /* File Selector Button Styles */
+        &::file-selector-button {
+          border-radius: 4px;
+          padding: 0 16px;
+          height: 40px;
+          cursor: pointer;
+          background-color: #ffffff;
+          border: 1px solid rgba(#000000, 0.16);
+          box-shadow: 0px 1px 0px rgba(#000000, 0.05);
+          margin-right: 16px;
+        
+          /*
+            This is a hack to change the button label. 
+            I'm hiding the default label and then 
+            manually applying the width based on 
+            updated icon and label.
+          */
+          width: 132px;
+          color: transparent;
+        
+          /*
+            Firefox doesn't support the pseudo ::before 
+            or ::after elements on this input field so 
+            we need to use the @supports rule to enable 
+            default styles fallback for Firefox.
+          */
+          @supports (-moz-appearance: none) {
+            color: var(--primary-color);
+          }
+      
+          &:hover {
+            background-color: #f5f6f3;
+          }
+      
+          &:active {
+            background-color: #e5e7eb;
+          }
+        }
+    
+        /* Faked label styles and icon */
+        &::before {
+          position: absolute;
+          pointer-events: none;
+          top: 14px;
+          left: 16px;
+          height: 20px;
+          width: 20px;
+          content: "";
+          background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%230964B0'%3E%3Cpath d='M18 15v3H6v-3H4v3c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2v-3h-2zM7 9l1.41 1.41L11 7.83V16h2V7.83l2.59 2.58L17 9l-5-5-5 5z'/%3E%3C/svg%3E");
+        }
+        &::after {
+          position: absolute;
+          pointer-events: none;
+          top: 16px;
+          left: 40px;
+          color: var(--primary-color);
+          content: "Upload File";
+        }
+    
+        /* Handle Component Focus */
+        &:focus-within::file-selector-button,
+        &:focus::file-selector-button {
+          outline: 2px solid var(--primary-color);
+          outline-offset: 2px;
+        }
+        &:focus-within::after,
+        &:focus::after {
+          color: var(--primary-color);
+        }
+    }
+    
+    .ocr-heading {
+        font-size: 24px;
+        font-weight: bold;
+        color: #ffffff;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4);
+    }
+    .video-container, .image-container {
+        position: relative;
+        width: 720px;
+        height: 480px;
+        max-width: 100%; 
+        max-height: 100%;
+        margin: 30px;
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        overflow: hidden;
+
+    
+    }
+    
+    #video, #captured-image, #uploaded-image {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: calc(100% - 0px);
+        height: calc(100% - 0px);
+        object-fit: contain;
+    }
+    .card-container {
+      flex: 0 0 auto;
+      width: 300px; /* Adjust the width as needed */
+      margin-right: 10px; /* Adjust the margin as needed */
+    }
+    .card {
+      background-color: #d3a2a250;
+      padding: 10px;
+      border-radius: 5px;
+    }
+    /* Styling for scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #f1f1f1;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: gray;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: darkgray;
+    }
+    .hover-effect:hover {
+        background-color: #f0f0f0;
+        cursor: pointer;
+    }
+    .selected {
+        background-color: #c0c0c0;
+        /* Add more styling properties as desired */
+    }
+    .name-room-container {
+        display: flex;
+        align-items: center;
+    }
+    .name {
+        font-weight: bold;
+        font-style: italic;
+        font-size: 1.2em;
+        margin-right: 10px;
+    }
+    .room {
+        font-size: 1.1em;
+    }
+    .confidence{
+        font-size: 1.1em;
+        font-style: italic;
+        
+    }
+    /* .loader {
+        border: 16px solid #F1F5F8; 
+        border-top: 16px solid #FDD835; 
+        border-radius: 50%;
+        width: 80px;
+        height: 80px;
+        animation: spin 2s linear infinite;   
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    } */
+    .loader {
+      top: 0;
+      bottom: 0;
+      left: 0;
+      right: 0;
+    }
+    .jimu-primary-loading:before,
+    .jimu-primary-loading:after {
+      position: absolute;
+      top: 0;
+      content: '';
+    }
+    .jimu-primary-loading:before {
+      left: -19.992px;
+    }
+    .jimu-primary-loading:after {
+      left: 19.992px;
+      -webkit-animation-delay: 0.32s !important;
+      animation-delay: 0.32s !important;
+    }
+    .jimu-primary-loading:before,
+    .jimu-primary-loading:after,
+    .jimu-primary-loading {
+      background: #1C045D;
+      -webkit-animation: loading-keys-app-loading 0.8s infinite ease-in-out;
+      animation: loading-keys-app-loading 0.8s infinite ease-in-out;
+      width: 13.6px;
+      height: 32px;
+    }
+    .jimu-primary-loading {
+      text-indent: -9999em;
+      margin: 50px auto 0;
+      position: absolute;
+      right: calc(50% - 6.8px);
+      top: calc(50% - 16px);
+      -webkit-animation-delay: 0.16s !important;
+      animation-delay: 0.16s !important;
+    }
+    @-webkit-keyframes loading-keys-app-loading {
+    
+      0%,
+      80%,
+      100% {
+        opacity: .75;
+        box-shadow: 0 0 #1C045D;
+        height: 32px;
+      }
+    
+      40% {
+        opacity: 1;
+        box-shadow: 0 -8px #1C045D;
+        height: 40px;
+      }
+    }
+    @keyframes loading-keys-app-loading {
+    
+      0%,
+      80%,
+      100% {
+        opacity: .75;
+        box-shadow: 0 0 #1C045D;
+        height: 32px;
+      }
+    
+      40% {
+        opacity: 1;
+        box-shadow: 0 -8px #1C045D;
+        height: 40px;
+      }
+    }
+    /* .loader-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100%;
+    } */
+    .modal-dialog {
+        max-width: 1000px; /* Set your desired width here */
+    }
+    #camera-option {
+        margin-top: 20px;
+        margin-bottom: 20px;
+        width: 300px;
+        
+    }
+    #camera-option:focus {
+        border: #1C045D solid 2px;
+        box-shadow: #C7DEFD 0px 0px 0px 5px;
+    }
+    #upload-form:hover {
+        border: #C7DEFD solid 2px;
+        box-shadow: #C7DEFD 0px 0px 0px 5px;
+    }
+
+        
+
+</style>
 
 
 

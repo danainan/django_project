@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz"
+    crossorigin="anonymous"></script>
+    
+    <title>แก้ไขห้องพัก</title>
+
+    <style>
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            color: #000000;
+        }
+
+        h1, h3 {
+            font-family: 'Poppins', sans-serif;
+            text-align: center;
+            margin: 3rem 0;
+        }
+
+        .card.bg-dark {
+            background-color: #141414; 
+        }
+
+        .card.bg-dark .form-control {
+            background-color: #ffffff;
+            color: #000000; 
+        }
+
+        .card.bg-dark label {
+            font-weight: bold;
+        }
+        
+        .btn-primary {
+          background-color: #ffffff;
+          color: #080710;
+        }
+
+        #room_cap:focus {
+            border: #1C045D solid 2px;
+            box-shadow: #C7DEFD 0px 0px 0px 5px;
+            
+        }
+
+        #room_num:focus {
+            border: #1C045D solid 2px;
+            box-shadow: #C7DEFD 0px 0px 0px 5px;
+        }
+
+    </style>
+</head>
+<script>
+    function validateNumberInput(inputElement) {
+        inputElement.value = inputElement.value.replace(/\D/g, '');
+    }
+</script>
+<body style="background-color: #F1F5F8;">
+    {% include 'std/navbar.html' %}
+    <div class="container">
+        <div class="row">
+            <div class="col">
+                <div id="alert-container">
+                    {% if error_message %}
+                    <div class="alert alert-danger">{{ error_message }}</div>
+                    {% endif %}
+                    {% for message in messages %}
+                    <div class="alert alert-warning">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="container" style="display: flex;
+        justify-content: center; 
+        align-items: center; ">
+       <div class="card" style="width: 50rem;margin-top: 100px;">
+            <h4 class="card-header border-0" style="background-color: #C7DEFD;color: #1C045D;height: 5rem;justify-content: center;display: flex;align-items: center;">แก้ไขห้องพัก</h4>
+                <div class="card-body">
+                    <form action="{% url 'update_room' room.id %}" method="POST">
+                        {% csrf_token %}
+                        <div class="md-3">
+                            <div class="md-3">
+                                <label for="room_num">หมายเลขห้องพัก</label>
+                                <input name="room_number" type="text" id="room_num" class="form-control" value="{{ room.room_number }}" readonly>
+                            </div>
+                            <div class="md-3">
+                                <div class="md-3">
+                                    <label for="room_cap">จำนวนผู้พักอาศัยในห้องพัก</label>
+                                    <select name="room_capacity" id="room_cap" class="form-control">
+                                        <option value="1">1 คน</option>
+                                        <option value="2">2 คน</option>
+                                        <option value="3">3 คน</option>
+                                        <option value="4">4 คน</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="container my-3">
+                                <button class="btn btn-success">
+                                    บันทึก
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+    </div>
+    
+<!-- ใช้เเสดงข้อความเเจ้งเตือนหากกดค้นหาโดยไม่ได้ป้อนอะไร -->
+<script>
+    function hideAlert() {
+        var alertContainer = document.getElementById('alert-container');
+        alertContainer.style.display = 'none';
+    }
+    setTimeout(hideAlert, 2500);
+</script>
+
+<!-- Optional JavaScript -->
+<!-- jQuery first, then Popper.js, then Bootstrap JS -->
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+</body>
+</html>

@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz"
+    crossorigin="anonymous"></script>
+    <script src="https://kit.fontawesome.com/b56c1cd1e7.js" crossorigin="anonymous"></script>
+
+    <title>รายการพัสดุ</title>
+
+    <style>
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            color: #000000;
+        }
+
+        h1, h3 {
+            font-family: 'Poppins', sans-serif;
+            text-align: center;
+            margin: 3rem 0;
+        }
+
+        .btn-primary {
+          background-color: #ffffff;
+          color: #080710;
+        }
+
+        a.sort-link {
+        color: black; /* กำหนดสีตัวอักษรเป็นสีดำ */
+        text-decoration: none; /* ลบขีดเส้นใต้ลิงก์ */
+        }
+
+        table {
+            border-collapse: collapse;
+            border-radius: 1em;
+            overflow: hidden;
+        }
+
+        .table th {
+            position: sticky;
+            top: 0; 
+            z-index: 1;
+        }
+
+        input[type=text]:focus {
+            border: #1C045D solid 2px;
+            box-shadow: #3b8af0 0px 0px 0px 5px;
+         
+        }
+        #sum_all_text {
+            text-decoration: underline;
+            color: #3b8af0;
+            
+        }
+
+        #sum_all_text:hover {
+            color: #1C045D;
+        }
+
+        #btn-search-hover {
+            background-color: #ffffff;
+            color: #1C045D;
+            border-color: #1C045D;
+        }
+        #btn-search-hover:hover {
+            background-color: #3b8af0;
+            color: #ffffff;
+        }
+
+
+    </style>
+    
+</head>
+
+<body style="background-color: #F1F5F8;">
+    {% include 'std/navbar.html' %}
+    <div class="container pt-2">
+        <div class="col justify-content-center">
+            <div class="row-md-10">
+                {% if messages %}
+                <div class="container">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div id="alert-container">
+                                {% for message in messages %}
+                                <div class="alert alert-warning">{{ message }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+                <form method="GET">
+                    <div class="input-group mb-3">
+                        <span class="input-group-text" id="basic-addon1"><i class="fa fa-search" aria-hidden="true"></i></span>
+                        <input type="text" name="search" class="form-control" placeholder="ค้นหาด้วยชื่อ-นามสกุล หรือ หมายเลขห้องพัก">
+                        <div class="input-group-append">
+                            <button type="submit" class="btn" id="btn-search-hover">ค้นหา</button>
+                        </div>
+                    </div>
+                </form>
+                <form method="GET">
+                    <div class="input-group mb-3">
+                        <a type="submit" href="/project/summary/" id="sum_all_text">แสดงรายการพัสดุทั้งหมด</a>
+                    </div>
+                </form>
+                
+
+                
+                <div class="container" style="background-color: #C7DEFD;border-radius: 25px;padding:10px 10px 25px 10px;">
+                    <h4 class="text-center my-3" style="color: #1C045D">พัสดุที่ยังไม่ได้รับ</h4>
+                
+                <form method="POST" action="{% url 'save_status' %}">
+                    <div style="max-height: 500px; overflow-y: auto; scrollbar-width: thin; scrollbar-color: gray gray;">
+                        {% csrf_token %}
+                        <table class="table table-striped table-hover">
+                            <thead>
+                                <tr>
+                                    <th scope="col">
+                                        <a class="sort-link" href="?sort_room={{ sort_room_order }}">หมายเลขห้องพัก <i class="fas fa-sort"></i></a>
+                                    </th>                                                                      
+                                    <th scope="col">ชื่อ-นามสกุล</th>
+                                    <th scope="col">
+                                        <a class="sort-link" href="?sort={{ sort_order }}">วันที่พัสดุจัดส่ง <i class="fas fa-sort"></i></a>
+                                    </th>
+                                    <th scope="col">สถานะพัสดุ</th>
+                                    <th scope="col"></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for document in documents %}
+                                <tr>
+                                    <td>{{ document.room_num }}</td>
+                                    <td>{{ document.firstname }} {{document.last_name}}</td>
+                                    <td>{{ document.date }}</td>
+                                    
+                                    <td>
+                                        <input type="radio" name="status_{{ document.pk }}" value="รับแล้ว" {% if document.status == 'รับแล้ว' %}checked{% endif %}>
+                                        รับแล้ว
+                                    </td>
+                                    <td>
+                                        <input type="radio" name="status_{{ document.pk }}" value="ยังไม่ได้รับ" {% if document.status == 'ยังไม่ได้รับ' %}checked{% endif %}>
+                                        ยังไม่รับ
+                                    </td>
+
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="d-flex justify-content-end pt-2">
+                        <button type="submit" class="btn btn-warning" style="margin-right: 20px;">บันทึก</button>
+                    </div>
+                    
+                    
+                    </div>
+                   
+                    <hr>
+                    <h4 class="text-center my-3">พัสดุที่รับแล้ว</h4>
+                    <div style="max-height: 300px; overflow-y: auto; scrollbar-width: thin; scrollbar-color: gray gray;">
+                        
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th scope="col">หมายเลขห้องพัก</th>
+                                    <th scope="col">ชื่อ-นามสกุล</th>
+                                    <th scope="col">วันที่พัสดุจัดส่ง</th>
+                                    <th scope="col">สถานะพัสดุ</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for document in received_documents %}
+                                <tr>
+                                    <td>{{ document.room_num }}</td>
+                                    <td>{{ document.firstname }} {{document.last_name}}</td>
+                                    <td>{{ document.date }}</td>
+                                    <td>{{ document.status }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </form>
+
+                <div class="container pt-2">
+                    <form method="POST" action="{% url 'save_img' %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-success"><i class="fa-brands fa-line"> ส่งข้อมูลไปยังกลุ่ม</i></button>
+                    </form>
+    
+    
+                    <div class="row">
+                        <p>เปลี่ยนกลุ่มไลน์ Notify <span><a href="/linelogin">
+                            >> เชื่อมต่อ <<
+                        </a></span></p>
+                    </div>
+                </div>
+
+                
+                
+
+
+
+                
+        </div>
+
+
+<!-- ใช้เเสดงข้อความเเจ้งเตือนหากกดค้นหาโดยไม่ได้ป้อนอะไร -->
+<script>
+    function hideAlert() {
+        var alertContainer = document.getElementById('alert-container');
+        alertContainer.style.display = 'none';
+    }
+    setTimeout(hideAlert, 3000);
+
+</script>
+
+
+</body>
+</html>

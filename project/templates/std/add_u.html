@@ -6,7 +6,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
     <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz"
+    crossorigin="anonymous"></script>
 
     <title>ADMIN</title>
 
@@ -29,8 +33,8 @@
         }
 
         .card.bg-dark .form-control {
-            background-color: #1d1d1d;
-            color: #fff; 
+            background-color: #ffffff;
+            color: #000000; 
         }
 
         .card.bg-dark label {
@@ -42,56 +46,93 @@
           color: #080710;
         }
 
+        input[type=text]:focus {
+            border: #1C045D solid 2px;
+            box-shadow: #C7DEFD 0px 0px 0px 5px;
+         
+        }
+
+        #room_num:focus {
+            border: #1C045D solid 2px;
+            box-shadow: #C7DEFD 0px 0px 0px 5px;
+        }
+
+        #room_num{
+            background-image: url("https://static.thenounproject.com/png/1586563-200.png");
+            background-repeat: no-repeat;
+            background-position: right 0.7em top 50%, 0 0;
+            background-size: 1.5em auto, 100%;
+        }
+        
+
+        
+
+        
     </style>
 
 </head>
-<body>
+<body style="background-color: #F1F5F8;">
 {% include 'std/navbar.html' %}
-<h1 class="text-center my-3">เพิ่มสมาชิกในหอพัก</h1>
-<div class="container">
-    <div class="row">
-        <div class="col-md-6 offset-md-3">
-            <div class="card bg-dark text-white">
-                <div class="card-body">
-                    <form action="/project/add-users/" method="POST">
-                        {% csrf_token %}
-                        <div class="md-3">
-                            <div class="md-3">
-                                <label for="firstname">ชื่อ</label>
-                                <input name="project_firstname" type="text" id="firstname" class="form-control" placeholder="ชื่อผู้อาศัย">
-                            </div>
-                            <div class="md-3">
-                                <label for="last_name">นามสกุล</label>
-                                <input name="project_last_name" type="text" id="last_name" class="form-control" placeholder="นามสกุลผู้อาศัย">
-                            </div>
-                            <div class="md-3">
-                                <label for="line_id">Line ID</label>
-                                <input name="project_line_id" type="text" id="line_id" class="form-control" placeholder="Line ID ผู้อาศัย">
-                            </div>
-                            <div class="md-3">
-                                <label for="room_num">ห้องพัก</label>
-                                <select name="project_room_num" id="room_num">
-                                    {% for room in rooms %}
-                                        <option value="{{ room.room_number }}">{{ room.room_number }}</option>
+<div class="container" style="display: flex;
+justify-content: center; 
+align-items: center; ">
+    
+    <div class="card" style="width: 50rem;margin-top: 100px;">
+        <h4 class="card-header border-0" style="background-color: #C7DEFD;color: #1C045D;height: 5rem;justify-content: center;display: flex;align-items: center;">เพิ่มรายชื่อผู้เข้าพัก</h4>
+        <div class="container">
+            <div class="row">
+                <div class="col" style="justify-content: center;">
+                    <div class="card text-dark border-0">
+                        <div class="card-body">
+                            <form action="/project/add-users/" method="POST">
+                                {% csrf_token %}
+                                <div class="md-3">
+                                    <div class="md-3">
+                                        <label for="room_num">ห้องพัก</label>
+                                        <select name="project_room_num" id="room_num" class="form-control">
+                                            {% for room_option in room_options %}
+                                                <option value="{{ room_option.0 }}">{{ room_option.1}} </option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    <div class="md-3">
+                                        <label for="firstname">ชื่อ</label>
+                                        <input name="project_firstname" type="text" id="firstname"      class="form-control" placeholder="ชื่อ">
+                                    </div>
+                                    <div class="md-3">
+                                        <label for="last_name">นามสกุล</label>
+                                        <input name="project_last_name" type="text" id="last_name"      class="form-control" placeholder="นามสกุล">
+                                    </div>
+                                    <div class="md-3">
+                                        <label for="line_id">Line ID</label>
+                                        <input name="project_line_id" type="text" id="line_id"  class="form-control"     placeholder="Line ID" onkeypress="return    (event.charCode >= 64 && event.    charCode <= 90) || (event.charCode  >= 97 && event.charCode <= 122) ||   (event.charCode >= 32 && event. charCode <= 57 )"> 
+                                    {% if room_full %}
+                                        <p class="text-danger">ห้องพักเต็มแล้ว ไม่สามารถเพิ่มสมาชิกได้</p>
+                                    {% endif %}
+                                    {% if room_not_found %}
+                                        <p class="text-danger">ไม่พบห้องพักที่ระบุ</p>
+                                    {% endif %}
+                                    
+                                    {% for message in messages %}
+                                        <div class="alert alert-danger">{{ message }}</div>
                                     {% endfor %}
-                                </select>
-                                {% if room_full %}
-                                    <p style="color: red;">ห้องพักเต็มแล้ว ไม่สามารถเพิ่มสมาชิกได้</p>
-                                {% endif %}
-                            </div>
-                            <div class="container my-3">
-                                <button class="btn btn-primary">
-                                    บันทึกข้อมูล
-                                </button>
-                            </div>
-
-                        </div>  
-                    </form>
+                                    
+                                    </div>               
+                                    <div class="container pt-2">
+                                        <button class="btn btn-success">
+                                        บันทึก
+                                        </button>
+                                    </div>
+                                </div>  
+                            </form>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
 
 <!-- Optional JavaScript -->
 <!-- jQuery first, then Popper.js, then Bootstrap JS -->
