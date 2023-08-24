@@ -51,10 +51,20 @@ def index(request, *args, **kwargs):
 
 
 
-    image = 'https://baj.by/sites/default/files/event/preview/thumb-padrao-video.png'
+    image = ''
 
     return render(request, 'index.html', {'image': image})
     
+def camera_selection(request):
+    devices = []
+    for i in range(10):  
+        cap = cv2.VideoCapture(i, cv2.CAP_DSHOW)
+        if cap.isOpened():
+            devices.append(f"Camera {i}")
+            cap.release()  # Release the camera resource
+    return render(request, 'index.html', {'devices': devices})
+
+
 
 
 status = {"new_image_available": False}
@@ -431,6 +441,8 @@ def ocr(request):
 
             print('ผู้ส่ง:', sender)
             print('ผู้รับ:', receiver)
+
+            os.remove(media_path)
 
         
             return JsonResponse({'tag1': sender, 'tag': receiver, 'text': _engine.tag(text,tag=True)}, status=200)

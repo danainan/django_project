@@ -1,5 +1,1 @@
-ocr/media/capture.jpg
-ocr/templates/index.html
-ocr/templates/navbar.html
-ocr/urls.py
-ocr/views.py
+ocr/*

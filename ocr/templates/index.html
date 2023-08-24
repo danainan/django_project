@@ -144,6 +144,9 @@
                         <span style="background-color: rgb(47, 143, 181); padding: 2px;">'ถ่ายภาพ'</span> 
                         
                 </p></div>
+                <div class="card">
+                    
+                </div>
                 <img src="{% url 'livefe' %}">`);
                 $("#image-container").hide();
                 $("#form-container").hide();
@@ -313,14 +316,14 @@
     <div class="container pt-2" >
 
     
-        <div class="col text-center pt-2 " style="background-color: #7E6701; border-radius: 10px;">
+        <div class="col text-center pt-2 " style="background-color: #1C045D; border-radius: 10px;">
             <h5 class="ocr-heading text-white">ขั้นตอนที่ 1.นำเข้ารูปภาพ</h5>
         </div>
     </div>
 
     
     
-    <div class="container" style="border-radius: 25px;background-color: #FFFDE7;">
+    <div class="container" style="border-radius: 25px;background-color: #C7DEFD;">
         <div class="row pt-3" style="display: flex;justify-content: center;">
             <div class="col-3">
                 <select id="camera-option" class="form-select">
@@ -333,7 +336,7 @@
                     <form id="upload-form" action="upload_img" method="post" enctype="multipart/form-data">
                         {% csrf_token %}
                         <div>
-                            <input type="file" accept="image/*" alt="file_image" name="file_image"      id="file_image"style="color:#000000;width:100%">
+                            <input type="file" accept="image/*" alt="file_image" name="file_image"  id="file_image"style="color:#000000;width:100%">
                         </div>    
                     </form>
                 </div>
@@ -374,7 +377,7 @@
                 {% url 'index' as index_url %}
                     <button onclick="window.location.href = '{{ index_url }}'" class="btn btn-outline-primary fw-bold" 
                     style="
-                           width: 70px;
+                           width: 90px;
                            border-radius: 15px;
                     "
                     >Reset <i class="fa fa-refresh"></i></button>
@@ -397,9 +400,9 @@
 
     <div class="container pt-2" id="section2">
         <div class="col text-center">
-            <h5 class="ocr-heading text-white" style="background-color: #7E6701; border-radius: 10px;">ขั้นตอนที่ 2.รู้จำภาพ</h5>
+            <h5 class="ocr-heading text-white" style="background-color: #1C045D; border-radius: 10px;">ขั้นตอนที่ 2.รู้จำภาพ</h5>
         </div>
-        <div class="container" style="background-color: #FFFDE7;border-radius: 25px;">
+        <div class="container" style="background-color: #C7DEFD;border-radius: 25px;">
             
             <div class="row pt-2" style="padding-left: 430px;" >
                 <!-- <button id="ocr-btn" class="btn btn-outline-warning w-50" >
@@ -498,10 +501,10 @@
 
     <div class="container pt-2">
         <div class="col text-center">
-            <h5 class="ocr-heading text-white" style="background-color: #7E6701; border-radius: 10px;">ขั้นตอนที่ 3.บันทึกข้อมูลพัสดุ</h5>
+            <h5 class="ocr-heading text-white" style="background-color: #1C045D; border-radius: 10px;">ขั้นตอนที่ 3.บันทึกข้อมูลพัสดุ</h5>
         </div>
 
-        <div class="container d-flex justify-content-center" style="background-color: #FFFDE7;border-radius: 25px;">
+        <div class="container d-flex justify-content-center" style="background-color: #C7DEFD;border-radius: 25px;">
             
             <div style="border-radius: 25px; margin-top: 25px;" class="row pt-3 w-50 pb-3">
                 {% if result_parcels %}
@@ -569,15 +572,15 @@
         text-decoration: none;
         outline: none;
         color: #fff;
-        background-color: #FDD835;
+        background-color: #1C045D;
         border: none;
         border-radius: 15px;
         box-shadow: 0 9px #999;
     }
-    .ocr-btn:hover {background-color: #F1F5F8}
+    .ocr-btn:hover {background-color: #0D6EFD}
 
     .ocr-btn:active {
-      background-color: #FDD835;
+      background-color: #1C045D;
       box-shadow: 0 10px #666;
       transform: translateY(4px);
     }
@@ -748,13 +751,11 @@
         background-size: cover;
         background-position: center;
         background-repeat: no-repeat;
-        border-radius: 10px;
         overflow: hidden;
+
     
     }
-    .image-container {
-        margin-right: 30px; /* Add margin on the right side */
-    }
+    
     #video, #captured-image, #uploaded-image {
         position: absolute;
         top: 0;
@@ -847,7 +848,7 @@
     .jimu-primary-loading:before,
     .jimu-primary-loading:after,
     .jimu-primary-loading {
-      background: #FDC350;
+      background: #1C045D;
       -webkit-animation: loading-keys-app-loading 0.8s infinite ease-in-out;
       animation: loading-keys-app-loading 0.8s infinite ease-in-out;
       width: 13.6px;
@@ -855,7 +856,7 @@
     }
     .jimu-primary-loading {
       text-indent: -9999em;
-      margin: 30px auto 0;
+      margin: 50px auto 0;
       position: absolute;
       right: calc(50% - 6.8px);
       top: calc(50% - 16px);
@@ -868,13 +869,13 @@
       80%,
       100% {
         opacity: .75;
-        box-shadow: 0 0 #FDC350;
+        box-shadow: 0 0 #1C045D;
         height: 32px;
       }
     
       40% {
         opacity: 1;
-        box-shadow: 0 -8px #FDC350;
+        box-shadow: 0 -8px #1C045D;
         height: 40px;
       }
     }
@@ -884,13 +885,13 @@
       80%,
       100% {
         opacity: .75;
-        box-shadow: 0 0 #FDC350;
+        box-shadow: 0 0 #1C045D;
         height: 32px;
       }
     
       40% {
         opacity: 1;
-        box-shadow: 0 -8px #FDC350;
+        box-shadow: 0 -8px #1C045D;
         height: 40px;
       }
     }
@@ -910,8 +911,12 @@
         
     }
     #camera-option:focus {
-        border: #FDC350 solid 2px;
-        box-shadow: #FFFDE7 0px 0px 0px 5px;
+        border: #1C045D solid 2px;
+        box-shadow: #C7DEFD 0px 0px 0px 5px;
+    }
+    #upload-form:hover {
+        border: #C7DEFD solid 2px;
+        box-shadow: #C7DEFD 0px 0px 0px 5px;
     }
 
         

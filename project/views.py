@@ -152,22 +152,30 @@ def save_img(request):
     
     client.close()
 
-    
-    
+    #remove all file
+    path = os.path.join(settings.MEDIA_PROJECT)
+    for file in os.listdir(path):
+        os.remove(os.path.join(path, file))
 
 
-
-
-    # คืนค่าเพื่อบอกว่าฟังก์ชันทำงานเสร็จสิ้น
     return redirect('summary')
 
 def line_notify(messeageLine, dateToday):
-    token = Token.objects.last()
+   
+    
+    tokens = Token.objects.all()
+
+
+    token = max(tokens, key=attrgetter('created_at'))
+
+
+
 
     if token is None:
         return redirect('line_login')
     
     line_notify_token = token.token
+    print('Lasted Token line notify ====>>>>>> ',line_notify_token)
     line_notify_api_url = "https://notify-api.line.me/api/notify"
     headers = {
          "Authorization": f"Bearer {line_notify_token}"
