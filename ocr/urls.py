@@ -13,5 +13,6 @@ urlpatterns = [
         path('save_document', save_document, name='save_document'),
         path('reset_camera', index, name='reset_camera'),
         path('reset_cam', reset_camera, name='reset_cam'),
+        path('save_image', save_image, name='save_image')
 
 ]

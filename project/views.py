@@ -134,17 +134,21 @@ def save_img(request):
 
     
     
-    if not df_selected_today.empty:
-        create_and_save_table_plot(df_selected_today, today_title, 'วันนี้.png')
-        line_notify(today_title,dateToday)
+    token = Token.objects.all()
+    if not token:
+        return redirect('line_login')
     else:
-        line_notify('ไม่มีพัสดุสำหรับวันนี้',dateToday)
-      
-    if not df_selected_other.empty:
-        create_and_save_table_plot(df_selected_other, other_title, 'วันอื่นๆ.png')
-        line_notify(other_title,dateToday)
-    else:
-        line_notify('ไม่มีพัสดุค้างรับ',dateToday)
+        if not df_selected_today.empty:
+            create_and_save_table_plot(df_selected_today, today_title, 'วันนี้.png')
+            line_notify(today_title,dateToday)
+        else:
+            line_notify('ไม่มีพัสดุสำหรับวันนี้',dateToday)
+
+        if not df_selected_other.empty:
+            create_and_save_table_plot(df_selected_other, other_title, 'วันอื่นๆ.png')
+            line_notify(other_title,dateToday)
+        else:
+            line_notify('ไม่มีพัสดุค้างรับ',dateToday)
 
 
     # line_notify_token = "CCDXvamsMK3Cgcnu3k2sW5MdWgdLUvGbR7YtqteeH7W"
@@ -168,11 +172,6 @@ def line_notify(messeageLine, dateToday):
 
     token = max(tokens, key=attrgetter('created_at'))
 
-
-
-
-    if token is None:
-        return redirect('line_login')
     
     line_notify_token = token.token
     print('Lasted Token line notify ====>>>>>> ',line_notify_token)

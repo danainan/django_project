@@ -50,19 +50,12 @@ from django.core.serializers.json import DjangoJSONEncoder
 def index(request, *args, **kwargs):
 
 
-
     image = ''
+    
 
     return render(request, 'index.html', {'image': image})
     
-def camera_selection(request):
-    devices = []
-    for i in range(10):  
-        cap = cv2.VideoCapture(i, cv2.CAP_DSHOW)
-        if cap.isOpened():
-            devices.append(f"Camera {i}")
-            cap.release()  # Release the camera resource
-    return render(request, 'index.html', {'devices': devices})
+
 
 
 
@@ -203,6 +196,7 @@ def gen(camera, request):
                 camera.save_img()
                 camera.send_image(request)
                 break
+            camera.release_camera()
 
 
     else:
@@ -245,7 +239,22 @@ def livefe(request):
             cam = None
             
 
+def save_image(request):
+    if request.method == 'POST':
+        print('save')
+        image_data = request.POST.get('image_data')  # This should contain the data URL of the image
+        if image_data:
+            # Remove the "data:image/png;base64," prefix
+            image_data = image_data.replace('data:image/png;base64,', '')
 
+            # Decode base64 image data and save it
+            image_data = image_data.encode()
+            with open(os.path.join(settings.MEDIA_ROOT, 'capture.jpg'), 'wb') as f:
+                f.write(base64.b64decode(image_data))
+
+            return JsonResponse({'success': True})
+
+    return JsonResponse({'success': False})
    
     
 
@@ -469,6 +478,12 @@ def remove_prefix(person):
 
 
 def search_name(request):
+
+    
+
+
+
+
     if request.method == 'POST':
         search_string = request.POST.get('tag')
         text = request.POST.get('text')
