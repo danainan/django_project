@@ -39,6 +39,7 @@ import difflib
 import json
 from django.core import serializers
 from django.core.serializers.json import DjangoJSONEncoder
+from django.contrib import messages
 
 
 
@@ -619,10 +620,10 @@ def save_document(request):
             date=current_time
         )
         d.save()
-
+        messages.success(request, 'บันทึกข้อมูลสำเร็จ')
         
 
-        return redirect('index')
+        return render(request, 'index.html', {'result': 'บันทึกข้อมูลสำเร็จ'})
 
     return redirect('index')
 

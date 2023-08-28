@@ -132,7 +132,8 @@
                                     <th scope="col">
                                         <a class="sort-link" href="?sort={{ sort_order }}">วันที่พัสดุจัดส่ง <i class="fas fa-sort"></i></a>
                                     </th>
-                                    <th scope="col">สถานะพัสดุ</th>
+                                    <th scope="col"><span><input type="checkbox" id="select-all">
+                                        <label for="select-all"></label>สถานะพัสดุ</th>
                                     <th scope="col"></th>
                                 </tr>
                             </thead>
@@ -142,15 +143,24 @@
                                     <td>{{ document.room_num }}</td>
                                     <td>{{ document.firstname }} {{document.last_name}}</td>
                                     <td>{{ document.date }}</td>
-                                    
+
                                     <td>
+                                        <input type="checkbox" name="status_{{ document.pk }}" value="รับแล้ว" {% if document.status == 'รับแล้ว' %}checked{% else %}unchecked{% endif %}>
+                                        รับแล้ว
+                                    </td>
+                                    
+                                    
+
+
+                                    
+                                    <!-- <td>
                                         <input type="radio" name="status_{{ document.pk }}" value="รับแล้ว" {% if document.status == 'รับแล้ว' %}checked{% endif %}>
                                         รับแล้ว
                                     </td>
                                     <td>
-                                        <input type="radio" name="status_{{ document.pk }}" value="ยังไม่ได้รับ" {% if document.status == 'ยังไม่ได้รับ' %}checked{% endif %}>
-                                        ยังไม่รับ
-                                    </td>
+                                        <input type="radio" name="status_{{ document.pk }}" value="ยังไม่ได้รับ" {% if document.status == 'ยังไม่ได้รับ' %}checked{% endif %} hidden>
+                                        
+                                    </td> -->
 
                                 </tr>
                                 {% endfor %}
@@ -175,7 +185,7 @@
                                     <th scope="col">หมายเลขห้องพัก</th>
                                     <th scope="col">ชื่อ-นามสกุล</th>
                                     <th scope="col">วันที่พัสดุจัดส่ง</th>
-                                    <th scope="col">สถานะพัสดุ</th>
+                                    <!-- <th scope="col">สถานะพัสดุ</th> -->
                                 </tr>
                             </thead>
                             <tbody>
@@ -184,7 +194,7 @@
                                     <td>{{ document.room_num }}</td>
                                     <td>{{ document.firstname }} {{document.last_name}}</td>
                                     <td>{{ document.date }}</td>
-                                    <td>{{ document.status }}</td>
+                                    <!-- <td>{{ document.status }}</td> -->
                                 </tr>
                                 {% endfor %}
                             </tbody>
@@ -222,6 +232,16 @@
         alertContainer.style.display = 'none';
     }
     setTimeout(hideAlert, 3000);
+
+    const selectAllCheckbox = document.getElementById('select-all');
+    const documentCheckboxes = document.querySelectorAll('tbody input[type="checkbox"]');
+
+    selectAllCheckbox.addEventListener('change', () => {
+        const isChecked = selectAllCheckbox.checked;
+        documentCheckboxes.forEach(checkbox => {
+            checkbox.checked = isChecked;
+        });
+    });
 
 </script>
 

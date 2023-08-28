@@ -314,6 +314,12 @@
         
     });
 
+    function hideAlert() {
+        var alertContainer = document.getElementById('alert-container');
+        alertContainer.style.display = 'none';
+    }
+    setTimeout(hideAlert, 3000);
+
     
 
     
@@ -432,6 +438,17 @@
                 </div>
             </div>
     
+        </div>
+    </div>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <div id="alert-container">
+                    {% for message in messages %}
+                    <div class="alert alert-success">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            </div>
         </div>
     </div>
     
