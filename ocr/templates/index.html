@@ -16,6 +16,8 @@
     integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz"
     crossorigin="anonymous"></script>
 <script src="https://kit.fontawesome.com/b56c1cd1e7.js" crossorigin="anonymous"></script>
+
+
 <script>
 
     $(document).ready(function () {
@@ -104,6 +106,7 @@
         document.getElementById("dateInput").setAttribute("max", formattedDate);
     });
 
+
     
 
 
@@ -126,37 +129,158 @@
 
     $(document).ready(function() {
         $("#video-container").hide();
-        
-        
-        
-        
+        $("#button-container").hide();
+        $("#text-container-q").hide();
 
-        $("#camera-option").change(function() {
+        $("#camera-option").change(async function() {
             var selectedOption = $(this).val();
             
+        
             if (selectedOption === "camera") {
                 // Show the video container and hide the image container
-                $("#video-container").show();
-                $("#video-container").prepend(`
-                <div style="display:flex;justify-content:center;">
-                <p style="color: rgb(0, 0, 0);">
-                        กดปุ่ม <span style="background-color: rgb(47, 143, 181); padding: 2px;">'Q'</span> บนคีย์บอร์ดเพื่อ
-                        <span style="background-color: rgb(47, 143, 181); padding: 2px;">'ถ่ายภาพ'</span> 
-                        
-                </p></div>
-                <div class="card">
-                    
-                </div>
-                <img src="{% url 'livefe' %}">`);
                 $("#image-container").hide();
                 $("#form-container").hide();
+                $("#video-container").show();
+                $("#button-container").show();
+                $("#text-container-q").show();
+                $("#video-container").empty();
+                try {
+                    var stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                    var videoElement = document.createElement('video');
+                    const captureButton = document.createElement('button');
+                    const flipButton = document.createElement('button');
+                    
+                    
+                    videoElement.className = 'video';
+                    videoElement.srcObject = stream;
+                    videoElement.autoplay = true;
+                    videoElement.setAttribute("playsinline", true);
+
+        
+                    $("#video-container").empty(); 
+                    $("#video-container").append(videoElement); 
+
+                    captureButton.innerHTML = '<i class="fa fa-circle fa-camera"></i>';
+                    captureButton.setAttribute('title', 'Capture');
+                    captureButton.classList.add('capture-button')
+                    $("#button-container").append(captureButton);
+
+                    
+                    flipButton.innerHTML = '<i class="fa fa-retweet"></i>';
+                    flipButton.setAttribute('title', 'Flip');
+                    flipButton.classList.add('flip-button')
+                    $("#button-container").append(flipButton);
+
+                   
+                    flipButton.addEventListener('click', function() {
+                        
+                        const video = document.querySelector('video');
+                        const facingMode = video.srcObject.getVideoTracks()[0].getSettings().facingMode;
+                        if (facingMode == 'environment') {
+                            video.srcObject.getVideoTracks()[0].stop();
+                            video.srcObject = null;
+                            navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } }).then(stream => {
+                                video.srcObject = stream;
+                            });
+                        } else {
+                            video.srcObject.getVideoTracks()[0].stop();
+                            video.srcObject = null;
+                            navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } }).then(stream => {
+                                video.srcObject = stream;
+                            });
+                        }
+
+                    });
+
+                    
+
+                    // captureButton.addEventListener('click', function() {
+                    function captureAndSave() {
+                        const canvas = document.createElement('canvas');
+                        const context = canvas.getContext('2d');
+                        const video = document.querySelector('video');
+
+                        var audio = new Audio('{% static "camera-shutter-click-03.mp3" %}');
+                        audio.play();
+                    
+                        canvas.width = video.videoWidth;
+                        canvas.height = video.videoHeight;
+                        context.drawImage(video, 0, 0);
+
+                        const image = document.createElement('img');
+                        image.src = canvas.toDataURL('image/png');
+                        image.width = 720;
+                        image.height = 480;
+                        const imageDataURL = image.src;
+                        $("#video-container").empty(); 
+                        $("#video-container").append(image); 
+                        stream.getVideoTracks()[0].stop(); 
+
+                        fetch("{% url 'save_image' %}", {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/x-www-form-urlencoded',
+                                'X-CSRFToken': '{{ csrf_token }}' 
+                            },
+                            body: `image_data=${encodeURIComponent(imageDataURL)}`
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                console.log('Image saved successfully.');
+                            } else {
+                                console.error('Image saving failed.');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error while saving image:', error);
+                        });
+
+                        
+                    }
+
+                    captureButton.addEventListener('click', captureAndSave);
+                    document.addEventListener('keydown', function(event) {
+                        if (event.key === 'q') {
+                            captureAndSave();
+                        }
+                    });
+                }
+                catch (error) {
+                    console.error('Error accessing webcam:', error);
+                }
+
+                    
+                    
+
+                // } catch (error) {
+                //     console.error('Error accessing webcam:', error);
+                // }
+
+
+
+                
             } else if (selectedOption === "upload") {
-                // Show the image container and hide the video container
+                const video = document.querySelector('video');
+                const stream = video.srcObject;
+                const tracks = stream.getTracks();
+                tracks.forEach(function(track) {
+                    track.stop();
+                });
+                video.srcObject = null;
+
+                $("#video-container").empty();
+                $("#button-container").empty();
+                $("#text-container-q").hide();
+                $("#video-container").hide();
+                $("#button-container").hide();
+
                 $("#image-container").show();
                 $("#form-container").show();
-                $("#video-container").hide();
-                $("#video-container").empty();
                 fetch("{% url 'reset_cam' %}")
+                
+                
+
             }
         });
 
@@ -190,6 +314,12 @@
         
     });
 
+    function hideAlert() {
+        var alertContainer = document.getElementById('alert-container');
+        alertContainer.style.display = 'none';
+    }
+    setTimeout(hideAlert, 3000);
+
     
 
     
@@ -219,7 +349,7 @@
     // });
 
 
-        // model ทุกครั้งที่เข้าหน้าเว็บ
+        // modal ทุกครั้งที่เข้าหน้าเว็บ
         // $(window).on('load', function () {
         //     $('#myModal').modal('show');
 
@@ -257,7 +387,7 @@
     //     }
     // });
 
-    
+
 
     
 
@@ -310,6 +440,17 @@
     
         </div>
     </div>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <div id="alert-container">
+                    {% for message in messages %}
+                    <div class="alert alert-success">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
     
     
 
@@ -328,6 +469,7 @@
             <div class="col-3">
                 <select id="camera-option" class="form-select">
                     <option value="upload" selected>&#128193 Upload Image</option>
+                    <option value="camera">&#128247 Open Camera</option>
                 </select>
             </div>
             <div class="col-9" style="display:flex;justify-content: center;align-items: center;">
@@ -348,8 +490,18 @@
                
                 ">
                 
-                <div class="row pt-2" style="display: flex;justify-content: center;">
+                <div class="row pt-2" style="display: flex;justify-content: center;" id="camera-section">
+                    <div id="text-container-q" style="display: flex;justify-content: center;">
+                        <p style="color: rgb(0, 0, 0);">
+                            กดปุ่ม <span style="background-color: rgb(47, 143, 181); padding: 2px;">'Q'</span> บนคีย์บอร์ดเพื่อ
+                            <span style="background-color: rgb(47, 143, 181); padding: 2px;">'ถ่ายภาพ'</span> 
+                            
+                        </p>
+                    </div>
                     <div id="video-container" class="video-container"></div>
+                    <div id="button-container" class="button-container" style="display: flex;justify-content: center;margin-bottom: 25px;"></div>
+
+                    
                 </div>
 
                 <div class="row pt-2" style="display: flex;justify-content: center;">
@@ -562,6 +714,65 @@
 </body>
 
 <style>
+    video{
+        position: block;
+        background: black;
+        width: 720px;
+        height: 480px;
+        max-width: 100%;
+        max-height: 100%;
+        color: white;
+        text-shadow: 1px 1px #000;
+        font-size: 1.2rem;
+        z-index: 9999;
+        display: block;
+      
+
+    }
+    .capture-button {
+        display: block;
+        border: none;
+        background-color: unset;
+        color: #ffffff;
+        position: absolute;
+        margin : -120px 0px 0px 0px;
+   
+    }
+    .capture-button:hover {
+        background-color: unset;
+        color: #2f0f5b;
+    }
+    
+
+    .fa-camera {
+        font-size: 5rem;
+    }
+
+    .fa-retweet {
+        font-size: 2.5rem;
+    }
+    
+    .flip-button {
+        display: block;
+        border: none;
+        background-color: unset;
+        color: #ffffff;
+        position: absolute;
+        margin : -100px 0px 0px 200px;
+    }
+
+    .flip-button:hover {
+        background-color: unset;
+        color: #2f0f5b;
+    }
+
+    
+
+        
+
+
+    
+
     .ocr-btn{
         display: inline-block;
         padding: 15px 25px;
