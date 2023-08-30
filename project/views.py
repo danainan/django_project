@@ -252,8 +252,19 @@ def summary(request):
 
     new_sort_room_order = 'asc' if sort_room_order == 'desc' else 'desc'
 
+    sort_name_order = request.GET.get('sort_name')
+    new_sort_name_order = 'asc'
+    if sort_name_order == 'asc':
+        documents = sorted(documents, key=lambda doc: doc.firstname)
+        new_sort_name_order = 'desc'
+    elif sort_name_order == 'desc':
+        documents = sorted(documents, key=lambda doc: doc.firstname, reverse=True)
+        new_sort_name_order = 'asc'
+
+    new_sort_name_order = 'asc' if sort_name_order == 'desc' else 'desc'
+
     
-    return render(request, 'std/summary.html', {'documents': documents, 'received_documents': received_documents, 'sort_order': new_sort_order, 'sort_room_order': new_sort_room_order})
+    return render(request, 'std/summary.html', {'documents': documents, 'received_documents': received_documents, 'sort_order': new_sort_order, 'sort_room_order': new_sort_room_order, 'sort_name_order': new_sort_name_order})
 
 
 def save_status(request):
