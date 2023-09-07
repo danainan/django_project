@@ -216,7 +216,8 @@ def summary(request):
             documents = Document.objects.filter(
                 Q(firstname__icontains=search_query) |
                 Q(last_name__icontains=search_query) |
-                Q(room_num__icontains=search_query) 
+                Q(room_num__icontains=search_query) |
+                Q(parcel_id__icontains=search_query)
             ).order_by('room_num','-date')
 
     else:

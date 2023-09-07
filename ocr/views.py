@@ -40,9 +40,12 @@ import json
 from django.core import serializers
 from django.core.serializers.json import DjangoJSONEncoder
 from django.contrib import messages
+from pyzbar.pyzbar import decode
+from qreader import QReader
 
-
-
+class ParcelsID(object):
+    def __init__(self) -> None:
+        self.parcel_id = ""
 
 
 
@@ -403,7 +406,7 @@ def get_person_names(text):
     return person
 
 
-
+detector = cv2.QRCodeDetector()
 def ocr(request):
     media_path = os.path.join(settings.MEDIA_ROOT, 'capture.jpg')
     ocr_path = os.path.join(settings.OCR_ROOT, 'tessdata_best-main')
@@ -425,6 +428,14 @@ def ocr(request):
         with PyTessBaseAPI(path=ocr_path, lang='tha+eng', oem=OEM.LSTM_ONLY, psm=PSM.AUTO_OSD) as api:
             api.SetImageFile(media_path)
             text = api.GetUTF8Text()
+            decode_text = ParcelsID.__init__
+            image = cv2.imread(media_path)
+            retval, decoded_info, points, straight_qrcode = detector.detectAndDecodeMulti(image)
+
+            if retval:
+                decode_text = decoded_info
+            else:
+                decode_text = "ไม่สามารถอ่าน Qrcode พัสดุได้"
 
 
             person_names = get_person_names(text)
@@ -455,7 +466,7 @@ def ocr(request):
             os.remove(media_path)
 
         
-            return JsonResponse({'tag1': sender, 'tag': receiver, 'text': _engine.tag(text,tag=True)}, status=200)
+            return JsonResponse({'parcel_id':decode_text ,'tag1': sender, 'tag': receiver, 'text': _engine.tag(text,tag=True)}, status=200)
 
     else:
         return JsonResponse({'tag1': 'ไม่พบข้อมูล', 'tag': 'ไม่พบข้อมูล', 'tex': _engine.tag(text,tag=True)}, status=200)
@@ -488,6 +499,7 @@ def search_name(request):
     if request.method == 'POST':
         search_string = request.POST.get('tag')
         text = request.POST.get('text')
+        parcel_id = request.POST.get('parcel_id')
         
 
         search_string_parts = search_string.split(' ')
@@ -533,6 +545,7 @@ def search_name(request):
 
         # Limit the number of results to improve performance
         matching_data_firstname = matching_data_firstname[:10]
+       
 
         if len(matching_data_firstname) == 1:
             result = db['project_users'].find_one({'firstname': matching_data_firstname[0]['firstname']})
@@ -544,7 +557,8 @@ def search_name(request):
                 'conf': confidence,
                 'result': matching_data_firstname[0],
                 'tag': search_string,
-                'text': text
+                'text': text,
+                'parcel_id':parcel_id
             }
 
             html_res = render(request, 'index.html', context)
@@ -605,25 +619,32 @@ def save_document(request):
         room_num = request.POST.get('room_num')
         status = request.POST.get('status')
         date = request.POST.get('dateInput')
+        parcel_id = request.POST.get('parcel_id')
 
         current_time = datetime.datetime.now()
         current_time = current_time.strftime(date+ f' {current_time.hour}:{current_time.minute}:{current_time.second}')
 
-    
-        
 
-        d = Document(
-            firstname=firstname,
-            last_name=last_name,
-            room_num=room_num,
-            status=status,
-            date=current_time
-        )
-        d.save()
-        messages.success(request, 'บันทึกข้อมูลสำเร็จ')
-        
-
-        return render(request, 'index.html', {'result': 'บันทึกข้อมูลสำเร็จ'})
+        try:
+            if not Document.objects.filter(parcel_id=parcel_id).exists():
+                d = Document(
+                    parcel_id=parcel_id,
+                    firstname=firstname,
+                    last_name=last_name,
+                    room_num=room_num,
+                    status=status,
+                    date=current_time
+                )
+                d.save()
+                messages.success(request, 'บันทึกข้อมูลสำเร็จ')
+                return render(request, 'index.html', {'result': 'บันทึกข้อมูลสำเร็จ'})
+            else:
+                messages.error(request, 'พัสดุนี้มีอยู่ในระบบแล้ว')
+                return render(request, 'index.html', {'result': 'พัสดุนี้มีอยู่ในระบบแล้ว'})
+        except:
+            messages.error(request, 'พัสดุนี้มีอยู่ในระบบแล้ว')
+            return render(request, 'index.html', {'result': 'พัสดุนี้มีอยู่ในระบบแล้ว'})
+            
 
     return redirect('index')
 

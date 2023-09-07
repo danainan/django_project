@@ -1,6 +1,7 @@
 from django.db import models
 
 class Document(models.Model):
+    parcel_id = models.CharField(max_length=100)
     firstname = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)
     room_num = models.CharField(max_length=100)

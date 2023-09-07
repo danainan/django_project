@@ -8,7 +8,7 @@
 
     
 </head>
-<link rel="stylesheet" href="{% static 'style.css' %}">
+
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"
     integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
@@ -53,6 +53,7 @@
         var ocrBtn = document.getElementById('ocr-btn');
         var text = document.getElementById('text');
         var tag = document.getElementById('tag');
+        var parcel_id = document.getElementById('parcel_id')
 
         var searchForm = document.getElementById('searchForm');
         var section2 = document.getElementById('section2');
@@ -65,7 +66,14 @@
 
         ocrBtn.addEventListener('click', function () {
             // text.innerHTML = '<div class="loader"></div><span>Loading...</span>';
-            text.innerHTML = '<div class="loader"><div class="justify-content-center jimu-primary-loading"></div';
+            // text.innerHTML = '<div class="loader"><div class="justify-content-center jimu-primary-loading"></div';
+            const loader = document.createElement('div')
+            loader.className = "justify-content-center jimu-primary-loading"
+            if ($("#image-container").is(":visible")) {
+                $("#image-container").append(loader);
+            } else if ($("#video-container").is(":visible")) {
+                $("#video-container").append(loader);
+            }
             
             
             fetch("{% url 'ocr' %}")
@@ -78,6 +86,8 @@
                 .then(data => {
                     text.innerHTML = data.text;
                     tag.value = data.tag;
+                    parcel_id.value = data.parcel_id
+                    loader.remove()
 
                     section2.scrollIntoView({behavior: "smooth"});
 
@@ -445,7 +455,11 @@
             <div class="col-md-12">
                 <div id="alert-container">
                     {% for message in messages %}
-                    <div class="alert alert-success">{{ message }}</div>
+                        {% if message.tags == 'success' %}
+                            <div class="alert alert-success">{{ message }}</div>
+                        {% elif message.tags == 'error' %}
+                            <div class="alert alert-danger">{{ message }}</div>
+                        {% endif %}
                     {% endfor %}
                 </div>
             </div>
@@ -583,8 +597,12 @@
                                         <i class="fa fa-search" aria-hidden="true"></i>
                                     </button>
                                 </div>
-                            
+                                <div class="input-group">
+                                    <span class="input-group-text" id="basic-addon1">รหัสพัสดุ</span>
+                                    <input type="text" id="parcel_id" value="{{parcel_id}}" class="form-control" name="parcel_id" readonly>
+                                </div>
                             </form>
+                            
                             
                         </div>
                     </div>
@@ -661,6 +679,8 @@
                 {% if result_parcels %}
                 <form action="{% url 'save_document' %}" method="post" enctype="multipart/form-data" class="form-control">
                     {% csrf_token %}
+                    <label for="firstname" class="header">รหัสพัสดุ</label>
+                    <input type="text" id="parcel_id" name="parcel_id" value="{{parcel_id}}" class="form-control" readonly>
                     <label for="firstname" class="header">ชื่อ</label>
                     <input type="text" name="firstname" value="{{result_parcels.firstname}}" class="form-control" readonly>
                     <label for="last_name" class="header">นามสกุล</label>

@@ -44,6 +44,7 @@
             border-radius: 1em;
             overflow: hidden;
         }
+        
 
         .table th {
             position: sticky;
@@ -132,6 +133,9 @@
                                         <a class="sort-link" href="?sort_name={{ sort_name_order }}">ชื่อ-นามสกุล <i class="fas fa-sort"></i></a>
                                     </th>
                                     <th scope="col">
+                                        <a class="sort-link">รหัสพัสดุ</a>
+                                    </th>
+                                    <th scope="col">
                                         <a class="sort-link" href="?sort={{ sort_order }}">วันที่พัสดุจัดส่ง <i class="fas fa-sort"></i></a>
                                     </th>
                                     <th scope="col"><span><input type="checkbox" id="select-all">
@@ -144,6 +148,7 @@
                                 <tr>
                                     <td>{{ document.room_num }}</td>
                                     <td>{{ document.firstname }} {{document.last_name}}</td>
+                                    <td>{{ document.parcel_id}}</td>
                                     <td>{{ document.date }}</td>
 
                                     <td>
