@@ -162,6 +162,7 @@ def save_img(request):
         os.remove(os.path.join(path, file))
 
 
+    messages.success(request, f'ส่งการเเจ้งเตือนเเล้ว')
     return redirect('summary')
 
 def line_notify(messeageLine, dateToday):
@@ -380,7 +381,11 @@ def users_add(request):
 
 def users_delete(request,roll):
     u=Users.objects.get(pk=roll)
+    fname = u.firstname
+    lname = u.last_name
     u.delete()
+
+    messages.success(request, f"ลบ {fname} {lname} เรียบร้อย")
 
     return redirect("/project/home")
 
@@ -430,6 +435,7 @@ def do_users_update(request, roll):
         project.line_id = project_line_id
         project.room_num = project_room_num
         project.save()
+        messages.success(request, f'แก้ไขข้อมูล {project_firstname} {project_last_name} เรียบร้อย')
 
         return redirect("/project/home")
 
@@ -449,6 +455,7 @@ def room_add(request):
             r.room_number = room_number
             r.room_capacity = room_capacity
             r.save()
+            messages.success(request, f'เพิ่มห้องพักหมายเลข {room_number} เรียบร้อย')
             return redirect("/project/home")
 
     return render(request, 'std/add_room.html', {})
@@ -484,7 +491,7 @@ def delete_room(request, room_id):
         else:
             deleted_room_number = room.room_number
             room.delete()
-            messages.success(request, f"ลบห้อง {deleted_room_number} เรียบร้อยแล้ว")
+            messages.success(request, f"ลบห้องพักหมายเลข {deleted_room_number} เรียบร้อยแล้ว")
         
     except DatabaseError as e:
         messages.error(request, f"มีผู้เข้าพักอยู่ในห้องนี้ ไม่สามารถลบห้องนี้ได้ {e}")
@@ -546,6 +553,7 @@ def update_room(request, room_id):
         room.room_number = new_room_number
         room.room_capacity = new_room_capacity
         room.save()
+        messages.success(request, f'แก้ไขข้อมูลห้องพักหมายเลข {new_room_number} เรียบร้อย')
         
         return redirect('rooms_list')
     
